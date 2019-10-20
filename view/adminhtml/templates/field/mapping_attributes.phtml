@@ -1,0 +1,39 @@
+<div class="admin__field-label">
+    <label>
+        <span><?php echo __('Mapping Attributes') ?></span>
+    </label>
+</div>
+<div class="admin__field-control" data-role="mapping_attributes">
+    <table>
+        <thead>
+            <th>Document Filed</th><th>Attribute Code</th></th><th></th>
+        </thead>
+        <tbody data-bind="foreach: rowData">
+            <tr data-bind="attr: {'data-id': rowId}">
+                <td><input type="text" name="field_attributes_csv" data-bind="value: csv, event: {keyup: parentModel.changeValue}, attr: {'data-id': rowId}"></td>
+                <td><input type="text" name="field_attributes_attribute" data-bind="value: attribute, event: {keyup: parentModel.changeValue}, attr: {'data-id': rowId}"></td>
+                <td><span data-bind="click: parentModel.actionRemove, attr: {'data-id': rowId}"><?php echo __('Remove') ?></span></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3">
+                    <span data-bind="click: actionAdd"><?php echo __('Add') ?></span>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div afterRender="decodeValueString"></div>
+</div>
+
+<script>
+    require([
+        'jquery',
+        'Tereta_Import/js/view/mapAttributes'
+    ], function ($, importAttributes) {
+        $('[data-role="mapping_attributes"]').each(function (index, element) {
+            importAttributes({fieldName: 'mapping_attribute'}, element);
+        });
+    });
+</script>

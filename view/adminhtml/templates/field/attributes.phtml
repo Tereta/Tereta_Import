@@ -1,0 +1,36 @@
+<div class="admin__field-label">
+    <label>
+        <span><?php echo $this->getData('label') ?></span>
+    </label>
+</div>
+<div class="admin__field-control" data-role="<?php echo $this->getData('code') ?>">
+    <table>
+        <thead>
+            <th>Attribute Code</th></th><th></th>
+        </thead>
+        <tbody data-bind="foreach: rowData">
+            <tr data-bind="attr: {'data-id': rowId}">
+                <td><input type="text" name="<?php echo $this->getData('code') ?>_attribute" data-bind="value: attribute, event: {keyup: parentModel.changeValue}, attr: {'data-id': rowId}"></td>
+                <td><span data-bind="click: parentModel.actionRemove, attr: {'data-id': rowId}"><?php echo __('Remove') ?></span></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3">
+                    <span data-bind="click: actionAdd"><?php echo __('Add') ?></span>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<script>
+    require([
+        'jquery',
+        'Tereta_Import/js/view/attributes'
+    ], function ($, importAttributes) {
+        $('[data-role="<?php echo $this->getData('code') ?>"]').each(function (index, element) {
+            importAttributes({fieldCode: '<?php echo $this->getData('code') ?>'}, element);
+        });
+    });
+</script>

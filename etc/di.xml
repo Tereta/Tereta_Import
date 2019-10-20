@@ -1,0 +1,61 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="advencedimport_listing_data_source" xsi:type="string">Tereta\Import\Model\ResourceModel\Import\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <virtualType name="Tereta\Import\Model\ResourceModel\Import\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">tereta_import</argument>
+            <argument name="resourceModel" xsi:type="string">Tereta\Import\Model\ResourceModel\Import</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="advencedImport" xsi:type="object">Tereta\Import\Console\Import</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Tereta\Import\Model\Import\Extract">
+        <arguments>
+            <argument name="models" xsi:type="array">
+                <item name="http" xsi:type="array">
+                    <item name="label" xsi:type="string">HTTP</item>
+                    <item name="class" xsi:type="object">Tereta\Import\Model\Import\Extract\Http</item>
+                </item>
+                <item name="upload" xsi:type="array">
+                    <item name="label" xsi:type="string">Upload File</item>
+                    <item name="class" xsi:type="object">Tereta\Import\Model\Import\Extract\Upload</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Tereta\Import\Model\Import\Process">
+        <arguments>
+            <argument name="models" xsi:type="array">
+                <item name="csv" xsi:type="array">
+                    <item name="label" xsi:type="string">CSV</item>
+                    <item name="class" xsi:type="object">Tereta\Import\Model\Import\Process\Csv</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Tereta\Import\Model\Core\Scope\Extension">
+        <arguments>
+            <argument name="registeredClasses" xsi:type="array">
+                <item name="url" xsi:type="string">Tereta\Import\Model\Core\Scope\Url</item>
+                <item name="stock" xsi:type="string">Tereta\Import\Model\Core\Scope\Stock</item>
+                <item name="media" xsi:type="string">Tereta\Import\Model\Core\Scope\Media</item>
+                <item name="category" xsi:type="string">Tereta\Import\Model\Core\Scope\Category</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Tereta\Import\Model\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">teretaImport</argument>
+        </arguments>
+    </type>
+</config>
