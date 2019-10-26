@@ -98,7 +98,7 @@ class Media extends AbstractDb
         $mediaGalleryUrlInsert = [];
 
         $connection = $this->getConnection();
-        $select = $connection->select(['value_id', 'url'])->from('tereta_import_media')->where('url IN (?)', $this->mediaImagesUrlCollected);
+        $select = $connection->select(['value_id', 'url'])->from($this->getTable('tereta_import_media'))->where('url IN (?)', $this->mediaImagesUrlCollected);
 
         $savedImages = [];
         foreach($connection->fetchAll($select) as $item){
@@ -136,7 +136,7 @@ class Media extends AbstractDb
 
         if ($mediaGalleryInsert) {
             $connection->insertArray(
-                'catalog_product_entity_media_gallery',
+                $this->getTable('catalog_product_entity_media_gallery'),
                 ['value_id', 'attribute_id', 'value', 'media_type', 'disabled'],
                 $mediaGalleryInsert
             );
@@ -144,7 +144,7 @@ class Media extends AbstractDb
 
         if ($mediaGalleryUrlInsert) {
             $connection->insertArray(
-                'tereta_import_media',
+                $this->getTable('tereta_import_media'),
                 ['value_id', 'url'],
                 $mediaGalleryUrlInsert
             );
@@ -179,7 +179,7 @@ class Media extends AbstractDb
 
         if ($mediaGalleryValueInsert) {
             $connection->insertOnDuplicate(
-                'catalog_product_entity_media_gallery_value',
+                $this->getTable('catalog_product_entity_media_gallery_value'),
                 $mediaGalleryValueInsert,
                 ['value_id', 'store_id', 'entity_id', 'label', 'position', 'disabled']
             );
@@ -187,7 +187,7 @@ class Media extends AbstractDb
 
         if ($mediaGalleryValueToEntityInsert){
             $connection->insertOnDuplicate(
-                'catalog_product_entity_media_gallery_value_to_entity',
+                $this->getTable('catalog_product_entity_media_gallery_value_to_entity'),
                 $mediaGalleryValueToEntityInsert,
                 ['value_id', 'entity_id']
             );
@@ -221,7 +221,7 @@ class Media extends AbstractDb
     public function getLastMediaGalleryId()
     {
         $connection = $this->getConnection();
-        $select = $connection->select('value_id')->from('catalog_product_entity_media_gallery')->order('value_id DESC')->limit(1);
+        $select = $connection->select('value_id')->from($this->getTable('catalog_product_entity_media_gallery'))->order('value_id DESC')->limit(1);
         return (integer) $connection->fetchOne($select);
     }
 }

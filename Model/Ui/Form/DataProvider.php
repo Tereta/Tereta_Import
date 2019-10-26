@@ -62,6 +62,9 @@ class DataProvider extends DataProviderExtend
             if ($data['type']) {
                 $this->_importModel->getExtractAdapter($data['type'])->decodeData($data);
             }
+
+            $data['product_assign_categories'] = $data['product_assign_categories'] ? json_decode($data['product_assign_categories']) : [];
+
             $this->_loadedData[$item->getId()] = $data;
         }
         

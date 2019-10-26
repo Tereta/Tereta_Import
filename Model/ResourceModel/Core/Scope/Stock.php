@@ -217,6 +217,7 @@ class Stock extends AbstractDb
         $connection = $this->getConnection();
 
         $stockId = 1; // In the feature need to get the ID from the system
+        $productIds = [];
         $storeId = $this->configuration->getData('store_id');
         $storeModel = $this->storeManager->getStore($storeId);
 
@@ -226,9 +227,13 @@ class Stock extends AbstractDb
         $stockStatusIds = [];
         foreach($stockDataRecords as $key=>$item) {
             array_push($stockStatusIds, $item['product_id']);
+
+            if (!in_array($productIds, $item['product_id'])) {
+                array_push($productIds, $item['product_id']);
+            }
         }
 
-        $select = $connection->select()->from('cataloginventory_stock_status');
+        $select = $connection->select()->from($this->getTable('cataloginventory_stock_status'));
         $select->where('product_id IN (?)', $stockStatusIds);
         $select->where('stock_id = ?', $stockId);
         $select->where('website_id = ?', $storeModel->getWebsiteId());
@@ -274,9 +279,12 @@ class Stock extends AbstractDb
         $stockStatusIds = [];
         foreach($stockItemDataRecords as $key=>$item) {
             array_push($stockStatusIds, $item['product_id']);
+            if (!in_array($productIds, $item['product_id'])) {
+                array_push($productIds, $item['product_id']);
+            }
         }
 
-        $select = $connection->select()->from('cataloginventory_stock_item');
+        $select = $connection->select()->from($this->getTable('cataloginventory_stock_item'));
         $select->where('product_id IN (?)', $stockStatusIds);
         $select->where('stock_id = ?', $stockId);
         $select->where('website_id = ?', $storeModel->getWebsiteId());
@@ -314,6 +322,15 @@ class Stock extends AbstractDb
             $connection->insertOnDuplicate($this->getTable('inventory_source_item'), $this->stockSourceDataRecords, ['source_code', 'sku']);
             $this->logger->debug("InsertOnDuplicate " . count($this->stockSourceDataRecords) . " records into the 'inventory_source_item' table");
         }
+
+        // Indexer
+        $time = time();
+        $this->indexerRegistry->get(\Magento\InventoryIndexer\Indexer\InventoryIndexer::INDEXER_ID)->reindexList($productIds);
+        $this->logger->debug('The ' . \Magento\InventoryIndexer\Indexer\InventoryIndexer::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+
+        $time = time();
+        $this->indexerRegistry->get(\Magento\CatalogInventory\Model\Indexer\Stock\Processor::INDEXER_ID)->reindexList($productIds);
+        $this->logger->debug('The ' . \Magento\CatalogInventory\Model\Indexer\Stock\Processor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
     }
 
     /**

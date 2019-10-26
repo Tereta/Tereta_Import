@@ -200,6 +200,11 @@
                 </item>
             </argument>
         </field>
+
+        <htmlContent name="generic_script">
+            <block class="Magento\Framework\View\Element\Template" name="generic_script" template="Tereta_Import::field/generic_script.phtml">
+            </block>
+        </htmlContent>
     </fieldset>
 
     <fieldset name="advencedimport_fieldset_products">
@@ -231,12 +236,21 @@
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Default Attribute Set</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="componentType" xsi:type="string">field</item>
+                    <item name="component" xsi:type="string">Magento_Catalog/js/components/attribute-set-select</item>
+                    <item name="filterOptions" xsi:type="boolean">true</item>
+                    <item name="chipsEnabled" xsi:type="boolean">true</item>
+                    <item name="disableLabel" xsi:type="boolean">true</item>
+                    <item name="levelsVisibility" xsi:type="string">1</item>
+                    <item name="multiple" xsi:type="boolean">false</item>
+                    <item name="elementTmpl" xsi:type="string">ui/grid/filters/elements/ui-select</item>
+
                     <item name="visible" xsi:type="boolean">true</item>
                     <item name="dataType" xsi:type="string">text</item>
-                    <item name="formElement" xsi:type="string">input</item>
                     <item name="source" xsi:type="string">advencedimport</item>
-                    <item name="default" xsi:type="string">4</item>
                 </item>
+                <item name="options" xsi:type="object">Tereta\Import\Model\Config\Source\AttributeSets</item>
             </argument>
         </field>
 
@@ -295,11 +309,21 @@
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Assign Processed Products to Categories</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="componentType" xsi:type="string">field</item>
+                    <item name="component" xsi:type="string">Magento_Catalog/js/components/new-category</item>
+                    <item name="filterOptions" xsi:type="boolean">true</item>
+                    <item name="chipsEnabled" xsi:type="boolean">true</item>
+                    <item name="disableLabel" xsi:type="boolean">true</item>
+                    <item name="levelsVisibility" xsi:type="string">1</item>
+                    <item name="multiple" xsi:type="boolean">true</item>
+                    <item name="elementTmpl" xsi:type="string">ui/grid/filters/elements/ui-select</item>
+
                     <item name="visible" xsi:type="boolean">true</item>
                     <item name="dataType" xsi:type="string">text</item>
-                    <item name="formElement" xsi:type="string">input</item>
                     <item name="source" xsi:type="string">advencedimport</item>
                 </item>
+                <item name="options" xsi:type="object">Tereta\Import\Model\Config\Source\Categories</item>
             </argument>
         </field>
     </fieldset>
@@ -495,7 +519,7 @@
             <item name="config" xsi:type="array">
                 <item name="label" xsi:type="string">HTTP</item>
                 <item name="collapsible" xsi:type="boolean">true</item>
-                <item name="additionalClasses" xsi:type="string">advencedimport_fieldset_extract advencedimport_fieldset_extract_http</item>
+                <item name="additionalClasses" xsi:type="string">advencedimport_fieldset_extract_type advencedimport_fieldset_extract_type_http</item>
             </item>
         </argument>
             
@@ -517,7 +541,7 @@
             <item name="config" xsi:type="array">
                 <item name="label" xsi:type="string">Upload File</item>
                 <item name="collapsible" xsi:type="boolean">true</item>
-                <item name="additionalClasses" xsi:type="string">advencedimport_fieldset_extract advencedimport_fieldset_extract_upload</item>
+                <item name="additionalClasses" xsi:type="string">advencedimport_fieldset_extract_type advencedimport_fieldset_extract_type_upload</item>
             </item>
         </argument>
 

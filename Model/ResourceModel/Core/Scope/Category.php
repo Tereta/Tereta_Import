@@ -3,6 +3,7 @@ namespace Tereta\Import\Model\ResourceModel\Core\Scope;
 
 use Magento\Framework\Model\ResourceModel\Db\Context;
 use Tereta\Import\Model\ResourceModel\Core\Scope\AbstractDb;
+use Magento\Framework\Indexer\IndexerRegistry;
 
 /**
  * Tereta\Import\Model\ResourceModel\Core\Scope\Category
@@ -13,9 +14,11 @@ use Tereta\Import\Model\ResourceModel\Core\Scope\AbstractDb;
 class Category extends AbstractDb
 {
     protected $collectedData = [];
+    protected $indexerRegistry;
 
-    public function __construct(Context $context, $connectionName = null)
+    public function __construct(IndexerRegistry $indexerRegistry, Context $context, $connectionName = null)
     {
+        $this->indexerRegistry = $indexerRegistry;
         parent::__construct($context, $connectionName);
     }
 
@@ -29,7 +32,7 @@ class Category extends AbstractDb
         if (!isset($data['product_category_ids']) || !$data['product_category_ids']) {
             return;
         }
-        $categoryIds = explode(";", $data['product_category_ids']);
+        $categoryIds = json_decode($data['product_category_ids']);
 
         foreach($categoryIds as $categoryId){
             $categoryId = trim($categoryId);
@@ -66,12 +69,25 @@ class Category extends AbstractDb
 
         if ($this->collectedData) {
             $connection->insertOnDuplicate(
-                'catalog_category_product',
+                $this->getTable('catalog_category_product'),
                 $this->collectedData,
                 ['entity_id', 'category_id', 'product_id', 'position']
             );
         }
 
         $this->logger->debug('Uploaded and saved ' . count($this->collectedData) . ' records in the "catalog_category_product" table, time spent: ' . (time() - $time) . 'sec.');
+
+        $productIds = [];
+        foreach($this->collectedData as $item){
+            array_push($productIds, $item['product_id']);
+        }
+
+        $time = time();
+        $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Category::INDEXER_ID)->reindexList($productIds);
+        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Category::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+
+        $time = time();
+        $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Category\Product::INDEXER_ID)->reindexList($productIds);
+        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Category\Product::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
     }
 }

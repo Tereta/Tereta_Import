@@ -364,12 +364,15 @@ class Scope extends AbstractModel
             $this->getResource()->commitTransaction();
             $this->logger->debug('DB transaction has beed commited, time spent: ' . (time() - $debugTime) . 'sec.');
 
-            // Save update time on main table and for apend value talbe
+            // Save update time on main table and for append value tables
             $this->getResource()->saveUpdateTimes($this->skuEntities, $updateStatisticAttributes);
 
             if ($this->getResource()->getStatisticFieldSkuSkipped()) {
                 $this->logger->warning('Can not find SKUs for field with value: "' . (implode('", "', $this->getResource()->getStatisticFieldSkuSkipped())) . '"');
             }
+
+            // Indexation common indexes
+            $this->getResource()->reindex($this->skuEntities);
 
             $this->logger->debug('DB transaction begin...');
             $this->getResource()->beginTransaction();

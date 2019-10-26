@@ -154,8 +154,8 @@ class Url extends AbstractDb
         $urlKeyValues = $connection->fetchAll($select);
 
         $insertRecords = [];
-        //$insertUpdateIdRecords = [];
         $updateRecords = [];
+        $deleteRecords = [];
 
         foreach($urlKeyValues as $item) {
             $value = $item['value'];
@@ -183,14 +183,19 @@ class Url extends AbstractDb
         $select->where("entity_id IN (?)", array_keys($insertRecords));
         $recordsInDb = $connection->fetchAll($select);
 
+        $insertRecordsFull = $insertRecords;
+
         foreach($recordsInDb as $item) {
             $entityId = $item['entity_id'];
-            $insertRecordItem = &$insertRecords[$entityId];
+
+            //if ($item['metadata'] !== null) {
+            //    array_push($deleteRecords, $item['url_rewrite_id']);
+            //    continue;
+            //}
+            $insertRecordItem = $insertRecordsFull[$entityId];
 
             if ($this->isRecordExists($item, $insertRecordItem)) {
-                //$insertUpdateIdRecords[$entityId] = $insertRecords[$entityId];
                 unset($insertRecords[$entityId]);
-                //$insertUpdateIdRecords[$entityId]['url_rewrite_id'] = $item['url_rewrite_id'];
             }
             else {
                 $updateRecords[$item['url_rewrite_id']] = $item;
@@ -209,10 +214,11 @@ class Url extends AbstractDb
         }
         $this->logger->debug("Insert " . count($insertRecords) . " records in the 'url_rewrite' table");
 
-        //if ($insertUpdateIdRecords) {
-        //    $connection->insertOnDuplicate($this->getTable('url_rewrite'), array_values($insertUpdateIdRecords));
-        //}
-        //$this->logger->debug("Insert " . count($insertUpdateIdRecords) . " records by ID into the 'url_rewrite' table");
+        if ($deleteRecords) {
+            $selectDelete = $connection->select()->from($this->getTable('url_rewrite'))->where('url_rewrite_id IN (?)', $deleteRecords);
+            $connection->deleteFromSelect($selectDelete, $this->getTable('url_rewrite'));
+        }
+        $this->logger->debug("Delete " . count($deleteRecords) . " records in the 'url_rewrite' table");
     }
 
     /**
@@ -224,7 +230,19 @@ class Url extends AbstractDb
     {
         $return = true;
         foreach($itemExists as $key=>$value) {
+            if ($key != "url_rewrite_id" && !array_key_exists($key, $insertUpdateRecordItem)) {
+                $return = false;
+                break;
+            }
+
             if ($key != "url_rewrite_id" && $insertUpdateRecordItem[$key] != $value) {
+                $return = false;
+                break;
+            }
+        }
+
+        foreach($insertUpdateRecordItem as $key=>$item) {
+            if ($key != "url_rewrite_id" && !array_key_exists($key, $itemExists)) {
                 $return = false;
                 break;
             }

@@ -81,14 +81,20 @@ class Import extends AbstractModel
         $this->getExtractAdapter()->import($this);
     }
 
-    public function import($identifier)
+    public function import($identifier = null)
     {
-        $this->load($identifier, 'identifier');
-        
-        if (!$this->getData('entity_id')) {
-            throw new \Exception('The configuration "' . $identifier . '" was not found.');
+        if ($identifier) {
+            $this->load($identifier, 'identifier');
         }
-        
+
+        if (!$this->getData('entity_id') && $identifier) {
+            throw new \Exception('The "' . $identifier . '" import configuration was not found to import.');
+        }
+
+        if (!$this->getData('entity_id')) {
+            throw new \Exception('The configuration was not found to import.');
+        }
+
         $this->getExtractAdapter()->import($this);
     }
 

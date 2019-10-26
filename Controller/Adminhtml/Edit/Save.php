@@ -16,7 +16,7 @@ class Save extends Action
         $this->modelImportFactory = $modelImportFactory;
         parent::__construct($context);
     }
-    
+
     protected function _isAllowed()
     {
         return $this->_authorization->isAllowed('Tereta_Import::import');
@@ -42,6 +42,8 @@ class Save extends Action
             if (isset($data['entity_id'])) {
                 $modelImport->load($data['entity_id']);
             }
+
+            $data['product_assign_categories'] = json_encode($data['product_assign_categories']);
 
             $modelImport->setData($data);
             $modelImport->save();

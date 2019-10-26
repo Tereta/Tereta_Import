@@ -9,6 +9,7 @@ use Magento\Framework\Model\ResourceModel\Db\Context;
 use Magento\Framework\DataObject;
 use Tereta\Import\Model\Logger;
 use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Indexer\IndexerRegistry;
 
 class Scope extends AbstractDb
 {
@@ -48,18 +49,28 @@ class Scope extends AbstractDb
     protected $statisticRowFieldSkuSkipped = [];
 
     /**
+     * @var IndexerRegistry
+     */
+    protected $indexerRegistry;
+
+    /**
      * Scope constructor.
+     * @param IndexerRegistry $indexerRegistry
+     * @param AttributeRepository $attributeRepository
+     * @param DataObjectFactory $dataObjectFactory
      * @param Context $context
      * @param Logger $logger
      * @param null $connectionName
      */
     public function __construct(
+        IndexerRegistry $indexerRegistry,
         AttributeRepository $attributeRepository,
         DataObjectFactory $dataObjectFactory,
         Context $context,
         Logger $logger,
         $connectionName = null
     ) {
+        $this->indexerRegistry = $indexerRegistry;
         $this->attributeRepository = $attributeRepository;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->logger = $logger;
@@ -170,6 +181,34 @@ class Scope extends AbstractDb
     }
 
     /**
+     *
+     */
+    public function reindex(DataObject $skuEntities)
+    {
+        $productIds = [];
+        foreach($skuEntities->getData() as $item) {
+            array_push($productIds, $item['entity_id']);
+        }
+
+        try{
+            $time = time();
+            $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID)->reindexList($productIds);
+            $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+        }
+        catch(\Exception $e) {
+            $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID . ' index is not avaliable.');
+        }
+
+        $time = time();
+        $this->indexerRegistry->get(\Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor::INDEXER_ID)->reindexList($productIds);
+        $this->logger->debug('The ' . \Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+
+        $time = time();
+        $this->indexerRegistry->get(\Magento\CatalogSearch\Model\Indexer\Fulltext\Processor::INDEXER_ID)->reindexList($productIds);
+        $this->logger->debug('The ' . \Magento\CatalogSearch\Model\Indexer\Fulltext\Processor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+    }
+
+    /**
      * @param DataObject $skuEntities
      * @param array $attributeTypeEntities
      */
@@ -178,7 +217,7 @@ class Scope extends AbstractDb
         $connection = $this->getConnection();
 
         if ($data = $this->fetchTypeValues(ScopeModel::ATTRIBUTE_TYPE_INT, $attributeTypeEntities)) {
-            $select = $connection->select()->from('catalog_product_entity_int');
+            $select = $connection->select()->from($this->getTable('catalog_product_entity_int'));
             foreach($data as $item) {
                 $select->orWhere('attribute_id = ' . $item['attribute_id'] . ' AND store_id = ' . $item['store_id'] . ' AND entity_id = ' . $item['entity_id']);
             }
@@ -186,7 +225,7 @@ class Scope extends AbstractDb
         }
 
         if ($data = $this->fetchTypeValues(ScopeModel::ATTRIBUTE_TYPE_DECIMAL, $attributeTypeEntities)) {
-            $select = $connection->select()->from('catalog_product_entity_decimal');
+            $select = $connection->select()->from($this->getTable('catalog_product_entity_decimal'));
             foreach($data as $item) {
                 $select->orWhere('attribute_id = ' . $item['attribute_id'] . ' AND store_id = ' . $item['store_id'] . ' AND entity_id = ' . $item['entity_id']);
             }
@@ -194,7 +233,7 @@ class Scope extends AbstractDb
         }
 
         if ($data = $this->fetchTypeValues(ScopeModel::ATTRIBUTE_TYPE_DATETIME, $attributeTypeEntities)) {
-            $select = $connection->select()->from('catalog_product_entity_datetime');
+            $select = $connection->select()->from($this->getTable('catalog_product_entity_datetime'));
             foreach($data as $item) {
                 $select->orWhere('attribute_id = ' . $item['attribute_id'] . ' AND store_id = ' . $item['store_id'] . ' AND entity_id = ' . $item['entity_id']);
             }
@@ -202,7 +241,7 @@ class Scope extends AbstractDb
         }
 
         if ($data = $this->fetchTypeValues(ScopeModel::ATTRIBUTE_TYPE_TEXT, $attributeTypeEntities)) {
-            $select = $connection->select()->from('catalog_product_entity_text');
+            $select = $connection->select()->from($this->getTable('catalog_product_entity_text'));
             foreach($data as $item) {
                 $select->orWhere('attribute_id = ' . $item['attribute_id'] . ' AND store_id = ' . $item['store_id'] . ' AND entity_id = ' . $item['entity_id']);
             }
@@ -210,7 +249,7 @@ class Scope extends AbstractDb
         }
 
         if ($data = $this->fetchTypeValues(ScopeModel::ATTRIBUTE_TYPE_VARCHAR, $attributeTypeEntities)) {
-            $select = $connection->select()->from('catalog_product_entity_varchar');
+            $select = $connection->select()->from($this->getTable('catalog_product_entity_varchar'));
             foreach($data as $item) {
                 $select->orWhere('attribute_id = ' . $item['attribute_id'] . ' AND store_id = ' . $item['store_id'] . ' AND entity_id = ' . $item['entity_id']);
             }
@@ -306,7 +345,7 @@ class Scope extends AbstractDb
      *
      * @param $attributeCode
      * @param $object
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException/home/tereta/Work/My/ExBuy/code
      */
     public function fillSkusByField($attributeCode, &$object)
     {
@@ -319,11 +358,11 @@ class Scope extends AbstractDb
         $attributeModel = $this->attributeRepository->get(ProductModel::ENTITY, $attributeCode);
 
         $connection = $this->getConnection();
-        $select = $connection->select('entity_id')->from(['source'=>'catalog_product_entity_' . $attributeModel->getBackendType()])
+        $select = $connection->select('entity_id')->from(['source'=>$this->getTable('catalog_product_entity_' . $attributeModel->getBackendType())])
             ->where('attribute_id = ?', $attributeModel->getAttributeId())->where('value = ?', $fieldValue)
             ->where('store_id IN (?)', [0, $this->configuration->getData('store_id')])->order('store_id DESC');
 
-        $select->join(['base'=>'catalog_product_entity'], 'base.entity_id = source.entity_id', ['sku']);
+        $select->join(['base'=>$this->getTable('catalog_product_entity')], 'base.entity_id = source.entity_id', ['sku']);
 
         $entityData = $connection->fetchRow($select);
         if (isset($entityData['sku'])) {
@@ -378,7 +417,7 @@ class Scope extends AbstractDb
         }
 
         $connection = $this->getConnection();
-        $select = $connection->select('entity_id')->from('catalog_product_entity')->order('entity_id DESC')->limit(1);
+        $select = $connection->select('entity_id')->from($this->getTable('catalog_product_entity'))->order('entity_id DESC')->limit(1);
         $entityIdCounter = (integer) $connection->fetchOne($select);
         $recordsInsert = [];
         foreach($skuEmpty as $sku => $item) {

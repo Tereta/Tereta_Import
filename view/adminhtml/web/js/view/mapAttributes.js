@@ -66,6 +66,10 @@ define(['jquery', 'ko', 'uiRegistry'], function($, ko, uiRegistry){
         {
             var _this = this;
             var mappingAttribute = uiRegistry.get('advencedimport_form.advencedimport_form_data_source').data.mapping_attribute;
+            if (typeof mappingAttribute == 'undefined') {
+                mappingAttribute = '[]';
+            }
+
             var data = JSON.parse(mappingAttribute);
             var rowData = [];
 

@@ -16,6 +16,7 @@
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="advencedImport" xsi:type="object">Tereta\Import\Console\Import</item>
+                <item name="advencedScheduler" xsi:type="object">Tereta\Import\Console\Scheduler</item>
             </argument>
         </arguments>
     </type>
