@@ -99,11 +99,11 @@ class Category extends AbstractDb
 
         $time = time();
         $this->indexerRegistry->get(\Magento\CatalogRule\Model\Indexer\Rule\RuleProductProcessor::INDEXER_ID)->reindexList($this->reindexProductIds);
-        $this->logger->debug('The ' . \Magento\CatalogRule\Model\Indexer\Rule\RuleProductProcessor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+        $this->logger->debug('The ' . \Magento\CatalogRule\Model\Indexer\Rule\RuleProductProcessor::INDEXER_ID . ' index with ' . count($this->reindexProductIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
 
         $time = time();
         $this->indexerRegistry->get(\Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor::INDEXER_ID)->reindexList($this->reindexProductIds);
-        $this->logger->debug('The ' . \Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+        $this->logger->debug('The ' . \Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor::INDEXER_ID . ' index with ' . count($this->reindexProductIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
 
     }
 }

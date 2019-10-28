@@ -48,6 +48,11 @@ class Stock extends AbstractDb
     protected $indexerRegistry;
 
     /**
+     * @var
+     */
+    protected $reindexProductIds;
+
+    /**
      * Stock constructor.
      * @param GetSourcesAssignedToStockOrderedByPriorityInterface $getSourcesAssignedToStockOrderedByPriority
      * @param StockResolverInterface $stockResolver
@@ -335,17 +340,19 @@ class Stock extends AbstractDb
         $this->reindexProductIds = $productIds;
     }
 
-    protected $reindexProductIds;
-
     public function reindex()
     {
+        if (!$this->reindexProductIds) {
+            return;
+        }
+
         $time = time();
         $this->indexerRegistry->get(\Magento\InventoryIndexer\Indexer\InventoryIndexer::INDEXER_ID)->reindexList($this->reindexProductIds);
-        $this->logger->debug('The ' . \Magento\InventoryIndexer\Indexer\InventoryIndexer::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+        $this->logger->debug('The ' . \Magento\InventoryIndexer\Indexer\InventoryIndexer::INDEXER_ID . ' index with ' . count($this->reindexProductIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
 
         $time = time();
         $this->indexerRegistry->get(\Magento\CatalogInventory\Model\Indexer\Stock\Processor::INDEXER_ID)->reindexList($this->reindexProductIds);
-        $this->logger->debug('The ' . \Magento\CatalogInventory\Model\Indexer\Stock\Processor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+        $this->logger->debug('The ' . \Magento\CatalogInventory\Model\Indexer\Stock\Processor::INDEXER_ID . ' index with ' . count($this->reindexProductIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
     }
 
     /**
