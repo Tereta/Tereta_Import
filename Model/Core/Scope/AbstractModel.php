@@ -103,4 +103,8 @@ abstract class AbstractModel extends AbstractModelSource
     public function saveAfter()
     {
     }
+
+    public function reindex()
+    {
+    }
 }

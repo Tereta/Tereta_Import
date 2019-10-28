@@ -159,6 +159,16 @@ class Extension extends AbstractModel
     }
 
     /**
+     * @throws \Exception
+     */
+    public function reindex()
+    {
+        foreach($this->registeredClasses as $key=>$item) {
+            $this->get($key)->reindex();
+        }
+    }
+
+    /**
      * @return array
      * @throws \Exception
      */

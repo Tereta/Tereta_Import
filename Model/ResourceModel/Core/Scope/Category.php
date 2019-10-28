@@ -82,12 +82,28 @@ class Category extends AbstractDb
             array_push($productIds, $item['product_id']);
         }
 
+        $this->reindexProductIds = $productIds;
+    }
+
+    protected $reindexProductIds;
+
+    public function reindex()
+    {
         $time = time();
-        $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Category::INDEXER_ID)->reindexList($productIds);
+        $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Category::INDEXER_ID)->reindexList($this->reindexProductIds);
         $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Category::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
 
         $time = time();
-        $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Category\Product::INDEXER_ID)->reindexList($productIds);
+        $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Category\Product::INDEXER_ID)->reindexList($this->reindexProductIds);
         $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Category\Product::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+
+        $time = time();
+        $this->indexerRegistry->get(\Magento\CatalogRule\Model\Indexer\Rule\RuleProductProcessor::INDEXER_ID)->reindexList($this->reindexProductIds);
+        $this->logger->debug('The ' . \Magento\CatalogRule\Model\Indexer\Rule\RuleProductProcessor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+
+        $time = time();
+        $this->indexerRegistry->get(\Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor::INDEXER_ID)->reindexList($this->reindexProductIds);
+        $this->logger->debug('The ' . \Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+
     }
 }

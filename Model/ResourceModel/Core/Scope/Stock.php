@@ -8,6 +8,7 @@ use Tereta\Import\Model\Logger;
 use Magento\InventorySalesApi\Api\StockResolverInterface;
 use Magento\InventorySalesApi\Api\Data\SalesChannelInterface;
 use Magento\InventoryApi\Api\GetSourcesAssignedToStockOrderedByPriorityInterface;
+use Magento\Framework\Indexer\IndexerRegistry;
 
 class Stock extends AbstractDb
 {
@@ -42,10 +43,16 @@ class Stock extends AbstractDb
     protected $stockSourceDataRecords = [];
 
     /**
+     * @var IndexerRegistry
+     */
+    protected $indexerRegistry;
+
+    /**
      * Stock constructor.
      * @param GetSourcesAssignedToStockOrderedByPriorityInterface $getSourcesAssignedToStockOrderedByPriority
      * @param StockResolverInterface $stockResolver
      * @param StoreManagerInterface $storeManager
+     * @param IndexerRegistry $indexerRegistry
      * @param Context $context
      * @param null $connectionName
      */
@@ -53,9 +60,11 @@ class Stock extends AbstractDb
         GetSourcesAssignedToStockOrderedByPriorityInterface $getSourcesAssignedToStockOrderedByPriority,
         StockResolverInterface $stockResolver,
         StoreManagerInterface $storeManager,
+        IndexerRegistry $indexerRegistry,
         Context $context,
         $connectionName = null
     ) {
+        $this->indexerRegistry = $indexerRegistry;
         $this->getSourcesAssignedToStockOrderedByPriority = $getSourcesAssignedToStockOrderedByPriority;
         $this->stockResolver = $stockResolver;
         $this->storeManager = $storeManager;
@@ -228,7 +237,7 @@ class Stock extends AbstractDb
         foreach($stockDataRecords as $key=>$item) {
             array_push($stockStatusIds, $item['product_id']);
 
-            if (!in_array($productIds, $item['product_id'])) {
+            if (!in_array($item['product_id'], $productIds)) {
                 array_push($productIds, $item['product_id']);
             }
         }
@@ -279,7 +288,7 @@ class Stock extends AbstractDb
         $stockStatusIds = [];
         foreach($stockItemDataRecords as $key=>$item) {
             array_push($stockStatusIds, $item['product_id']);
-            if (!in_array($productIds, $item['product_id'])) {
+            if (!in_array($item['product_id'], $productIds)) {
                 array_push($productIds, $item['product_id']);
             }
         }
@@ -323,13 +332,19 @@ class Stock extends AbstractDb
             $this->logger->debug("InsertOnDuplicate " . count($this->stockSourceDataRecords) . " records into the 'inventory_source_item' table");
         }
 
-        // Indexer
+        $this->reindexProductIds = $productIds;
+    }
+
+    protected $reindexProductIds;
+
+    public function reindex()
+    {
         $time = time();
-        $this->indexerRegistry->get(\Magento\InventoryIndexer\Indexer\InventoryIndexer::INDEXER_ID)->reindexList($productIds);
+        $this->indexerRegistry->get(\Magento\InventoryIndexer\Indexer\InventoryIndexer::INDEXER_ID)->reindexList($this->reindexProductIds);
         $this->logger->debug('The ' . \Magento\InventoryIndexer\Indexer\InventoryIndexer::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
 
         $time = time();
-        $this->indexerRegistry->get(\Magento\CatalogInventory\Model\Indexer\Stock\Processor::INDEXER_ID)->reindexList($productIds);
+        $this->indexerRegistry->get(\Magento\CatalogInventory\Model\Indexer\Stock\Processor::INDEXER_ID)->reindexList($this->reindexProductIds);
         $this->logger->debug('The ' . \Magento\CatalogInventory\Model\Indexer\Stock\Processor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
     }
 

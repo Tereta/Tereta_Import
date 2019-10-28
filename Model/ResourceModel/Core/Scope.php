@@ -190,6 +190,14 @@ class Scope extends AbstractDb
             array_push($productIds, $item['entity_id']);
         }
 
+        $time = time();
+        $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Eav\Processor::INDEXER_ID)->reindexList($productIds);
+        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Eav\Processor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+
+        $time = time();
+        $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Price\Processor::INDEXER_ID)->reindexList($productIds);
+        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Price\Processor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+
         try{
             $time = time();
             $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID)->reindexList($productIds);
@@ -198,10 +206,6 @@ class Scope extends AbstractDb
         catch(\Exception $e) {
             $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID . ' index is not avaliable.');
         }
-
-        $time = time();
-        $this->indexerRegistry->get(\Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor::INDEXER_ID)->reindexList($productIds);
-        $this->logger->debug('The ' . \Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
 
         $time = time();
         $this->indexerRegistry->get(\Magento\CatalogSearch\Model\Indexer\Fulltext\Processor::INDEXER_ID)->reindexList($productIds);

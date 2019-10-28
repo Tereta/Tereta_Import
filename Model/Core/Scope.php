@@ -371,9 +371,6 @@ class Scope extends AbstractModel
                 $this->logger->warning('Can not find SKUs for field with value: "' . (implode('", "', $this->getResource()->getStatisticFieldSkuSkipped())) . '"');
             }
 
-            // Indexation common indexes
-            $this->getResource()->reindex($this->skuEntities);
-
             $this->logger->debug('DB transaction begin...');
             $this->getResource()->beginTransaction();
 
@@ -382,6 +379,10 @@ class Scope extends AbstractModel
             $this->logger->debug('DB transaction commit...');
             $this->getResource()->commitTransaction();
             $this->logger->debug('DB transaction has beed commited, time spent: ' . (time() - $debugTime) . 'sec.');
+
+            // Indexation common indexes
+            $this->extension->reindex();
+            $this->getResource()->reindex($this->skuEntities);
 
             // Move to resource and do configuration!!
             if ($this->getResource()->getStatisticRowFieldSkuSkipped()) {
@@ -427,31 +428,37 @@ class Scope extends AbstractModel
         // NEED TO USE CONFIGURATION FOR THIS
         $attributes = array_merge($attributes, ['visibility', 'status']);
 
+        $attributesLoaded = [];
+        $attributesLoadedById = [];
         foreach ($attributes as $attributeCode) {
             if (in_array($attributeCode, $skipAttributes)) {
                 continue;
             }
 
             try {
-                $attributes[$attributeCode] = $this->attributeRepository->get(ProductModel::ENTITY, $attributeCode);
-                $attributes[$attributeCode]->setStoreId(0);
+                $attributesLoaded[$attributeCode] = $this->attributeRepository->get(ProductModel::ENTITY, $attributeCode);
+                $attributesLoaded[$attributeCode]->setStoreId(0);
+                $attributesLoadedById[$attributesLoaded[$attributeCode]->getAttributeId()] = &$attributesLoaded[$attributeCode];
 
-                $attributeType = $attributes[$attributeCode]->getBackendType();
+                $attributeType = $attributesLoaded[$attributeCode]->getBackendType();
                 if (!isset($this->attributeTypes[$attributeType])) {
                     $this->attributeTypes[$attributeType] = [];
                 }
                 array_push($this->attributeTypes[$attributeType], $attributeCode);
 
-                $this->_prepareAttributesOptions($attributes[$attributeCode]);
+                $this->_prepareAttributesOptions($attributesLoaded[$attributeCode]);
             } catch (\Exception $e) {
                 $this->logger->warning($e->getMessage());
             }
         }
 
-        $this->attributeModels = $this->_dataObjectFactory->create()->addData($attributes);
+        $this->attributeModels = $this->_dataObjectFactory->create()->setData($attributesLoaded);
+        $this->attributeModelsById = $this->_dataObjectFactory->create()->setData($attributesLoadedById);
 
         return $this;
     }
+
+    protected $attributeModelsById = [];
 
     /**
      * @param EavAttribute $attribute
@@ -723,7 +730,7 @@ class Scope extends AbstractModel
                 }
                 foreach ($skuArray[$sku] as $key => $item) {
                     if (!$this->attributeSet->isAllowedAttribute($skuData['attribute_set_id'], $item['attribute_id'])){
-                        $this->logger->warning('Attribute #' . $item['attribute_id'] . ' is not present in the #' . $skuData['attribute_set_id'] . '# attribute set');
+                        $this->logger->warning('The "' . $this->attributeModelsById->getData($item['attribute_id'])->getAttributeCode() . '" attribute is not present in the #' . $skuData['attribute_set_id'] . '# attribute set');
                         unset($skuArray[$sku][$key]);
                         continue;
                     }

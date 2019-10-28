@@ -41,4 +41,9 @@ abstract class AbstractDb extends FrameworkAbstractDb
         $this->configuration = $configuration;
         return $this;
     }
+
+    public function reindex()
+    {
+        
+    }
 }

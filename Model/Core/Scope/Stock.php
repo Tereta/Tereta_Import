@@ -110,4 +110,9 @@ class Stock extends AbstractModel
     {
         $this->getResource()->fillEntityIds($skuEntities);
     }
+
+    public function reindex()
+    {
+        $this->getResource()->reindex();
+    }
 }
