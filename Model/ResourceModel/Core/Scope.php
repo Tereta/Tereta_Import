@@ -192,24 +192,24 @@ class Scope extends AbstractDb
 
         $time = time();
         $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Eav\Processor::INDEXER_ID)->reindexList($productIds);
-        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Eav\Processor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Eav\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
 
         $time = time();
         $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Price\Processor::INDEXER_ID)->reindexList($productIds);
-        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Price\Processor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Price\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
 
         try{
             $time = time();
             $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID)->reindexList($productIds);
-            $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+            $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
         }
         catch(\Exception $e) {
-            $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID . ' index is not avaliable.');
+            $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products is not avaliable.');
         }
 
         $time = time();
         $this->indexerRegistry->get(\Magento\CatalogSearch\Model\Indexer\Fulltext\Processor::INDEXER_ID)->reindexList($productIds);
-        $this->logger->debug('The ' . \Magento\CatalogSearch\Model\Indexer\Fulltext\Processor::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+        $this->logger->debug('The ' . \Magento\CatalogSearch\Model\Indexer\Fulltext\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
     }
 
     /**
