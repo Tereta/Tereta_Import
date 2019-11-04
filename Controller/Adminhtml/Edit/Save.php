@@ -43,7 +43,9 @@ class Save extends Action
                 $modelImport->load($data['entity_id']);
             }
 
-            $data['product_assign_categories'] = json_encode($data['product_assign_categories']);
+            if (isset($data['product_assign_categories'])) {
+                $data['product_assign_categories'] = json_encode($data['product_assign_categories']);
+            }
 
             $modelImport->setData($data);
             $modelImport->save();
