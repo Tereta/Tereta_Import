@@ -415,6 +415,20 @@
             </argument>
         </field>
 
+        <htmlContent name="skip_document_fields">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="additionalClasses" xsi:type="string">admin__field</item>
+                </item>
+            </argument>
+            <block class="Magento\Framework\View\Element\Template" name="skip_document_fields" template="Tereta_Import::field/attributes.phtml">
+                <arguments>
+                    <argument name="label" xsi:type="string">Skip Document Fields</argument>
+                    <argument name="code" xsi:type="string">skip_document_fields</argument>
+                </arguments>
+            </block>
+        </htmlContent>
+
         <htmlContent name="skip_empty_attributes">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -423,7 +437,7 @@
             </argument>
             <block class="Magento\Framework\View\Element\Template" name="skip_empty_attributes" template="Tereta_Import::field/attributes.phtml">
                 <arguments>
-                    <argument name="label" xsi:type="string">Skip Document Fields</argument>
+                    <argument name="label" xsi:type="string">Skip Empty Fields</argument>
                     <argument name="code" xsi:type="string">skip_empty_attributes</argument>
                 </arguments>
             </block>

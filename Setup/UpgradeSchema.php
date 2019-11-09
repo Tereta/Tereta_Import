@@ -149,6 +149,20 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $setup->getConnection()->createTable($table);
         }
 
+        if (version_compare($context->getVersion(), '0.1.4', '<')) {
+            $connection = $setup->getConnection();
+            $connection->addColumn(
+                $setup->getTable('tereta_import'),
+                'skip_document_fields', // RENAME TO 'products_assign_categories'
+                [
+                    'type'     => Table::TYPE_TEXT,
+                    'nullable' => true,
+                    'comment'  => 'Skip Document Fields JSON',
+                    'default'  => false
+                ]
+            );
+        }
+
         $setup->endSetup();
     }
 }

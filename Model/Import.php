@@ -136,11 +136,18 @@ class Import extends AbstractModel
         $this->decodeData($data);
         $this->setData($data);
 
-        if ($skipFields = $this->getData('skip_empty_attributes')) { // Rename the field in the feature !!!!
-            $this->setData('skip_fields_object', $this->_dataObjectFactory->create(['data' => (array) json_decode($skipFields)]));
+        if ($skipDocumentFields = $this->getData('skip_document_fields')) {
+            $this->setData('skip_document_fields_object', $this->_dataObjectFactory->create(['data' => (array) json_decode($skipDocumentFields)]));
         }
         else {
-            $this->setData('skip_fields_object', $this->_dataObjectFactory->create());
+            $this->setData('skip_document_fields_object', $this->_dataObjectFactory->create());
+        }
+
+        if ($skipEmptyAttributes = $this->getData('skip_empty_attributes')) {
+            $this->setData('skip_empty_attributes_object', $this->_dataObjectFactory->create(['data' => (array) json_decode($skipEmptyAttributes)]));
+        }
+        else {
+            $this->setData('skip_empty_attributes_object', $this->_dataObjectFactory->create());
         }
 
         if ($clearEmptyAttributes = $this->getData('clear_empty_attributes')) {

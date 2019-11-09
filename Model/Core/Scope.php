@@ -237,13 +237,13 @@ class Scope extends AbstractModel
                 continue;
             }
 
-            if (in_array($key, $this->_configuration->getSkipFieldsObject()->getData())) {
+            if (in_array($key, $this->_configuration->getSkipDocumentFieldsObject()->getData())) {
                 continue;
             }
 
             $data[$this->_getMapAttribute(trim($key))] = trim($item);
         }
-
+        
         // Visibility and Status from configurations
         if (!isset($data['visibility']) && $this->_configuration->getData('products_visibility')) {
             $data['visibility'] = $this->_configuration->getData('products_visibility');
@@ -414,7 +414,7 @@ class Scope extends AbstractModel
 
         $attributes = [];
         foreach ($csvFields as $csvField) {
-            if (in_array($csvField, $this->_configuration->getSkipFieldsObject()->getData())) {
+            if (in_array($csvField, $this->_configuration->getSkipDocumentFieldsObject()->getData())) {
                 continue;
             }
 
@@ -548,6 +548,7 @@ class Scope extends AbstractModel
     {
         switch($attributeType){
             case('decimal') :
+                $value = str_replace(",", ".", $value);
                 $value = preg_replace("/[^0-9\.]/", "", $value);
         }
 
@@ -601,7 +602,9 @@ class Scope extends AbstractModel
                 continue;
             }
 
-            if ($value == '' && !in_array($attributeCode, $this->_configuration->getClearEmptyAttributesObject()->getData())) {
+            $skipEmptyAttributesObject = $this->_configuration->getSkipEmptyAttributesObject()->getData();
+
+            if (is_null($value) && in_array($attributeCode, $skipEmptyAttributesObject)) {
                 continue;
             }
 
