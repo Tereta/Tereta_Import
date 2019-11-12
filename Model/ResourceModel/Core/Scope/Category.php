@@ -32,8 +32,16 @@ class Category extends AbstractDb
         if (!isset($data['product_category_ids']) || !$data['product_category_ids']) {
             return;
         }
-        $categoryIds = json_decode($data['product_category_ids']);
+        $categoryIds = [];
 
+        if (trim($data['product_category_ids'])) {
+            $categoryIds = json_decode($data['product_category_ids']);
+        }
+
+        if (!is_array($categoryIds)) {
+            $categoryIds = [$categoryIds];
+        }
+        
         foreach($categoryIds as $categoryId){
             $categoryId = trim($categoryId);
 
