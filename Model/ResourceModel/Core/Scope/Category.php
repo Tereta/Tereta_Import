@@ -13,20 +13,41 @@ use Magento\Framework\Indexer\IndexerRegistry;
  */
 class Category extends AbstractDb
 {
+    /**
+     *
+     */
     protected $collectedData = [];
+
+    /**
+     *
+     */
     protected $indexerRegistry;
 
+    /**
+     *
+     */
+    protected $reindexProductIds;
+
+    /**
+     *
+     */
     public function __construct(IndexerRegistry $indexerRegistry, Context $context, $connectionName = null)
     {
         $this->indexerRegistry = $indexerRegistry;
         parent::__construct($context, $connectionName);
     }
 
+    /**
+     *
+     */
     protected function _construct()
     {
         $this->_init('catalog_category_product', 'entity_id');
     }
 
+    /**
+     *
+     */
     public function collect($data)
     {
         if (!isset($data['product_category_ids']) || !$data['product_category_ids']) {
@@ -56,6 +77,9 @@ class Category extends AbstractDb
         }
     }
 
+    /**
+     *
+     */
     public function fillEntityIds($skuIds)
     {
         foreach($this->collectedData as $key=>$item) {
@@ -70,6 +94,9 @@ class Category extends AbstractDb
         }
     }
 
+    /**
+     *
+     */
     public function saveProductCategories()
     {
         $connection = $this->getConnection();
@@ -93,8 +120,9 @@ class Category extends AbstractDb
         $this->reindexProductIds = $productIds;
     }
 
-    protected $reindexProductIds;
-
+    /**
+     *
+     */
     public function reindex()
     {
         $time = time();

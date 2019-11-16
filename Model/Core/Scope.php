@@ -151,6 +151,11 @@ class Scope extends AbstractModel
     protected $ioFile;
 
     /**
+     * @var array
+     */
+    protected $attributeModelsById = [];
+
+    /**
      * Scope constructor.
      * @param Context $context
      * @param Registry $registry
@@ -282,6 +287,10 @@ class Scope extends AbstractModel
         $this->_collectTypeValues(static::ATTRIBUTE_TYPE_VARCHAR, $data);
     }
 
+    /**
+     * @param $fieldLabel
+     * @return mixed|string|void
+     */
     protected function _getMapAttribute($fieldLabel)
     {
         $fieldLabel = trim($fieldLabel);
@@ -457,8 +466,6 @@ class Scope extends AbstractModel
 
         return $this;
     }
-
-    protected $attributeModelsById = [];
 
     /**
      * @param EavAttribute $attribute
@@ -652,8 +659,10 @@ class Scope extends AbstractModel
             $getValue = strtolower($getValue);
         }
 
-        if (isset($this->attributeOptionsReverce[$attributeCode]) && $this->attributeOptionsReverce[$attributeCode]->getData($getValue)) {
-            $value = $this->attributeOptionsReverce[$attributeCode]->getData($getValue);
+        $getValueEncoded = urlencode($getValue);
+
+        if (isset($this->attributeOptionsReverce[$attributeCode]) && $this->attributeOptionsReverce[$attributeCode]->getData($getValueEncoded)) {
+            $value = $this->attributeOptionsReverce[$attributeCode]->getData($getValueEncoded);
         } else {
             $this->_collectTypeValuesAddOptions($attributeCode, $value);
         }
@@ -705,9 +714,9 @@ class Scope extends AbstractModel
         }
 
         $this->attributeOptions[$attributeCode]->setData((integer)$optionId, $value);
-        $this->attributeOptionsReverce[$attributeCode]->setData($value, $optionId);
+        $this->attributeOptionsReverce[$attributeCode]->setData(urlencode($value), $optionId);
         if ($this->_configuration->getData('not_case_sensitive_options')) {
-            $this->attributeOptionsReverce[$attributeCode]->setData(strtolower($value), $optionId);
+            $this->attributeOptionsReverce[$attributeCode]->setData(urlencode(strtolower($value)), $optionId);
         }
 
         $value = $optionId;

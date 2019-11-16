@@ -127,6 +127,9 @@ class Scope extends AbstractDb
         return $connection->fetchAll($select);
     }
 
+    /**
+     * @param $skus
+     */
     public function saveEntityWebsite($skus)
     {
         $websiteId = $this->configuration->getWebsiteId();
