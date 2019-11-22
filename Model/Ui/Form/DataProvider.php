@@ -15,12 +15,35 @@ use Tereta\Import\Model\Import as ImportModel;
  */
 class DataProvider extends DataProviderExtend
 {
+    /**
+     * @var
+     */
     protected $_importCollection;
 
+    /**
+     * @var array
+     */
     protected $_loadedData = [];
-    
+
+    /**
+     * @var ImportModel
+     */
     protected $_importModel;
-    
+
+    /**
+     * DataProvider constructor.
+     * @param $name
+     * @param $primaryFieldName
+     * @param $requestFieldName
+     * @param ImportCollectionFactory $importCollectionFactory
+     * @param ReportingInterface $reporting
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param RequestInterface $request
+     * @param FilterBuilder $filterBuilder
+     * @param ImportModel $importModel
+     * @param array $meta
+     * @param array $data
+     */
     public function __construct(
         $name,
         $primaryFieldName,
@@ -49,7 +72,10 @@ class DataProvider extends DataProviderExtend
             $data
         );
     }
-    
+
+    /**
+     * @return array
+     */
     public function getData() {
         $items = $this->_importCollection->getItems();
 
@@ -58,6 +84,9 @@ class DataProvider extends DataProviderExtend
         }
         
         foreach ($items as $item) {
+            if (!$item->getCategoryId()) {
+                $item->setData('category_id', null);
+            }
             $data = $item->getData();
             if ($data['type']) {
                 $this->_importModel->getExtractAdapter($data['type'])->decodeData($data);

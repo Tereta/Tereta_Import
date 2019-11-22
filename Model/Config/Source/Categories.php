@@ -25,7 +25,7 @@ class Categories implements \Magento\Framework\Option\ArrayInterface
     {
         $data = [
             'value' => 0,
-             'is_active' => true
+            'is_active' => true
         ];
 
         $this->fillChildCategories($data);
