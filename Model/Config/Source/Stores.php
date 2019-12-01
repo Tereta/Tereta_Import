@@ -23,6 +23,7 @@ class Stores implements ArrayInterface
     {
         $return = [];
 
+        array_push($return, ['value' => 0, 'label' => __('All Store Views')]);
         foreach($this->_storeManager->getStores() as $storeModel){
             array_push($return, ['value' => $storeModel->getStoreId(), 'label' => $storeModel->getName()]);
         }

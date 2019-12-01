@@ -123,7 +123,7 @@
             </argument>
         </field>
 
-        <field name="type">1
+        <field name="type">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Type</item>

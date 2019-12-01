@@ -1,5 +1,5 @@
-define(['jquery', 'ko', 'uiRegistry'], function($, ko, uiRegistry){
-    var genericScript = function(config, element){
+define(['jquery', 'ko', 'uiRegistry', 'domReady!'], function($, ko, uiRegistry){
+    var genericScriptView = function(config, element){
         var self = this;
         this.config = config;
         this.element = element;
@@ -31,6 +31,8 @@ define(['jquery', 'ko', 'uiRegistry'], function($, ko, uiRegistry){
     }
 
     return function(config, element){
-        return new genericScript(config, element);
+        return new (function(config, element){
+            ko.applyBindings(new genericScriptView(config, element), element);
+        })(config, element);
     };
 });

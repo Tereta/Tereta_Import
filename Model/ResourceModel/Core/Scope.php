@@ -137,7 +137,7 @@ class Scope extends AbstractDb
         foreach ($skus->getData() as $item){
             array_push($arrayToInsert, [
                 'product_id' => $item['entity_id'],
-                'website_id' => 1 // ALEXDEB
+                'website_id' => $websiteId
             ]);
         }
 

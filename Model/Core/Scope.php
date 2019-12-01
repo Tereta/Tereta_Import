@@ -557,6 +557,12 @@ class Scope extends AbstractModel
             case('decimal') :
                 $value = str_replace(",", ".", $value);
                 $value = preg_replace("/[^0-9\.]/", "", $value);
+                $valueExploded = explode(".", $value);
+                if (count($valueExploded) > 1) {
+                    $cents = array_pop($valueExploded);
+                    $value = implode("", $valueExploded);
+                    $value .= '.' . $cents;
+                }
         }
 
         return $value;
@@ -655,7 +661,7 @@ class Scope extends AbstractModel
 
         $getValue = $value;
 
-        if ($getValue && $this->_configuration->getData('not_case_sensitive_options')) { // ALEXDEB to configuration
+        if ($getValue && $this->_configuration->getData('not_case_sensitive_options')) {
             $getValue = strtolower($getValue);
         }
 

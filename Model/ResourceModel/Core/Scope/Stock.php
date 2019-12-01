@@ -136,7 +136,7 @@ class Stock extends AbstractDb
         // Stock status
         $record = [
             'product_id' => null,
-            'website_id' => (string)$websiteId,
+            'website_id' => (string)0,
             'stock_id' => (string)$stockId
         ];
 
