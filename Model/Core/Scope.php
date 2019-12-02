@@ -488,10 +488,11 @@ class Scope extends AbstractModel
                 continue;
             }
             $optionsData->setData($item['value'], $item['label']);
-            $optionsDataReverce->setData((string)$item['label'], $item['value']);
+
+            $optionsDataReverce->setData(urlencode((string)$item['label']), $item['value']);
 
             if ($this->_configuration->getData('not_case_sensitive_options')) {
-                $optionsDataReverce->setData(strtolower((string)$item['label']), $item['value']);
+                $optionsDataReverce->setData(urlencode(strtolower((string)$item['label'])), $item['value']);
             }
         }
 
