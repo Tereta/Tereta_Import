@@ -8,11 +8,29 @@ use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\MediaStorage\Model\File\UploaderFactory;
 use Magento\Framework\Controller\ResultFactory;
 
+/**
+ * Class UploadFile
+ * @package Tereta\Import\Controller\Adminhtml\Edit
+ */
 class UploadFile extends Action
 {
+    /**
+     * @var UploaderFactory
+     */
     protected $uploaderFactory;
+
+    /**
+     * @var Filesystem\Directory\WriteInterface
+     */
     protected $varDirectory;
 
+    /**
+     * UploadFile constructor.
+     * @param Context $context
+     * @param Filesystem $filesystem
+     * @param UploaderFactory $uploaderFactory
+     * @throws \Magento\Framework\Exception\FileSystemException
+     */
     public function __construct(
         Context $context,
         Filesystem $filesystem,

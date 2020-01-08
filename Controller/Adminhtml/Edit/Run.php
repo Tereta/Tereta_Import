@@ -6,6 +6,10 @@ use Magento\Backend\App\Action\Context;
 use Tereta\Import\Model\ImportFactory;
 use Magento\Framework\View\Result\PageFactory;
 
+/**
+ * Class Run
+ * @package Tereta\Import\Controller\Adminhtml\Edit
+ */
 class Run extends Action
 {
     /**

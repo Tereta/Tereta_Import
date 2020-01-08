@@ -15,17 +15,67 @@ use Tereta\Import\Model\Core\ScopeFactory as ScopeFactory;
 
 class Csv
 {
+    /**
+     * @var DataObjectFactory
+     */
     protected $_dataObjectFactory;
+
+    /**
+     * @var ScopeFactory
+     */
     protected $_scopeFactory;
+
+    /**
+     * @var State
+     */
     protected $_state;
+
+    /**
+     * @var DirectoryList
+     */
     protected $_dir;
+
+    /**
+     * @var
+     */
     protected $_storeManager;
+
+    /**
+     * @var IndexerFactory
+     */
     protected $_indexerFactory;
+
+    /**
+     * @var Logger
+     */
     protected $_logger;
+
+    /**
+     * @var
+     */
     protected $_commandOutput;
+
+    /**
+     * @var CsvFactory
+     */
     protected $_csvFactory;
+
+    /**
+     * @var Filesystem
+     */
     protected $_filesystem;
 
+    /**
+     * Csv constructor.
+     * @param Filesystem $filesystem
+     * @param CsvFactory $csvFactory
+     * @param ScopeFactory $scopeFactory
+     * @param State $_state
+     * @param Logger $logger
+     * @param DirectoryList $dir
+     * @param DataObjectFactory $dataObjectFactory
+     * @param IndexerFactory $indexerFactory
+     */
     public function __construct(
         Filesystem $filesystem,
         CsvFactory $csvFactory,

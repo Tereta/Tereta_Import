@@ -13,10 +13,27 @@ use Magento\Framework\Api\FilterBuilder;
  */
 class AttributeSets implements \Magento\Framework\Option\ArrayInterface
 {
+    /**
+     * @var AttributeSetRepositoryInterface
+     */
     protected $attributeSetRepository;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
     protected $searchCriteriaBuilder;
+
+    /**
+     * @var FilterBuilder
+     */
     protected $filterBuilder;
 
+    /**
+     * AttributeSets constructor.
+     * @param AttributeSetRepositoryInterface $attributeSetRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param FilterBuilder $filterBuilder
+     */
     public function __construct(AttributeSetRepositoryInterface $attributeSetRepository,  SearchCriteriaBuilder $searchCriteriaBuilder, FilterBuilder $filterBuilder)
     {
         $this->filterBuilder = $filterBuilder;
@@ -24,6 +41,9 @@ class AttributeSets implements \Magento\Framework\Option\ArrayInterface
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
+    /**
+     * @return array
+     */
     public function toOptionArray()
     {
         $dataList = [];

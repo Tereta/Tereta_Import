@@ -15,8 +15,16 @@ class Data extends AbstractHelper
 {
     const DIR_PATH = 'catalog/product';
 
+    /**
+     * @var DirectoryList
+     */
     protected $directoryList;
 
+    /**
+     * Data constructor.
+     * @param DirectoryList $directoryList
+     * @param Context $context
+     */
     public function __construct(
         DirectoryList $directoryList,
         Context $context
@@ -25,6 +33,11 @@ class Data extends AbstractHelper
         parent::__construct($context);
     }
 
+    /**
+     * @param $url
+     * @return array
+     * @throws \Magento\Framework\Exception\FileSystemException
+     */
     public function getLocalFilePath($url)
     {
         $dirPath = $this->directoryList->getPath('media') . '/' . static::DIR_PATH;

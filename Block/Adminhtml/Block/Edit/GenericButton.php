@@ -11,13 +11,25 @@ use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
  * Class GenericButton
+ * @package Tereta\Import\Block\Adminhtml\Block\Edit
  */
 class GenericButton
 {
+    /**
+     * @var Context
+     */
     protected $context;
 
+    /**
+     * @var \Tereta\Import\Model\Import
+     */
     protected $_modelImport;
 
+    /**
+     * GenericButton constructor.
+     * @param Context $context
+     * @param ModelImportFactory $modelImportFactory
+     */
     public function __construct(
         Context $context,
         ModelImportFactory $modelImportFactory
@@ -26,6 +38,9 @@ class GenericButton
         $this->_modelImport = $modelImportFactory->create();
     }
 
+    /**
+     * @return mixed|null
+     */
     public function getEntityId()
     {
         try {

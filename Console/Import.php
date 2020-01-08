@@ -10,19 +10,32 @@ use Tereta\Import\Model\ImportFactory;
 
 /**
  * php bin/magento advenced:import test
+ *
+ * Class Import
+ * @package Tereta\Import\Console
  */
 class Import extends Command
 {
     const KEY_IMPORT_IDENTIFIER = 'key_import_identifier';
 
+    /**
+     * @var ImportFactory
+     */
     protected $_importFactory;
 
+    /**
+     * Import constructor.
+     * @param ImportFactory $importFactory
+     */
     public function __construct(ImportFactory $importFactory) {
         $this->_importFactory = $importFactory;
         
         parent::__construct();
     }
-    
+
+    /**
+     *
+     */
     protected function configure()
     {
         $this->setName('advenced:import')
@@ -36,6 +49,11 @@ class Import extends Command
         parent::configure();
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int|void|null
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $identifier = $input->getArgument(static::KEY_IMPORT_IDENTIFIER);

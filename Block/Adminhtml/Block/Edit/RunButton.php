@@ -12,6 +12,9 @@ use Tereta\Import\Block\Adminhtml\Block\Edit\RunButton\Template as RunButtonTemp
  */
 class RunButton extends GenericButton implements ButtonProviderInterface
 {
+    /**
+     * @return array
+     */
     public function getButtonData()
     {
         return [

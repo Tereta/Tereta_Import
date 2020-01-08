@@ -12,6 +12,9 @@ use Magento\Catalog\Model\Product\Visibility as VisibilitySource;
  */
 class Visibility extends VisibilitySource
 {
+    /**
+     * @return array
+     */
     public static function getOptionArray()
     {
         $array = parent::getOptionArray();
@@ -20,6 +23,9 @@ class Visibility extends VisibilitySource
         return $array;
     }
 
+    /**
+     * @return array
+     */
     public static function getAllOptions()
     {
         $res = [];

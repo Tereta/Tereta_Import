@@ -10,6 +10,10 @@ use Magento\InventorySalesApi\Api\Data\SalesChannelInterface;
 use Magento\InventoryApi\Api\GetSourcesAssignedToStockOrderedByPriorityInterface;
 use Magento\Framework\Indexer\IndexerRegistry;
 
+/**
+ * Class Stock
+ * @package Tereta\Import\Model\ResourceModel\Core\Scope
+ */
 class Stock extends AbstractDb
 {
     /**
@@ -340,6 +344,9 @@ class Stock extends AbstractDb
         $this->reindexProductIds = $productIds;
     }
 
+    /**
+     *
+     */
     public function reindex()
     {
         if (!$this->reindexProductIds) {

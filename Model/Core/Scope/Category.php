@@ -19,22 +19,34 @@ use Tereta\Import\Model\ResourceModel\Core\Scope\Category as CategoryResource;
  */
 class Category extends AbstractModel
 {
+    /**
+     *
+     */
     protected function _construct()
     {
         $this->_init(CategoryResource::class);
         $this->getResource()->setConfiguration($this->configuration)->setLogger($this->logger);
     }
 
+    /**
+     * @param $data
+     */
     public function collect(&$data)
     {
         $this->getResource()->collect($data);
     }
 
+    /**
+     * @param $skuIds
+     */
     public function fillEntityIds($skuIds)
     {
         $this->getResource()->fillEntityIds($skuIds);
     }
 
+    /**
+     *
+     */
     public function save()
     {
         $this->getResource()->saveProductCategories();

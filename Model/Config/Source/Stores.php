@@ -13,12 +13,22 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Stores implements ArrayInterface
 {
+    /**
+     * @var StoreManagerInterface
+     */
     protected $_storeManager;
 
+    /**
+     * Stores constructor.
+     * @param StoreManagerInterface $storeManager
+     */
     public function __construct(StoreManagerInterface $storeManager) {
         $this->_storeManager = $storeManager;
     }
 
+    /**
+     * @return array
+     */
     public function toOptionArray()
     {
         $return = [];

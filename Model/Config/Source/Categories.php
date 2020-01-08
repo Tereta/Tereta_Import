@@ -12,15 +12,30 @@ use Magento\Catalog\Api\CategoryRepositoryInterface;
  */
 class Categories implements \Magento\Framework\Option\ArrayInterface
 {
+    /**
+     * @var
+     */
     protected $categoryTree;
+
+    /**
+     * @var CategoryRepositoryInterface
+     */
     protected $categoryRepository;
 
+    /**
+     * Categories constructor.
+     * @param CategoryFactory $categoryFactory
+     * @param CategoryRepositoryInterface $categoryRepository
+     */
     public function __construct(CategoryFactory $categoryFactory, CategoryRepositoryInterface $categoryRepository)
     {
         $this->categoryFactory = $categoryFactory;
         $this->categoryRepository = $categoryRepository;
     }
 
+    /**
+     * @return array|mixed
+     */
     public function toOptionArray()
     {
         $data = [
@@ -36,6 +51,9 @@ class Categories implements \Magento\Framework\Option\ArrayInterface
         return $data;
     }
 
+    /**
+     * @param $data
+     */
     protected function fillChildCategories(&$data)
     {
         $childCategories = $this->getCategoriesByParent($data['value']);
@@ -56,6 +74,10 @@ class Categories implements \Magento\Framework\Option\ArrayInterface
         }
     }
 
+    /**
+     * @param $parentId
+     * @return \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
+     */
     protected function getCategoriesByParent($parentId)
     {
         $categoryCollection = $this->categoryFactory->create()->getCollection();

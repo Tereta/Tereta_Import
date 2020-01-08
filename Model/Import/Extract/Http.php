@@ -9,10 +9,22 @@ use Tereta\Import\Model\Import\Extract\AbstractModel;
 class Http extends AbstractModel
 {
     const DIR_PATH = "import/http_url";
-    
+
+    /**
+     * @var DirectoryList
+     */
     protected $_directoryList;
+
+    /**
+     * @var IoFile
+     */
     protected $_ioFile;
-    
+
+    /**
+     * Http constructor.
+     * @param DirectoryList $directoryList
+     * @param IoFile $ioFile
+     */
     public function __construct(
         DirectoryList $directoryList,
         IoFile $ioFile
@@ -20,7 +32,11 @@ class Http extends AbstractModel
         $this->_directoryList = $directoryList;
         $this->_ioFile = $ioFile;
     }
-    
+
+    /**
+     * @param $dataModel
+     * @throws \Magento\Framework\Exception\FileSystemException
+     */
     public function import($dataModel)
     {
         if (!$dataModel->getData('http_url')) {
@@ -44,7 +60,10 @@ class Http extends AbstractModel
         
         unlink($filePath);
     }
-    
+
+    /**
+     * @param $data
+     */
     public function encodeData(&$data)
     {
         $jsonData = [];
@@ -52,7 +71,10 @@ class Http extends AbstractModel
         
         $data['additional_data'] = json_encode($jsonData);
     }
-    
+
+    /**
+     * @param $data
+     */
     public function decodeData(&$data)
     {
         if (!$data['additional_data']) {

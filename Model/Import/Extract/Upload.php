@@ -9,10 +9,22 @@ use Tereta\Import\Model\Import\Extract\AbstractModel;
 class Upload extends AbstractModel
 {
     const DIR_PATH = "import/uploaded_file";
-    
+
+    /**
+     * @var
+     */
     protected $_directoryList;
+
+    /**
+     * @var
+     */
     protected $_ioFile;
-    
+
+    /**
+     * Upload constructor.
+     * @param DirectoryList $directoryList
+     * @param IoFile $ioFile
+     */
     public function __construct(
         DirectoryList $directoryList,
         IoFile $ioFile
@@ -20,7 +32,11 @@ class Upload extends AbstractModel
         $this->directoryList = $directoryList;
         $this->ioFile = $ioFile;
     }
-    
+
+    /**
+     * @param $dataModel
+     * @throws \Magento\Framework\Exception\FileSystemException
+     */
     public function import($dataModel)
     {
         $importDir = $this->directoryList->getPath('var') . '/import/upload_file/';
@@ -39,6 +55,10 @@ class Upload extends AbstractModel
         $dataModel->processDocument($importDir . $uploadFile);
     }
 
+    /**
+     * @param $object
+     * @throws \Magento\Framework\Exception\FileSystemException
+     */
     public function afterSave($object)
     {
         $data = $object->getData();
@@ -63,6 +83,9 @@ class Upload extends AbstractModel
         }
     }
 
+    /**
+     * @param $data
+     */
     public function encodeData(&$data)
     {
         $dataUploadFile = null;
@@ -72,7 +95,10 @@ class Upload extends AbstractModel
             $data['additional_data'] = json_encode($dataUploadFile);
         }
     }
-    
+
+    /**
+     * @param $data
+     */
     public function decodeData(&$data)
     {
         if (!$data['additional_data']) {

@@ -5,6 +5,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 
+/**
+ * Class Logger
+ * @package Tereta\Import\Model
+ */
 class Logger extends \Monolog\Logger
 {
     const XML_PATH_CONFIGURATION_DEBUG = 'teretaimport/configuration/debug';

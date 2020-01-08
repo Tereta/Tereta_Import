@@ -52,6 +52,9 @@ class Stock extends AbstractModel
         ];
     }
 
+    /**
+     * @return array
+     */
     public function getIncludeAttributes()
     {
         return ['quantity_and_stock_status'];
@@ -111,6 +114,9 @@ class Stock extends AbstractModel
         $this->getResource()->fillEntityIds($skuEntities);
     }
 
+    /**
+     *
+     */
     public function reindex()
     {
         $this->getResource()->reindex();

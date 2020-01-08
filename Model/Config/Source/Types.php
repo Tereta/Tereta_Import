@@ -13,8 +13,15 @@ use Tereta\Import\Model\Import as ImportModel;
  */
 class Types implements \Magento\Framework\Option\ArrayInterface
 {
+    /**
+     * @var ImportModel
+     */
     protected $_importModel;
-    
+
+    /**
+     * Types constructor.
+     * @param ImportModel $importModel
+     */
     public function __construct(ImportModel $importModel) {
         $this->_importModel = $importModel;
     }

@@ -8,20 +8,47 @@ use Magento\Framework\Model\ResourceModel\Db\Context;
 use Tereta\Import\Model\ResourceModel\Core\Scope\AbstractDb;
 use Tereta\Import\Helper\Data as DataHelper;
 
+/**
+ * Class Media
+ * @package Tereta\Import\Model\ResourceModel\Core\Scope
+ */
 class Media extends AbstractDb
 {
     const MEDIA_GALLERY_ATTRIBUTE_CODE = 'media_gallery';
 
+    /**
+     * @var AttributeRepository
+     */
     protected $attributeRepository;
 
+    /**
+     * @var DataHelper
+     */
     protected $dataHelper;
 
+    /**
+     * @var IoFile
+     */
     protected $ioFile;
 
+    /**
+     * @var array
+     */
     protected $mediaImagesCollected = [];
 
+    /**
+     * @var array
+     */
     protected $mediaImagesUrlCollected = [];
 
+    /**
+     * Media constructor.
+     * @param IoFile $ioFile
+     * @param DataHelper $dataHelper
+     * @param AttributeRepository $attributeRepository
+     * @param Context $context
+     * @param null $connectionName
+     */
     public function __construct(
         IoFile $ioFile,
         DataHelper $dataHelper,
@@ -35,11 +62,19 @@ class Media extends AbstractDb
         parent::__construct($context, $connectionName);
     }
 
+    /**
+     *
+     */
     protected function _construct()
     {
         $this->_init('catalog_product_entity_media_gallery', 'entity_id');
     }
 
+    /**
+     * @param $sku
+     * @param $data
+     * @param $mediaImageUrlString
+     */
     public function collect($sku, &$data, $mediaImageUrlString)
     {
         if (!trim($mediaImageUrlString)) {
@@ -89,6 +124,9 @@ class Media extends AbstractDb
         }
     }
 
+    /**
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     public function saveCollectedMedia()
     {
         $time = time();
@@ -196,6 +234,11 @@ class Media extends AbstractDb
         $this->logger->debug('Assigning (updating) to products ' . count($this->mediaImagesCollected) . ' images, time spent: ' . (time() - $time) . 'sec.');
     }
 
+    /**
+     * @param $url
+     * @return mixed
+     * @throws \Magento\Framework\Exception\FileSystemException
+     */
     protected function downloadRemoteImage($url)
     {
         list($fullPath, $filePath) = $this->dataHelper->getLocalFilePath($url);
@@ -211,6 +254,9 @@ class Media extends AbstractDb
         return $filePath;
     }
 
+    /**
+     * @param $skuEntities
+     */
     public function fillEntityIds($skuEntities)
     {
         foreach($this->mediaImagesCollected as $key => $item){
@@ -218,6 +264,9 @@ class Media extends AbstractDb
         }
     }
 
+    /**
+     * @return int
+     */
     public function getLastMediaGalleryId()
     {
         $connection = $this->getConnection();

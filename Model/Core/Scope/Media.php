@@ -18,22 +18,34 @@ use Tereta\Import\Model\ResourceModel\Core\Scope\Media as MediaResource;
  */
 class Media extends AbstractModel
 {
+    /**
+     *
+     */
     protected function _construct()
     {
         $this->_init(MediaResource::class);
         $this->getResource()->setConfiguration($this->configuration)->setLogger($this->logger);
     }
 
+    /**
+     * @return string
+     */
     protected function getMediaImageField()
     {
         return 'image_url';
     }
 
+    /**
+     * @return array
+     */
     public function getSkipAttributes()
     {
         return [$this->getMediaImageField()];
     }
 
+    /**
+     * @param $data
+     */
     public function collect(&$data)
     {
         if (!isset($data[$this->getMediaImageField()]) || !$data[$this->getMediaImageField()]) {
@@ -42,16 +54,25 @@ class Media extends AbstractModel
         $this->getResource()->collect($data['sku'], $data, $data[$this->getMediaImageField()]);
     }
 
+    /**
+     * @param $skuEntities
+     */
     public function fillEntityIds($skuEntities)
     {
         $this->getResource()->fillEntityIds($skuEntities);
     }
 
+    /**
+     * @return array
+     */
     public function getIncludeAttributes()
     {
         return ['image', 'small_image', 'swatch_image', 'thumbnail'];
     }
 
+    /**
+     *
+     */
     public function save()
     {
         $this->getResource()->saveCollectedMedia();

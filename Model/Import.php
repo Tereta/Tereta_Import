@@ -14,18 +14,59 @@ use Tereta\Import\Model\Import\Process as ImportProcess;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class Import
+ * @package Tereta\Import\Model
+ */
 class Import extends AbstractModel
 {
+    /**
+     * @var ImportExtract
+     */
     protected $_extractor;
+
+    /**
+     * @var ImportProcess
+     */
     protected $_processor;
+
+    /**
+     * @var
+     */
     protected $_commandOutput;
+
+    /**
+     * @var StoreManagerInterface
+     */
     protected $_storeManager;
+
+    /**
+     * @var
+     */
     protected $htmlOutput;
 
-
+    /**
+     * @var DataObjectFactory
+     */
     protected $_dataObjectFactory;
+
+    /**
+     * @var array
+     */
     protected $_adapter = [];
 
+    /**
+     * Import constructor.
+     * @param ImportProcess $importProcess
+     * @param ImportExtract $importExtract
+     * @param Context $context
+     * @param Registry $registry
+     * @param DataObjectFactory $dataObjectFactory
+     * @param StoreManagerInterface $storeManager
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param array $data
+     */
     public function __construct(
         ImportProcess $importProcess,
         ImportExtract $importExtract,
@@ -44,12 +85,20 @@ class Import extends AbstractModel
         
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
     }
-    
+
+    /**
+     *
+     */
     protected function _construct()
     {
         $this->_init('Tereta\Import\Model\ResourceModel\Import');
     }
-    
+
+    /**
+     * @param null $adapterIdentifier
+     * @return mixed
+     * @throws \Exception
+     */
     public function getExtractAdapter($adapterIdentifier = null)
     {
         if (!$adapterIdentifier) {
@@ -58,18 +107,29 @@ class Import extends AbstractModel
         
         return $this->_extractor->getAdapter($adapterIdentifier);
     }
-    
+
+    /**
+     * @return mixed
+     */
     public function getExtractAdapters()
     {
         return $this->_extractor->getData();
     }
 
+    /**
+     * @param OutputInterface $output
+     * @return $this
+     */
     public function setCommandOutput(OutputInterface $output)
     {
         $this->_commandOutput = $output;
         return $this;
     }
 
+    /**
+     * @param $id
+     * @throws \Exception
+     */
     public function importById($id)
     {
         $this->load($id, 'entity_id');
@@ -81,6 +141,10 @@ class Import extends AbstractModel
         $this->getExtractAdapter()->import($this);
     }
 
+    /**
+     * @param null $identifier
+     * @throws \Exception
+     */
     public function import($identifier = null)
     {
         if ($identifier) {
@@ -98,6 +162,10 @@ class Import extends AbstractModel
         $this->getExtractAdapter()->import($this);
     }
 
+    /**
+     * @param $data
+     * @throws \Exception
+     */
     public function encodeData(&$data)
     {
         if (!$this->getExtractAdapter()) {
@@ -106,7 +174,11 @@ class Import extends AbstractModel
         
         $this->getExtractAdapter()->encodeData($data);
     }
-    
+
+    /**
+     * @param $data
+     * @throws \Exception
+     */
     public function decodeData(&$data)
     {
         if (!$this->getExtractAdapter()) {
@@ -115,7 +187,11 @@ class Import extends AbstractModel
         
         $this->getExtractAdapter()->decodeData($data);
     }
-    
+
+    /**
+     * @return AbstractModel|void
+     * @throws \Exception
+     */
     public function beforeSave() {
         if (!$this->getData('type')) {
             return;
@@ -126,7 +202,11 @@ class Import extends AbstractModel
 
         return parent::beforeSave();
     }
-    
+
+    /**
+     * @return AbstractModel|void
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     public function afterLoad() {
         if (!$this->getData('type')) {
             return;
@@ -174,11 +254,18 @@ class Import extends AbstractModel
         return parent::afterLoad();
     }
 
+    /**
+     * @param $boolean
+     */
     public function setHtmlOutput($boolean)
     {
         $this->htmlOutput = $boolean;
     }
 
+    /**
+     * @param $file
+     * @throws \Exception
+     */
     public function processDocument($file)
     {
         $processAdaptor = $this->_processor->getAdapter('csv');

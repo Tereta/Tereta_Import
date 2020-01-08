@@ -5,10 +5,22 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Tereta\Import\Model\ImportFactory as ModelImportFactory;
 
+/**
+ * Class Save
+ * @package Tereta\Import\Controller\Adminhtml\Edit
+ */
 class Save extends Action
 {
+    /**
+     * @var ModelImportFactory
+     */
     protected $modelImportFactory;
-    
+
+    /**
+     * Save constructor.
+     * @param ModelImportFactory $modelImportFactory
+     * @param Context $context
+     */
     public function __construct(
         ModelImportFactory $modelImportFactory,
         Context $context
@@ -17,11 +29,18 @@ class Save extends Action
         parent::__construct($context);
     }
 
+    /**
+     * @return bool
+     */
     protected function _isAllowed()
     {
         return $this->_authorization->isAllowed('Tereta_Import::import');
     }
-    
+
+    /**
+     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\Result\Redirect|\Magento\Framework\Controller\ResultInterface
+     * @throws \Exception
+     */
     public function execute()
     {
         $data = $this->getRequest()->getPostValue();

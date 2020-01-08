@@ -22,6 +22,9 @@ abstract class AbstractDb extends FrameworkAbstractDb
      */
     protected $configuration;
 
+    /**
+     * @var array
+     */
     protected $reindexProductIds;
 
     /**
@@ -44,11 +47,17 @@ abstract class AbstractDb extends FrameworkAbstractDb
         return $this;
     }
 
+    /**
+     *
+     */
     public function reindex()
     {
         
     }
 
+    /**
+     * @param $productIds
+     */
     public function setReindexProductIds($productIds)
     {
         $this->reindexProductIds = $productIds;

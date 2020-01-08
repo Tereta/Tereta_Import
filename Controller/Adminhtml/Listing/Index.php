@@ -4,6 +4,10 @@ namespace Tereta\Import\Controller\Adminhtml\Listing;
 use Magento\Backend\App\Action;
 use Magento\Framework\Controller\ResultFactory;
 
+/**
+ * Class Index
+ * @package Tereta\Import\Controller\Adminhtml\Listing
+ */
 class Index extends Action
 {
     /** @var \Magento\Framework\View\Result\PageFactory  */

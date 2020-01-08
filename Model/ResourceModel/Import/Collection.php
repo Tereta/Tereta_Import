@@ -3,6 +3,10 @@ namespace Tereta\Import\Model\ResourceModel\Import;
 
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 
+/**
+ * Class Collection
+ * @package Tereta\Import\Model\ResourceModel\Import
+ */
 class Collection extends AbstractCollection
 {
     /**

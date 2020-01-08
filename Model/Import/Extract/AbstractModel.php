@@ -9,6 +9,9 @@ namespace Tereta\Import\Model\Import\Extract;
  */
 class AbstractModel
 {
+    /**
+     * @param $object
+     */
     public function afterSave($object)
     {
     }

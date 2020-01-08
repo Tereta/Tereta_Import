@@ -11,6 +11,10 @@ use Tereta\Import\Model\Logger;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Indexer\IndexerRegistry;
 
+/**
+ * Class Scope
+ * @package Tereta\Import\Model\ResourceModel\Core
+ */
 class Scope extends AbstractDb
 {
     /**
