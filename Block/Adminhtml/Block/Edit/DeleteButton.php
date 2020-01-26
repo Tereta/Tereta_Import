@@ -49,7 +49,7 @@ class DeleteButton extends GenericButton implements ButtonProviderInterface
         $data = [];
         if ($this->getEntityId()) {
             $data = [
-                'label' => __('Delete Block'),
+                'label' => __('Delete'),
                 'class' => 'delete',
                 'on_click' => 'deleteConfirm(\'' . __(
                     'Are you sure you want to do this?'
