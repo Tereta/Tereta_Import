@@ -117,9 +117,9 @@ class InstallSchema implements InstallSchemaInterface
             )
             ->addColumn(
                 'generation_time',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                50,
-                [],
+                \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                null,
+                ['unsigned' => true, 'nullable' => true],
                 'Generation time'
             )
             ->addColumn(

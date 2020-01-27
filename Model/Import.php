@@ -307,6 +307,11 @@ class Import extends AbstractModel
         }
         $processAdaptor->setHtmlOutput($this->htmlOutput);
 
+        $startTime = time();
         $processAdaptor->execute($this, $file);
+        $finishTime = time() - $startTime;
+        $this->setData('generated_at', time());
+        $this->setData('generation_time', $finishTime);
+        $this->save();
     }
 }

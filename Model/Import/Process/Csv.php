@@ -103,6 +103,11 @@ class Csv
     protected $_filesystem;
 
     /**
+     * @var string
+     */
+    protected $htmlOutput;
+
+    /**
      * Csv constructor.
      * @param Filesystem $filesystem
      * @param CsvFactory $csvFactory
@@ -219,8 +224,6 @@ class Csv
         $this->_commandOutput = $output;
         return $this;
     }
-
-    protected $htmlOutput;
 
     public function setHtmlOutput($boolean)
     {

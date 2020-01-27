@@ -99,6 +99,8 @@ class Save extends Action
                 $data['product_assign_categories'] = json_encode($data['product_assign_categories']);
             }
 
+            $data['updated_at'] = time();
+
             $modelImport->setData($data);
             $modelImport->save();
             $modelImport->getExtractAdapter()->afterSave($modelImport);

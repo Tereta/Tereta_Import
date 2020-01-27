@@ -47,7 +47,7 @@
 
     <fieldset name="advencedimport_fieldset">
         <settings>
-            <label translate="true">Generic</label>
+            <label translate="true">General</label>
             <collapsible>true</collapsible>
             <opened>true</opened>
         </settings>
@@ -85,7 +85,7 @@
         <field name="identifier">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
-                    <item name="label" xsi:type="string" translate="true">Identefier</item>
+                    <item name="label" xsi:type="string" translate="true">Identifier</item>
                     <item name="visible" xsi:type="boolean">true</item>
                     <item name="dataType" xsi:type="string">text</item>
                     <item name="formElement" xsi:type="string">input</item>
@@ -151,6 +151,19 @@
             </argument>
         </field>
 
+        <field name="updated_at">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Updated At</item>
+                    <item name="visible" xsi:type="boolean">true</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="formElement" xsi:type="string">input</item>
+                    <item name="source" xsi:type="string">advencedimport</item>
+                    <item name="disabled" xsi:type="boolean">true</item>
+                </item>
+            </argument>
+        </field>
+
         <field name="generated_at">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -164,19 +177,6 @@
             </argument>
         </field>
 
-        <field name="updated_at">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="label" xsi:type="string" translate="true">Updated At</item>
-                    <item name="visible" xsi:type="boolean">true</item>
-                    <item name="dataType" xsi:type="string">text</item>
-                    <item name="formElement" xsi:type="string">input</item>
-                    <item name="source" xsi:type="string">advencedimport</item>
-                    <item name="disabled" xsi:type="boolean">true</item>
-                </item>
-            </argument>
-        </field>
-               
         <field name="generation_time" formElement="input">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -185,6 +185,8 @@
                     <item name="dataType" xsi:type="string">text</item>
                     <item name="source" xsi:type="string">advencedimport</item>
                     <item name="disabled" xsi:type="boolean">true</item>
+                    <item name="notice" xsi:type="string" translate="true">Seconds</item>
+                    <item name="comment" xsi:type="string">In seconds</item>
                 </item>
             </argument>
         </field>
