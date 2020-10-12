@@ -30,7 +30,7 @@
 ░                                                                                                                                           ░
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-Copyright © 2020 Tereta Alexander. All rights reserved.
+Copyright © 2019 Tereta Alexander. All rights reserved.
 Contacts:
     tereta@mail.ua
     www.tereta.dev
