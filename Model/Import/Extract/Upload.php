@@ -39,6 +39,7 @@ use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem\Io\File as IoFile;
 use Tereta\Import\Model\Core\ScopeFactory;
 use Tereta\Import\Model\Logger;
+use Magento\Framework\DataObjectFactory;
 
 /**
  * Class Upload
@@ -49,7 +50,7 @@ class Upload extends AbstractModel
     /**
      *
      */
-    const DIR_PATH = "import/uploaded_file";
+    const DIR_PATH = "import/upload_file";
 
     /**
      * @var IoFile
@@ -61,6 +62,8 @@ class Upload extends AbstractModel
      */
     protected $importProcess;
 
+    protected $dataObjectFactory;
+
     /**
      * Upload constructor.
      * @param IoFile $ioFile
@@ -69,6 +72,7 @@ class Upload extends AbstractModel
      * @param Logger $logger
      */
     public function __construct(
+        DataObjectFactory $dataObjectFactory,
         ImportProcess $importProcess,
         IoFile $ioFile,
         DirectoryList $directoryList,
@@ -77,6 +81,7 @@ class Upload extends AbstractModel
     ) {
         $this->ioFile = $ioFile;
         $this->importProcess = $importProcess;
+        $this->dataObjectFactory = $dataObjectFactory;
 
         parent::__construct($directoryList, $scopeFactory, $logger);
     }
@@ -89,7 +94,7 @@ class Upload extends AbstractModel
     {
         $this->beforeImport($dataModel);
 
-        $importDir = $this->directoryList->getPath('var') . '/import/upload_file/';
+        $importDir = $this->directoryList->getPath('var') . '/' .  static::DIR_PATH;
 
         if ($uploadFile = $dataModel->getData('upload_file')) {
             $uploadFile = reset($uploadFile);
@@ -107,7 +112,7 @@ class Upload extends AbstractModel
             $processAdaptor->setCommandOutput($dataModel->getCommandOutput());
         }
         $processAdaptor->setHtmlOutput($dataModel->getHtmlOutput());
-        $processAdaptor->import($dataModel, $this->dataObjectFactory->create(['data' => ['file' => $uploadFile]]));
+        $processAdaptor->import($dataModel, $this->dataObjectFactory->create(['data' => ['file' => $importDir . '/' . $uploadFile]]));
         $dataModel->finish();
     }
 
