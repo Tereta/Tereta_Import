@@ -42,7 +42,7 @@ use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObjectFactory;
 use Magento\Store\Model\StoreManagerInterface;
 
-use Tereta\Import\Model\Import\Extract as ImportExtract;
+use Tereta\Import\Model\Import\Processor as ImportProcessor;
 use Tereta\Import\Model\Import\Process as ImportProcess;
 
 use Symfony\Component\Console\Output\OutputInterface;
@@ -56,7 +56,7 @@ class Import extends AbstractModel
     /**
      * @var ImportExtract
      */
-    protected $_extractor;
+    protected $processor;
 
     /**
      * @var ImportProcess
@@ -102,7 +102,7 @@ class Import extends AbstractModel
      */
     public function __construct(
         ImportProcess $importProcess,
-        ImportExtract $importExtract,
+        ImportProcessor $importProcessor,
         Context $context,
         Registry $registry,
         DataObjectFactory $dataObjectFactory,
@@ -113,7 +113,7 @@ class Import extends AbstractModel
     ) {
         $this->_storeManager = $storeManager;
         $this->_processor = $importProcess;
-        $this->_extractor = $importExtract;
+        $this->processor = $importProcessor;
         $this->_dataObjectFactory = $dataObjectFactory;
 
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
@@ -132,21 +132,21 @@ class Import extends AbstractModel
      * @return mixed
      * @throws \Exception
      */
-    public function getExtractAdapter($adapterIdentifier = null)
+    public function getProcessorAdapter($adapterIdentifier = null)
     {
         if (!$adapterIdentifier) {
             $adapterIdentifier = $this->getData('type');
         }
 
-        return $this->_extractor->getAdapter($adapterIdentifier);
+        return $this->processor->getAdapter($adapterIdentifier);
     }
 
     /**
      * @return mixed
      */
-    public function getExtractAdapters()
+    public function getProcessorAdapters()
     {
-        return $this->_extractor->getData();
+        return $this->processor->getData();
     }
 
     /**
@@ -180,7 +180,7 @@ class Import extends AbstractModel
             throw new \Exception('The configuration by the "' . $id . '" id was not found.');
         }
 
-        $adapterModel = $this->getExtractAdapter();
+        $adapterModel = $this->getProcessorAdapter();
         $adapterModel->import($this);
     }
 
@@ -202,7 +202,7 @@ class Import extends AbstractModel
             throw new \Exception('The configuration was not found to import.');
         }
 
-        $adapterModel = $this->getExtractAdapter();
+        $adapterModel = $this->getProcessorAdapter();
         $adapterModel->import($this);
     }
 
@@ -212,11 +212,11 @@ class Import extends AbstractModel
      */
     public function encodeData(&$data)
     {
-        if (!$this->getExtractAdapter()) {
+        if (!$this->getProcessorAdapter()) {
             return;
         }
 
-        $this->getExtractAdapter()->encodeData($data);
+        $this->getProcessorAdapter()->encodeData($data);
     }
 
     /**
@@ -225,11 +225,11 @@ class Import extends AbstractModel
      */
     public function decodeData(&$data)
     {
-        if (!$this->getExtractAdapter()) {
+        if (!$this->getProcessorAdapter()) {
             return;
         }
 
-        $this->getExtractAdapter()->decodeData($data);
+        $this->getProcessorAdapter()->decodeData($data);
     }
 
     /**
@@ -306,6 +306,9 @@ class Import extends AbstractModel
         $this->htmlOutput = $boolean;
     }
 
+    /**
+     * @return mixed
+     */
     public function getHtmlOutput()
     {
         return $this->htmlOutput;

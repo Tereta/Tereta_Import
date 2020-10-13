@@ -32,116 +32,87 @@
  *     www.tereta.dev
  */
 
-namespace Tereta\Import\Model\Import\Extract;
+namespace Tereta\Import\Model\Import\Processor;
 
-use Tereta\Import\Model\Import\Process as ImportProcess;
-use Magento\Framework\Filesystem\DirectoryList;
-use Magento\Framework\Filesystem\Io\File as IoFile;
-use Tereta\Import\Model\Core\ScopeFactory;
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Symfony\Component\Console\Output\OutputInterface;
+use Tereta\Import\Model\Core\ScopeFactory as ScopeFactory;
 use Tereta\Import\Model\Logger;
-use Magento\Framework\DataObjectFactory;
 
 /**
- * Class Upload
+ * Tereta\Import\Model\Import\Extract\AbstractModel
+ *
+ * Class AbstractModel
  * @package Tereta\Import\Model\Import\Extract
  */
-class Upload extends AbstractModel
+abstract class AbstractModel
 {
-    /**
-     *
-     */
-    const DIR_PATH = "import/upload_file";
+    protected $commandOutput;
+    protected $htmlOutput;
+    protected $scopeFactory;
+    protected $directoryList;
+    protected $logger;
 
-    /**
-     * @var IoFile
-     */
-    protected $ioFile;
+    const LOGGER_FILE = "/log/tereta/import.log";
 
-    /**
-     * @var ImportProcess
-     */
-    protected $importProcess;
-
-    protected $dataObjectFactory;
-
-    /**
-     * Upload constructor.
-     * @param IoFile $ioFile
-     * @param DirectoryList $directoryList
-     * @param ScopeFactory $scopeFactory
-     * @param Logger $logger
-     */
     public function __construct(
-        DataObjectFactory $dataObjectFactory,
-        ImportProcess $importProcess,
-        IoFile $ioFile,
         DirectoryList $directoryList,
         ScopeFactory $scopeFactory,
         Logger $logger
     ) {
-        $this->ioFile = $ioFile;
-        $this->importProcess = $importProcess;
-        $this->dataObjectFactory = $dataObjectFactory;
-
-        parent::__construct($directoryList, $scopeFactory, $logger);
-    }
-
-    /**
-     * @param $dataModel
-     * @throws \Magento\Framework\Exception\FileSystemException
-     */
-    public function import($dataModel, $additionalData = null)
-    {
-        $this->beforeImport($dataModel);
-
-        $importDir = $this->directoryList->getPath('var') . '/' .  static::DIR_PATH;
-
-        if ($uploadFile = $dataModel->getData('upload_file')) {
-            $uploadFile = reset($uploadFile);
-        }
-
-        if ($uploadFile && isset($uploadFile['file'])) {
-            $uploadFile = $uploadFile['file'];
-        }
-        else {
-            return;
-        }
-
-        $processAdaptor = $this->importProcess->getAdapter('csv');
-        if ($dataModel->getCommandOutput()) {
-            $processAdaptor->setCommandOutput($dataModel->getCommandOutput());
-        }
-        $processAdaptor->setHtmlOutput($dataModel->getHtmlOutput());
-        $processAdaptor->import($dataModel, $this->dataObjectFactory->create(['data' => ['file' => $importDir . '/' . $uploadFile]]));
-        $dataModel->finish();
+        $this->directoryList = $directoryList;
+        $this->logger = $logger;
+        $this->scopeFactory = $scopeFactory;
     }
 
     /**
      * @param $object
-     * @throws \Magento\Framework\Exception\FileSystemException
      */
     public function afterSave($object)
     {
-        $data = $object->getData();
-        $importDir = $this->directoryList->getPath('var') . '/import/upload_file/';
-        $isChanged = false;
-        if (isset($data['upload_file']) && $data['upload_file']) {
-            foreach($data['upload_file'] as $key=>$item) {
-                $tempPrefix = 'temp_';
-                if (substr($item['file'], 0, strlen($tempPrefix)) == $tempPrefix) {
-                    $currentFileName = $item['file'];
-                    $item['file'] = $object->getId() . '.' . pathinfo($currentFileName, PATHINFO_EXTENSION);
-                    $this->ioFile->mv($importDir . '/' . $currentFileName, $importDir . '/' . $item['file']);
-                    $data['upload_file'][$key] = $item;
-                    $isChanged = true;
-                }
-            }
-        }
+    }
 
-        if ($isChanged) {
-            $object->setData($data);
-            $object->save();
+    abstract public function import($dataModel, $configuration = null);
+
+    protected function beforeImport($dataModel)
+    {
+        $this->logger->pushHandler(
+            new \Monolog\Handler\StreamHandler(
+                $this->directoryList->getPath(DirectoryList::VAR_DIR) .
+                static::LOGGER_FILE
+            )
+        );
+
+        if ($dataModel->getCommandOutput()) {
+            $this->logger->setCommandOutput($dataModel->getCommandOutput());
         }
+        $this->setHtmlOutput($dataModel->getHtmlOutput());
+    }
+
+    /**
+     * @return Updater\Scope
+     */
+    protected function scopeCreate($importModel)
+    {
+        $scopeModel = $this->scopeFactory->create([
+            'configuration' => $importModel,
+            'logger' => $this->logger
+        ]);
+
+        return $scopeModel;
+    }
+
+
+    public function setCommandOutput(OutputInterface $output)
+    {
+        $this->commandOutput = $output;
+        return $this;
+    }
+
+    public function setHtmlOutput($boolean)
+    {
+        $this->htmlOutput = $boolean;
+        return $this;
     }
 
     /**
@@ -149,12 +120,6 @@ class Upload extends AbstractModel
      */
     public function encodeData(&$data)
     {
-        $dataUploadFile = null;
-        $data['additional_data'] = '';
-        if (isset($data['upload_file']) && $data['upload_file']) {
-            $dataUploadFile = reset($data['upload_file']);
-            $data['additional_data'] = json_encode($dataUploadFile);
-        }
     }
 
     /**
@@ -162,13 +127,5 @@ class Upload extends AbstractModel
      */
     public function decodeData(&$data)
     {
-        if (!$data['additional_data']) {
-            return;
-        }
-
-        $jsonData = (array) json_decode($data['additional_data']);
-        if ($jsonData) {
-            $data['upload_file'] = [$jsonData];
-        }
     }
 }

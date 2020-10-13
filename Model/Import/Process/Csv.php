@@ -45,7 +45,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\Core\ScopeFactory as ScopeFactory;
-use Tereta\Import\Model\Import\Extract\AbstractModel;
+use Tereta\Import\Model\Import\Processor\AbstractModel;
 
 /**
  * Class Csv

@@ -32,51 +32,122 @@
  *     www.tereta.dev
  */
 
-namespace Tereta\Import\Model\Import;
+namespace Tereta\Import\Model\Import\Processor;
 
-use Magento\Framework\DataObject;
+use Magento\Framework\Filesystem\DirectoryList;
+use Magento\Framework\Filesystem\Io\File as IoFile;
+use Tereta\Import\Model\Core\ScopeFactory;
+use Tereta\Import\Model\Import\Processor\AbstractModel;
+use Tereta\Import\Model\Logger;
+use Tereta\Import\Model\Import\Process as ImportProcess;
+use Magento\Framework\DataObjectFactory;
 
 /**
- * Class Extract
- * @package Tereta\Import\Model\Import
+ * Class Http
+ * @package Tereta\Import\Model\Import\Extract
  */
-class Extract extends DataObject
+class Http extends AbstractModel
 {
+    const DIR_PATH = "import/http_url";
+
     /**
-     * Extract constructor.
-     * @param array $models
+     * @var IoFile
+     */
+    protected $ioFile;
+
+    /**
+     * @var ImportProcess
+     */
+    protected $importProcess;
+
+    /**
+     * @var DataObjectFactory
+     */
+    protected $dataObjectFactory;
+
+    /**
+     * Http constructor.
+     * @param DataObjectFactory $dataObjectFactory
+     * @param ImportProcess $importProcess
+     * @param DirectoryList $dirList
+     * @param ScopeFactory $scopeFactory
+     * @param Logger $logger
+     * @param IoFile $ioFile
      */
     public function __construct(
-        array $models = []
+        DataObjectFactory $dataObjectFactory,
+        ImportProcess $importProcess,
+        DirectoryList $dirList,
+        ScopeFactory $scopeFactory,
+        Logger $logger,
+        IoFile $ioFile
     ) {
-        parent::__construct($models);
+        $this->dataObjectFactory = $dataObjectFactory;
+        $this->importProcess = $importProcess;
+        $this->ioFile = $ioFile;
+
+        parent::__construct($dirList, $scopeFactory, $logger);
     }
 
     /**
-     * @return mixed
+     * @param $dataModel
+     * @throws \Magento\Framework\Exception\FileSystemException
      */
-    public function getAdapters()
+    public function import($dataModel, $configuration = null)
     {
-        return $this->getData();
+        $this->beforeImport($dataModel);
+
+        if (!$dataModel->getData('http_url')) {
+            throw new \Exception(__('HTTP URL was not present.'));
+        }
+
+        $dataModel->start();
+
+        $dirPath = $this->directoryList->getPath('var') . '/' . static::DIR_PATH;
+        $filePath = $dirPath . '/' . $dataModel->getData('entity_id') . '.csv';
+
+        if (!is_dir($dirPath)) {
+            $this->ioFile->mkdir($dirPath, 0775);
+        }
+
+        $result = $this->ioFile->read($dataModel->getData('http_url'), $filePath);
+
+        if (!$result) {
+            throw new \Exception(__('Remote file "%1" was not downloaded.', $dataModel->getData('http_url')));
+        }
+
+        $processAdaptor = $this->importProcess->getAdapter('csv');
+        if ($dataModel->getCommandOutput()) {
+            $processAdaptor->setCommandOutput($dataModel->getCommandOutput());
+        }
+        $processAdaptor->setHtmlOutput($dataModel->getHtmlOutput());
+        $processAdaptor->import($dataModel, $this->dataObjectFactory->create(['data' => ['file' => $filePath]]));
+        $dataModel->finish();
+
+        unlink($filePath);
     }
 
     /**
-     * @param $adapterIdentifier
-     * @return mixed
-     * @throws \Exception
+     * @param $data
      */
-    public function getAdapter($adapterIdentifier)
+    public function encodeData(&$data)
     {
-        if (isset($this->_adapter[$adapterIdentifier])) {
-            return $this->_adapter[$adapterIdentifier];
+        $jsonData = [];
+        $jsonData['http_url'] = $data['http_url'];
+
+        $data['additional_data'] = json_encode($jsonData);
+    }
+
+    /**
+     * @param $data
+     */
+    public function decodeData(&$data)
+    {
+        if (!$data['additional_data']) {
+            return;
         }
-        
-        $adapterModel = $this->getData($adapterIdentifier);
-        if (!$adapterModel) {
-            throw new \Exception('Import model for "' . $adapterIdentifier . '" was not found');
-        }
-        $this->_adapter[$adapterIdentifier] = $adapterModel['class'];
-        
-        return $this->_adapter[$adapterIdentifier];
+
+        $jsonData = (array) json_decode($data['additional_data']);
+        $data['http_url'] = isset($jsonData['http_url']) ? $jsonData['http_url'] : null;
     }
 }

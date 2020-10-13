@@ -91,7 +91,7 @@ class DataProvider extends DataProviderExtend
     ) {
         $this->_importCollection = $importCollectionFactory->create();
         $this->_importModel = $importModel;
-        
+
         parent::__construct(
             $name,
             $primaryFieldName,
@@ -114,21 +114,21 @@ class DataProvider extends DataProviderExtend
         if ($this->_loadedData) {
             return $this->_loadedData;
         }
-        
+
         foreach ($items as $item) {
             if (!$item->getCategoryId()) {
                 $item->setData('category_id', null);
             }
             $data = $item->getData();
             if ($data['type']) {
-                $this->_importModel->getExtractAdapter($data['type'])->decodeData($data);
+                $this->_importModel->getProcessorAdapter($data['type'])->decodeData($data);
             }
 
             $data['product_assign_categories'] = $data['product_assign_categories'] ? json_decode($data['product_assign_categories']) : [];
 
             $this->_loadedData[$item->getId()] = $data;
         }
-        
+
         return $this->_loadedData;
     }
 }

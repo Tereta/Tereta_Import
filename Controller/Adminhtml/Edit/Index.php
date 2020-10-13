@@ -45,7 +45,7 @@ class Index extends Action
 {
     /** @var \Magento\Framework\View\Result\PageFactory  */
     protected $resultPageFactory;
-    
+
     /**
      * @return bool
      */

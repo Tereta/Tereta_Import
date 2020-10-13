@@ -54,7 +54,7 @@ class Types implements \Magento\Framework\Option\ArrayInterface
     public function __construct(ImportModel $importModel) {
         $this->_importModel = $importModel;
     }
-    
+
     /**
      * Options getter
      *
@@ -65,13 +65,13 @@ class Types implements \Magento\Framework\Option\ArrayInterface
         $return = [
             ['value' => '', 'label' => __('Select Type')]
         ];
-        
-        $adapters = $this->_importModel->getExtractAdapters();
-        
+
+        $adapters = $this->_importModel->getProcessorAdapters();
+
         foreach($adapters as $key=>$item){
             array_push($return, ['value' => $key, 'label' => __($item['label'])]);
         }
-        
+
         return $return;
     }
 

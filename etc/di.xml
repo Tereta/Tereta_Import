@@ -20,16 +20,16 @@
             </argument>
         </arguments>
     </type>
-    <type name="Tereta\Import\Model\Import\Extract">
+    <type name="Tereta\Import\Model\Import\Processor">
         <arguments>
             <argument name="models" xsi:type="array">
                 <item name="http" xsi:type="array">
                     <item name="label" xsi:type="string">HTTP</item>
-                    <item name="class" xsi:type="object">Tereta\Import\Model\Import\Extract\Http</item>
+                    <item name="class" xsi:type="object">Tereta\Import\Model\Import\Processor\Http</item>
                 </item>
                 <item name="upload" xsi:type="array">
                     <item name="label" xsi:type="string">Upload File</item>
-                    <item name="class" xsi:type="object">Tereta\Import\Model\Import\Extract\Upload</item>
+                    <item name="class" xsi:type="object">Tereta\Import\Model\Import\Processor\Upload</item>
                 </item>
             </argument>
         </arguments>

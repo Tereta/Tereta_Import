@@ -86,7 +86,7 @@ class Save extends Action
         else {
             unset($data['entity_id']);
         }
-        
+
         unset($data['form_key']);
         unset($data['additional_data']);
 
@@ -103,7 +103,7 @@ class Save extends Action
 
             $modelImport->setData($data);
             $modelImport->save();
-            $modelImport->getExtractAdapter()->afterSave($modelImport);
+            $modelImport->getProcessorAdapter()->afterSave($modelImport);
 
             $this->messageManager->addSuccessMessage(__('You saved the configuration.'));
 
