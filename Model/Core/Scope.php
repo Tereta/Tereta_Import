@@ -285,7 +285,7 @@ class Scope extends AbstractModel
 
             $data[$this->_getMapAttribute(trim($key))] = trim($item);
         }
-        
+
         // Visibility and Status from configurations
         if (!isset($data['visibility']) && $this->_configuration->getData('products_visibility')) {
             $data['visibility'] = $this->_configuration->getData('products_visibility');
@@ -428,7 +428,9 @@ class Scope extends AbstractModel
 
             // Indexation common indexes
             $this->extension->reindex();
-            $this->getResource()->reindex($this->skuEntities);
+            if ($this->skuEntities->getData()){
+                $this->getResource()->reindex($this->skuEntities);
+            }
 
             // Move to resource and do configuration!!
             if ($this->getResource()->getStatisticRowFieldSkuSkipped()) {

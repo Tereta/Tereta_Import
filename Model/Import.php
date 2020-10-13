@@ -115,7 +115,7 @@ class Import extends AbstractModel
         $this->_processor = $importProcess;
         $this->_extractor = $importExtract;
         $this->_dataObjectFactory = $dataObjectFactory;
-        
+
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
     }
 
@@ -137,7 +137,7 @@ class Import extends AbstractModel
         if (!$adapterIdentifier) {
             $adapterIdentifier = $this->getData('type');
         }
-        
+
         return $this->_extractor->getAdapter($adapterIdentifier);
     }
 
@@ -160,6 +160,15 @@ class Import extends AbstractModel
     }
 
     /**
+     * @param OutputInterface $output
+     * @return $this
+     */
+    public function getCommandOutput()
+    {
+        return $this->_commandOutput;
+    }
+
+    /**
      * @param $id
      * @throws \Exception
      */
@@ -171,7 +180,8 @@ class Import extends AbstractModel
             throw new \Exception('The configuration by the "' . $id . '" id was not found.');
         }
 
-        $this->getExtractAdapter()->import($this);
+        $adapterModel = $this->getExtractAdapter();
+        $adapterModel->import($this);
     }
 
     /**
@@ -192,7 +202,8 @@ class Import extends AbstractModel
             throw new \Exception('The configuration was not found to import.');
         }
 
-        $this->getExtractAdapter()->import($this);
+        $adapterModel = $this->getExtractAdapter();
+        $adapterModel->import($this);
     }
 
     /**
@@ -204,7 +215,7 @@ class Import extends AbstractModel
         if (!$this->getExtractAdapter()) {
             return;
         }
-        
+
         $this->getExtractAdapter()->encodeData($data);
     }
 
@@ -217,7 +228,7 @@ class Import extends AbstractModel
         if (!$this->getExtractAdapter()) {
             return;
         }
-        
+
         $this->getExtractAdapter()->decodeData($data);
     }
 
@@ -244,7 +255,7 @@ class Import extends AbstractModel
         if (!$this->getData('type')) {
             return;
         }
-        
+
         $data = $this->getData();
         $this->decodeData($data);
         $this->setData($data);
@@ -295,23 +306,34 @@ class Import extends AbstractModel
         $this->htmlOutput = $boolean;
     }
 
+    public function getHtmlOutput()
+    {
+        return $this->htmlOutput;
+    }
+
+
     /**
-     * @param $file
+     * @var null|integer
+     */
+    protected $startTime = null;
+
+    /**
+     *
+     */
+    public function start()
+    {
+        $this->startTime = time();
+    }
+
+    /**
      * @throws \Exception
      */
-    public function processDocument($file)
+    public function finish()
     {
-        $processAdaptor = $this->_processor->getAdapter('csv');
-        if ($this->_commandOutput){
-            $processAdaptor->setCommandOutput($this->_commandOutput);
-        }
-        $processAdaptor->setHtmlOutput($this->htmlOutput);
-
-        $startTime = time();
-        $processAdaptor->execute($this, $file);
-        $finishTime = time() - $startTime;
         $this->setData('generated_at', time());
-        $this->setData('generation_time', $finishTime);
+        if ($this->startTime){
+            $this->setData(time() - $this->startTime);
+        }
         $this->save();
     }
 }

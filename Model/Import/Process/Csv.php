@@ -45,62 +45,23 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\Core\ScopeFactory as ScopeFactory;
+use Tereta\Import\Model\Import\Extract\AbstractModel;
 
 /**
  * Class Csv
  * @package Tereta\Import\Model\Import\Process
  */
-class Csv
+class Csv extends AbstractModel
 {
-    /**
-     * @var DataObjectFactory
-     */
-    protected $_dataObjectFactory;
-
-    /**
-     * @var ScopeFactory
-     */
-    protected $_scopeFactory;
-
-    /**
-     * @var State
-     */
-    protected $_state;
-
-    /**
-     * @var DirectoryList
-     */
-    protected $_dir;
-
-    /**
-     * @var
-     */
-    protected $_storeManager;
-
-    /**
-     * @var IndexerFactory
-     */
-    protected $_indexerFactory;
-
-    /**
-     * @var Logger
-     */
-    protected $_logger;
-
-    /**
-     * @var
-     */
-    protected $_commandOutput;
-
     /**
      * @var CsvFactory
      */
-    protected $_csvFactory;
+    protected $csvFactory;
 
     /**
      * @var Filesystem
      */
-    protected $_filesystem;
+    protected $fileSystem;
 
     /**
      * @var string
@@ -109,7 +70,7 @@ class Csv
 
     /**
      * Csv constructor.
-     * @param Filesystem $filesystem
+     * @param Filesystem $fileSystem
      * @param CsvFactory $csvFactory
      * @param ScopeFactory $scopeFactory
      * @param State $_state
@@ -118,8 +79,8 @@ class Csv
      * @param DataObjectFactory $dataObjectFactory
      * @param IndexerFactory $indexerFactory
      */
-    public function __construct(
-        Filesystem $filesystem,
+    public function __construct__(
+        Filesystem $fileSystem,
         CsvFactory $csvFactory,
         ScopeFactory $scopeFactory,
         State $_state,
@@ -135,44 +96,44 @@ class Csv
         $this->_logger = $logger;
         $this->_indexerFactory = $indexerFactory;
         $this->_csvFactory = $csvFactory;
-        $this->_filesystem = $filesystem;
+        $this->fileSystem = $fileSystem;
     }
 
-    public function getLogger()
-    {
-        return $this->_logger;
+    public function __construct(
+        Filesystem $fileSystem,
+        CsvFactory $csvFactory,
+        DirectoryList $directoryList,
+        ScopeFactory $scopeFactory,
+        Logger $logger
+    ) {
+        $this->fileSystem = $fileSystem;
+        $this->csvFactory = $csvFactory;
+
+        parent::__construct($directoryList, $scopeFactory, $logger);
     }
 
-    public function execute($configuration, $file)
+    public function import($dataModel, $configurationModel = null)
     {
-        $this->_logger->pushHandler(
-            new \Monolog\Handler\StreamHandler(
-                $this->_dir->getPath(DirectoryList::VAR_DIR) .
-                '/log/tereta/import.log'
-            )
-        );
+        $this->beforeImport($dataModel);
 
-        $this->_logger->setHtmlOutput($this->htmlOutput);
-        if ($this->_commandOutput) {
-            $this->_logger->setCommandOutput($this->_commandOutput);
-        }
+        $file = $configurationModel->getFile();
 
-        $this->_logger->info('Import starting...');
+        $this->logger->info(__('Import starting...'));
 
-        $csv = $this->_csvFactory->create([
+        $csv = $this->csvFactory->create([
             'file'      => $file,
-            'directory' => $this->_filesystem->getDirectoryRead(DirectoryList::VAR_DIR)
+            'directory' => $this->fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)
         ]);
 
         // Configurations
-        $configuration->setFields($csv->getColNames());
+        $dataModel->setFields($csv->getColNames());
 
         $csv->rewind();
 
         $time = time();
         $counter = 0;
 
-        $scopeModel = $this->_scopeCreate($configuration);
+        $scopeModel = $this->scopeCreate($dataModel);
         while ($csv->valid()) {
             $counter++;
 
@@ -184,50 +145,25 @@ class Csv
 
                 $scopeModel->collectItem($csv->current());
 
-                if (($counter % $configuration->getScopeLimit()) == 0) {
-                    $this->_logger->info("Collected " . $counter . " records, time spent " . (time() - $time) . "sec.");
+                if (($counter % $dataModel->getScopeLimit()) == 0) {
+                    $this->logger->info(__("Collected %1 records, time spent %2sec.", $counter, time() - $time));
                     $scopeModel->save();
-                    $scopeModel = $this->_scopeCreate($configuration);
-                    $this->_logger->info("Processed " . $counter . " records, time spent " . (time() - $time) . "sec.");
+                    $scopeModel = $this->scopeCreate($dataModel);
+                    $this->logger->info(__("Processed %1 records, time spent %2sec.", $counter, time() - $time));
                 }
             }
             catch(\Exception $e) {
-                $this->_logger->error($e->getMessage());
+                $this->logger->error($e->getMessage());
             }
 
             $csv->next();
         }
         if ($scopeModel->isCollected()){
-            $this->_logger->info("Collected " . $counter . " records, time spent " . (time() - $time) . "sec.");
+            $this->logger->info(__("Collected %1 records, time spent %2sec.", $counter, time() - $time));
             $scopeModel->save();
-            $this->_logger->info("Processed " . $counter . " records, time spent " . (time() - $time) . "sec.");
+            $this->logger->info(__("Processed %1 records, time spent %2sec.", $counter, time() - $time));
         }
 
-        $this->_logger->info('Import finished');
-    }
-
-    /**
-     * @return Updater\Scope
-     */
-    protected function _scopeCreate($configuration)
-    {
-        $scopeModel = $this->_scopeFactory->create([
-            'configuration' => $configuration,
-            'logger'        => $this->_logger
-        ]);
-
-        return $scopeModel;
-    }
-
-    public function setCommandOutput(OutputInterface $output)
-    {
-        $this->_commandOutput = $output;
-        return $this;
-    }
-
-    public function setHtmlOutput($boolean)
-    {
-        $this->htmlOutput = $boolean;
-        return $this;
+        $this->logger->info(__('Import finished'));
     }
 }
