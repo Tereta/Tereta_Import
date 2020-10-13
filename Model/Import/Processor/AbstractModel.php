@@ -72,7 +72,7 @@ abstract class AbstractModel
     {
     }
 
-    abstract public function import($dataModel, $configuration = null);
+    abstract public function import($dataModel);
 
     protected function beforeImport($dataModel)
     {

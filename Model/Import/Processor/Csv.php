@@ -32,24 +32,20 @@
  *     www.tereta.dev
  */
 
-namespace Tereta\Import\Model\Import\Process;
+namespace Tereta\Import\Model\Import\Processor;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
-use Magento\Framework\DataObjectFactory;
-use Magento\Framework\App\State;
 use Magento\Indexer\Model\IndexerFactory;
 use Magento\ImportExport\Model\Import\Source\CsvFactory;
+use Magento\Framework\Filesystem\Directory\ReadFactory as DirectoryReadFactory;
 use Magento\Framework\Filesystem;
-
-use Symfony\Component\Console\Output\OutputInterface;
 
 use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\Core\ScopeFactory as ScopeFactory;
-use Tereta\Import\Model\Import\Processor\AbstractModel;
 
 /**
  * Class Csv
- * @package Tereta\Import\Model\Import\Process
+ * @package Tereta\Import\Model\Import\Processor
  */
 class Csv extends AbstractModel
 {
@@ -63,66 +59,37 @@ class Csv extends AbstractModel
      */
     protected $fileSystem;
 
-    /**
-     * @var string
-     */
-    protected $htmlOutput;
-
-    /**
-     * Csv constructor.
-     * @param Filesystem $fileSystem
-     * @param CsvFactory $csvFactory
-     * @param ScopeFactory $scopeFactory
-     * @param State $_state
-     * @param Logger $logger
-     * @param DirectoryList $dir
-     * @param DataObjectFactory $dataObjectFactory
-     * @param IndexerFactory $indexerFactory
-     */
-    public function __construct__(
-        Filesystem $fileSystem,
-        CsvFactory $csvFactory,
-        ScopeFactory $scopeFactory,
-        State $_state,
-        Logger $logger,
-        DirectoryList $dir,
-        DataObjectFactory $dataObjectFactory,
-        IndexerFactory $indexerFactory
-    ) {
-        $this->_dataObjectFactory = $dataObjectFactory;
-        $this->_scopeFactory = $scopeFactory;
-        $this->_state = $_state;
-        $this->_dir = $dir;
-        $this->_logger = $logger;
-        $this->_indexerFactory = $indexerFactory;
-        $this->_csvFactory = $csvFactory;
-        $this->fileSystem = $fileSystem;
-    }
+    protected $directoryReadFactory;
 
     public function __construct(
         Filesystem $fileSystem,
         CsvFactory $csvFactory,
         DirectoryList $directoryList,
         ScopeFactory $scopeFactory,
-        Logger $logger
+        Logger $logger,
+        DirectoryReadFactory $directoryReadFactory
     ) {
         $this->fileSystem = $fileSystem;
         $this->csvFactory = $csvFactory;
+        $this->directoryReadFactory = $directoryReadFactory;
 
         parent::__construct($directoryList, $scopeFactory, $logger);
     }
 
-    public function import($dataModel, $configurationModel = null)
+    public function import($dataModel)
     {
         $this->beforeImport($dataModel);
 
-        $file = $configurationModel->getFile();
+        $file = $dataModel->getData('csv_file');
 
         $this->logger->info(__('Import starting...'));
 
+        $pathInfo = pathinfo($file);
+        $directoryRead = $this->directoryReadFactory->create($pathInfo['dirname']);
+
         $csv = $this->csvFactory->create([
             'file'      => $file,
-            'directory' => $this->fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)
+            'directory' => $directoryRead
         ]);
 
         // Configurations
@@ -138,11 +105,6 @@ class Csv extends AbstractModel
             $counter++;
 
             try {
-                // Debug string
-                //if ($counter >= 54 && $counter <= 55) { // Debug
-                //    $scopeModel->collectItem($csv->current());  // Debug
-                //}  // Debug
-
                 $scopeModel->collectItem($csv->current());
 
                 if (($counter % $dataModel->getScopeLimit()) == 0) {
@@ -165,5 +127,29 @@ class Csv extends AbstractModel
         }
 
         $this->logger->info(__('Import finished'));
+    }
+
+    /**
+     * @param $data
+     */
+    public function encodeData(&$data)
+    {
+        $jsonData = [];
+        $jsonData['csv_file'] = $data['csv_file'];
+
+        $data['additional_data'] = json_encode($jsonData);
+    }
+
+    /**
+     * @param $data
+     */
+    public function decodeData(&$data)
+    {
+        if (!$data['additional_data']) {
+            return;
+        }
+
+        $jsonData = (array) json_decode($data['additional_data']);
+        $data['csv_file'] = isset($jsonData['csv_file']) ? $jsonData['csv_file'] : null;
     }
 }

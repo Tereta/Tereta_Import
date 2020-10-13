@@ -37,9 +37,8 @@ namespace Tereta\Import\Model\Import\Processor;
 use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem\Io\File as IoFile;
 use Tereta\Import\Model\Core\ScopeFactory;
-use Tereta\Import\Model\Import\Processor\AbstractModel;
 use Tereta\Import\Model\Logger;
-use Tereta\Import\Model\Import\Process as ImportProcess;
+use Tereta\Import\Model\Import\ProcessorFactory as ImportProcessorFactory;
 use Magento\Framework\DataObjectFactory;
 
 /**
@@ -58,7 +57,7 @@ class Http extends AbstractModel
     /**
      * @var ImportProcess
      */
-    protected $importProcess;
+    protected $importProcessorFactory;
 
     /**
      * @var DataObjectFactory
@@ -68,7 +67,7 @@ class Http extends AbstractModel
     /**
      * Http constructor.
      * @param DataObjectFactory $dataObjectFactory
-     * @param ImportProcess $importProcess
+     * @param ImportProcessorFactory $importProcessorFactory
      * @param DirectoryList $dirList
      * @param ScopeFactory $scopeFactory
      * @param Logger $logger
@@ -76,14 +75,14 @@ class Http extends AbstractModel
      */
     public function __construct(
         DataObjectFactory $dataObjectFactory,
-        ImportProcess $importProcess,
+        ImportProcessorFactory $importProcessorFactory,
         DirectoryList $dirList,
         ScopeFactory $scopeFactory,
         Logger $logger,
         IoFile $ioFile
     ) {
         $this->dataObjectFactory = $dataObjectFactory;
-        $this->importProcess = $importProcess;
+        $this->importProcessorFactory = $importProcessorFactory;
         $this->ioFile = $ioFile;
 
         parent::__construct($dirList, $scopeFactory, $logger);
@@ -93,7 +92,7 @@ class Http extends AbstractModel
      * @param $dataModel
      * @throws \Magento\Framework\Exception\FileSystemException
      */
-    public function import($dataModel, $configuration = null)
+    public function import($dataModel)
     {
         $this->beforeImport($dataModel);
 
@@ -116,12 +115,13 @@ class Http extends AbstractModel
             throw new \Exception(__('Remote file "%1" was not downloaded.', $dataModel->getData('http_url')));
         }
 
-        $processAdaptor = $this->importProcess->getAdapter('csv');
+        $processAdaptor = $this->importProcessorFactory->create()->getAdapter('csv');
         if ($dataModel->getCommandOutput()) {
             $processAdaptor->setCommandOutput($dataModel->getCommandOutput());
         }
         $processAdaptor->setHtmlOutput($dataModel->getHtmlOutput());
-        $processAdaptor->import($dataModel, $this->dataObjectFactory->create(['data' => ['file' => $filePath]]));
+        $dataModel->setData('csv_file', $filePath);
+        $processAdaptor->import($dataModel);
         $dataModel->finish();
 
         unlink($filePath);

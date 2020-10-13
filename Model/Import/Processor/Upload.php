@@ -34,23 +34,24 @@
 
 namespace Tereta\Import\Model\Import\Processor;
 
-use Tereta\Import\Model\Import\Process as ImportProcess;
+use Tereta\Import\Model\Import\ProcessorFactory as ImportProcessorFactory;
 use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem\Io\File as IoFile;
 use Tereta\Import\Model\Core\ScopeFactory;
 use Tereta\Import\Model\Logger;
-use Magento\Framework\DataObjectFactory;
 
 /**
+ * Tereta\Import\Model\Import\Processor\Upload
+ *
  * Class Upload
- * @package Tereta\Import\Model\Import\Extract
+ * @package Tereta\Import\Model\Import\Processor
  */
 class Upload extends AbstractModel
 {
     /**
      *
      */
-    const DIR_PATH = "import/upload_file";
+    const DIR_PATH = "tereta/import/upload_file";
 
     /**
      * @var IoFile
@@ -58,30 +59,27 @@ class Upload extends AbstractModel
     protected $ioFile;
 
     /**
-     * @var ImportProcess
+     * @var ImportProcessorFactory
      */
-    protected $importProcess;
-
-    protected $dataObjectFactory;
+    protected $importProcessorFactory;
 
     /**
      * Upload constructor.
+     * @param ImportProcessorFactory $importProcessorFactory
      * @param IoFile $ioFile
      * @param DirectoryList $directoryList
      * @param ScopeFactory $scopeFactory
      * @param Logger $logger
      */
     public function __construct(
-        DataObjectFactory $dataObjectFactory,
-        ImportProcess $importProcess,
+        ImportProcessorFactory $importProcessorFactory,
         IoFile $ioFile,
         DirectoryList $directoryList,
         ScopeFactory $scopeFactory,
         Logger $logger
     ) {
         $this->ioFile = $ioFile;
-        $this->importProcess = $importProcess;
-        $this->dataObjectFactory = $dataObjectFactory;
+        $this->importProcessorFactory = $importProcessorFactory;
 
         parent::__construct($directoryList, $scopeFactory, $logger);
     }
@@ -90,11 +88,11 @@ class Upload extends AbstractModel
      * @param $dataModel
      * @throws \Magento\Framework\Exception\FileSystemException
      */
-    public function import($dataModel, $additionalData = null)
+    public function import($dataModel)
     {
         $this->beforeImport($dataModel);
 
-        $importDir = $this->directoryList->getPath('var') . '/' .  static::DIR_PATH;
+        $importDir = $this->directoryList->getPath('media') . '/' .  static::DIR_PATH;
 
         if ($uploadFile = $dataModel->getData('upload_file')) {
             $uploadFile = reset($uploadFile);
@@ -107,12 +105,13 @@ class Upload extends AbstractModel
             return;
         }
 
-        $processAdaptor = $this->importProcess->getAdapter('csv');
+        $processAdaptor = $this->importProcessorFactory->create()->getAdapter('csv');
         if ($dataModel->getCommandOutput()) {
             $processAdaptor->setCommandOutput($dataModel->getCommandOutput());
         }
         $processAdaptor->setHtmlOutput($dataModel->getHtmlOutput());
-        $processAdaptor->import($dataModel, $this->dataObjectFactory->create(['data' => ['file' => $importDir . '/' . $uploadFile]]));
+        $dataModel->setData('csv_file', $importDir . '/' . $uploadFile);
+        $processAdaptor->import($dataModel);
         $dataModel->finish();
     }
 
@@ -123,7 +122,7 @@ class Upload extends AbstractModel
     public function afterSave($object)
     {
         $data = $object->getData();
-        $importDir = $this->directoryList->getPath('var') . '/import/upload_file/';
+        $importDir = $this->directoryList->getPath('media') . '/' . static::DIR_PATH;
         $isChanged = false;
         if (isset($data['upload_file']) && $data['upload_file']) {
             foreach($data['upload_file'] as $key=>$item) {

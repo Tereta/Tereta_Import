@@ -43,7 +43,6 @@ use Magento\Framework\DataObjectFactory;
 use Magento\Store\Model\StoreManagerInterface;
 
 use Tereta\Import\Model\Import\Processor as ImportProcessor;
-use Tereta\Import\Model\Import\Process as ImportProcess;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -57,11 +56,6 @@ class Import extends AbstractModel
      * @var ImportExtract
      */
     protected $processor;
-
-    /**
-     * @var ImportProcess
-     */
-    protected $_processor;
 
     /**
      * @var
@@ -90,8 +84,7 @@ class Import extends AbstractModel
 
     /**
      * Import constructor.
-     * @param ImportProcess $importProcess
-     * @param ImportExtract $importExtract
+     * @param ImportProcessor $importProcessor
      * @param Context $context
      * @param Registry $registry
      * @param DataObjectFactory $dataObjectFactory
@@ -101,7 +94,6 @@ class Import extends AbstractModel
      * @param array $data
      */
     public function __construct(
-        ImportProcess $importProcess,
         ImportProcessor $importProcessor,
         Context $context,
         Registry $registry,
@@ -112,7 +104,6 @@ class Import extends AbstractModel
         array $data = array()
     ) {
         $this->_storeManager = $storeManager;
-        $this->_processor = $importProcess;
         $this->processor = $importProcessor;
         $this->_dataObjectFactory = $dataObjectFactory;
 

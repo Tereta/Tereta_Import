@@ -37,7 +37,9 @@ namespace Tereta\Import\Model\Import;
 use Magento\Framework\DataObject;
 
 /**
- * Class Extract
+ * Tereta\Import\Model\Import\Processor
+ *
+ * Class Processor
  * @package Tereta\Import\Model\Import
  */
 class Processor extends DataObject

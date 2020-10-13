@@ -31,15 +31,9 @@
                     <item name="label" xsi:type="string">Upload File</item>
                     <item name="class" xsi:type="object">Tereta\Import\Model\Import\Processor\Upload</item>
                 </item>
-            </argument>
-        </arguments>
-    </type>
-    <type name="Tereta\Import\Model\Import\Process">
-        <arguments>
-            <argument name="models" xsi:type="array">
                 <item name="csv" xsi:type="array">
-                    <item name="label" xsi:type="string">CSV</item>
-                    <item name="class" xsi:type="object">Tereta\Import\Model\Import\Process\Csv</item>
+                    <item name="label" xsi:type="string">CSV File</item>
+                    <item name="class" xsi:type="object">Tereta\Import\Model\Import\Processor\Csv</item>
                 </item>
             </argument>
         </arguments>

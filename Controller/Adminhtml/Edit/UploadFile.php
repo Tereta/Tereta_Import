@@ -40,6 +40,8 @@ use Magento\Framework\Filesystem;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\MediaStorage\Model\File\UploaderFactory;
 use Magento\Framework\Controller\ResultFactory;
+use Tereta\Import\Model\Import\Processor\Upload as ProcessorUpload;
+use Magento\Framework\Filesystem\Io\File as IoFile;
 
 /**
  * Class UploadFile
@@ -62,15 +64,18 @@ class UploadFile extends Action
      * @param Context $context
      * @param Filesystem $filesystem
      * @param UploaderFactory $uploaderFactory
+     * @param IoFile $ioFile
      * @throws \Magento\Framework\Exception\FileSystemException
      */
     public function __construct(
         Context $context,
         Filesystem $filesystem,
-        UploaderFactory $uploaderFactory
+        UploaderFactory $uploaderFactory,
+        IoFile $ioFile
     ) {
-        $this->varDirectory = $filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
+        $this->varDirectory = $filesystem->getDirectoryWrite(DirectoryList::MEDIA);
         $this->uploaderFactory = $uploaderFactory;
+        $this->ioFile = $ioFile;
         parent::__construct($context);
     }
 
@@ -82,11 +87,14 @@ class UploadFile extends Action
     public function execute()
     {
         try {
-            $data = $this->getRequest()->getPostValue();
             $uploader = $this->uploaderFactory->create(['fileId' => 'upload_file']);
             $uploader->setAllowRenameFiles(true);
             $uploader->setAllowedExtensions(['csv', 'xls']);
-            $path = $this->varDirectory->getAbsolutePath('import/upload_file');
+            $path = $this->varDirectory->getAbsolutePath(ProcessorUpload::DIR_PATH);
+
+            if (!is_dir($path)){
+                $this->ioFile->mkdir($path);
+            }
 
             $saveFileName = 'temp_' . time() . '_' . uniqid() . '.' . $uploader->getFileExtension();
             $result = $uploader->save($path, $saveFileName);

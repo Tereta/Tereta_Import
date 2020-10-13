@@ -13,7 +13,7 @@
         <item name="label" xsi:type="string" translate="true">General Information</item>
         <item name="template" xsi:type="string">templates/form/collapsible</item>
     </argument>
-    
+
     <settings>
         <buttons>
             <button name="delete" class="Tereta\Import\Block\Adminhtml\Block\Edit\DeleteButton"/>
@@ -46,12 +46,15 @@
     </dataSource>
 
     <fieldset name="advencedimport_fieldset">
-        <settings>
-            <label translate="true">General</label>
-            <collapsible>true</collapsible>
-            <opened>true</opened>
-        </settings>
-        
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">General</item>
+                <item name="collapsible" xsi:type="boolean">true</item>
+                <item name="opened" xsi:type="boolean">true</item>
+                <item name="sortOrder" xsi:type="number">100</item>
+            </item>
+        </argument>
+
         <!-- This field represents form id and is hidden -->
         <field name="entity_id">
             <argument name="data" xsi:type="array">
@@ -96,7 +99,7 @@
                 </item>
             </argument>
         </field>
-        
+
         <field name="name">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -211,11 +214,14 @@
     </fieldset>
 
     <fieldset name="advencedimport_fieldset_products">
-        <settings>
-            <label translate="true">Products</label>
-            <collapsible>true</collapsible>
-            <opened>false</opened>
-        </settings>
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Products</item>
+                <item name="collapsible" xsi:type="boolean">true</item>
+                <item name="opened" xsi:type="boolean">false</item>
+                <item name="sortOrder" xsi:type="number">300</item>
+            </item>
+        </argument>
 
         <field name="product_create_new">
             <argument name="data" xsi:type="array">
@@ -332,11 +338,14 @@
     </fieldset>
 
     <fieldset name="advencedimport_fieldset_seo">
-        <settings>
-            <label translate="true">SEO URLs</label>
-            <collapsible>true</collapsible>
-            <opened>false</opened>
-        </settings>
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">SEO URLs</item>
+                <item name="collapsible" xsi:type="boolean">true</item>
+                <item name="opened" xsi:type="boolean">false</item>
+                <item name="sortOrder" xsi:type="number">400</item>
+            </item>
+        </argument>
 
         <field name="create_url_key">
             <argument name="data" xsi:type="array">
@@ -376,11 +385,14 @@
     </fieldset>
 
     <fieldset name="advencedimport_fieldset_attributes">
-        <settings>
-            <label translate="true"><![CDATA[Attributes & Fields]]></label>
-            <collapsible>true</collapsible>
-            <opened>false</opened>
-        </settings>
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">SEO URLs</item>
+                <item name="collapsible" xsi:type="boolean">true</item>
+                <item name="opened" xsi:type="boolean">false</item>
+                <item name="sortOrder" xsi:type="number">400</item>
+            </item>
+        </argument>
 
         <field name="create_new_options">
             <argument name="data" xsi:type="array">
@@ -472,11 +484,14 @@
     </fieldset>
 
     <fieldset name="advencedimport_fieldset_stock">
-        <settings>
-            <label translate="true">Stock</label>
-            <collapsible>true</collapsible>
-            <opened>false</opened>
-        </settings>
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Stock</item>
+                <item name="collapsible" xsi:type="boolean">true</item>
+                <item name="opened" xsi:type="boolean">false</item>
+                <item name="sortOrder" xsi:type="number">500</item>
+            </item>
+        </argument>
 
         <field name="manage_stock">
             <argument name="data" xsi:type="array">
@@ -537,9 +552,11 @@
                 <item name="label" xsi:type="string">HTTP</item>
                 <item name="collapsible" xsi:type="boolean">true</item>
                 <item name="additionalClasses" xsi:type="string">advencedimport_fieldset_extract_type advencedimport_fieldset_extract_type_http</item>
+                <item name="sortOrder" xsi:type="number">200</item>
             </item>
         </argument>
-            
+
+
         <field name="http_url">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -559,6 +576,7 @@
                 <item name="label" xsi:type="string">Upload File</item>
                 <item name="collapsible" xsi:type="boolean">true</item>
                 <item name="additionalClasses" xsi:type="string">advencedimport_fieldset_extract_type advencedimport_fieldset_extract_type_upload</item>
+                <item name="sortOrder" xsi:type="number">200</item>
             </item>
         </argument>
 
@@ -571,6 +589,29 @@
                     <item name="uploaderConfig" xsi:type="array">
                         <item name="url" xsi:type="url" path="advencedimport/edit/uploadFile"/>
                     </item>
+                    <item name="source" xsi:type="string">advencedimport</item>
+                </item>
+            </argument>
+        </field>
+    </fieldset>
+
+    <fieldset name="advencedimport_fieldset_csv">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string">CSV</item>
+                <item name="collapsible" xsi:type="boolean">true</item>
+                <item name="additionalClasses" xsi:type="string">advencedimport_fieldset_extract_type advencedimport_fieldset_extract_type_csv</item>
+                <item name="sortOrder" xsi:type="number">200</item>
+            </item>
+        </argument>
+
+        <field name="csv_file">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string">Document Local Source</item>
+                    <item name="visible" xsi:type="boolean">true</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="formElement" xsi:type="string">input</item>
                     <item name="source" xsi:type="string">advencedimport</item>
                 </item>
             </argument>

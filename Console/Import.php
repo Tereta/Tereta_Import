@@ -53,15 +53,15 @@ class Import extends Command
     /**
      * @var ImportFactory
      */
-    protected $_importFactory;
+    protected $importFactory;
 
     /**
      * Import constructor.
      * @param ImportFactory $importFactory
      */
     public function __construct(ImportFactory $importFactory) {
-        $this->_importFactory = $importFactory;
-        
+        $this->importFactory = $importFactory;
+
         parent::__construct();
     }
 
@@ -77,7 +77,7 @@ class Import extends Command
                 InputArgument::OPTIONAL,
                 'Import identifier'
             );
-        
+
         parent::configure();
     }
 
@@ -89,7 +89,7 @@ class Import extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $identifier = $input->getArgument(static::KEY_IMPORT_IDENTIFIER);
-        $importModel = $this->_importFactory->create();
+        $importModel = $this->importFactory->create();
 
         if (!$identifier) {
             foreach($importModel->getCollection() as $item){
@@ -102,7 +102,7 @@ class Import extends Command
         if ($output->getVerbosity() == OutputInterface::VERBOSITY_NORMAL) {
             $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         }
-        
+
         $output->write('Starting import for "' . $identifier . '"...', true);
         try {
             $importModel->setCommandOutput($output);
