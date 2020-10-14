@@ -10,7 +10,6 @@ define(['jquery', 'ko', 'uiRegistry', 'domReady!'], function($, ko, uiRegistry){
             var extractTypeAllowed;
             var extractType = self.formElement.find('.advencedimport_fieldset_extract_type');
             extractType.addClass('hidden');
-
             var value = $(this).val();
             if (value) {
                 extractTypeAllowed = self.formElement.find('.advencedimport_fieldset_extract_type_' + value);
@@ -23,6 +22,11 @@ define(['jquery', 'ko', 'uiRegistry', 'domReady!'], function($, ko, uiRegistry){
             var typeField = $(fieldset).find(this.config.typeField);
             this.formElement = $(fieldset).closest('.entry-edit');
 
+            if (typeField.length == 0) {
+                setTimeout(this.init.bind(this), 300);
+                return
+            }
+
             this.changeType.apply(typeField.get(0));
             typeField.on('change', this.changeType);
         }
@@ -31,8 +35,6 @@ define(['jquery', 'ko', 'uiRegistry', 'domReady!'], function($, ko, uiRegistry){
     }
 
     return function(config, element){
-        return new (function(config, element){
-            ko.applyBindings(new genericScriptView(config, element), element);
-        })(config, element);
+        return new genericScriptView(config, element);
     };
 });

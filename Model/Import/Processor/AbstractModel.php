@@ -47,14 +47,42 @@ use Tereta\Import\Model\Logger;
  */
 abstract class AbstractModel
 {
+    /**
+     * @var OutputInterface|null
+     */
     protected $commandOutput;
+
+    /**
+     * @var boolean
+     */
     protected $htmlOutput;
+
+    /**
+     * @var ScopeFactory
+     */
     protected $scopeFactory;
+
+    /**
+     * @var DirectoryList
+     */
     protected $directoryList;
+
+    /**
+     * @var Logger
+     */
     protected $logger;
 
-    const LOGGER_FILE = "/log/tereta/import.log";
+    /**
+     *
+     */
+    const LOGGER_DIR = "log/import";
 
+    /**
+     * AbstractModel constructor.
+     * @param DirectoryList $directoryList
+     * @param ScopeFactory $scopeFactory
+     * @param Logger $logger
+     */
     public function __construct(
         DirectoryList $directoryList,
         ScopeFactory $scopeFactory,
@@ -72,17 +100,23 @@ abstract class AbstractModel
     {
     }
 
+    /**
+     * @param $dataModel
+     * @return mixed
+     */
     abstract public function import($dataModel);
 
+    /**
+     * @param $dataModel
+     * @throws \Magento\Framework\Exception\FileSystemException
+     */
     protected function beforeImport($dataModel)
     {
+        $logPath = $this->directoryList->getPath(DirectoryList::VAR_DIR) . '/' . static::LOGGER_DIR . '/' . $dataModel->getData('identifier') . '.log';
         $this->logger->pushHandler(
-            new \Monolog\Handler\StreamHandler(
-                $this->directoryList->getPath(DirectoryList::VAR_DIR) .
-                static::LOGGER_FILE
-            )
+            new \Monolog\Handler\StreamHandler($logPath)
         );
-
+        $this->logger->warn('asd');
         if ($dataModel->getCommandOutput()) {
             $this->logger->setCommandOutput($dataModel->getCommandOutput());
         }
@@ -102,13 +136,20 @@ abstract class AbstractModel
         return $scopeModel;
     }
 
-
+    /**
+     * @param OutputInterface $output
+     * @return $this
+     */
     public function setCommandOutput(OutputInterface $output)
     {
         $this->commandOutput = $output;
         return $this;
     }
 
+    /**
+     * @param $boolean
+     * @return $this
+     */
     public function setHtmlOutput($boolean)
     {
         $this->htmlOutput = $boolean;

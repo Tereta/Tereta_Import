@@ -44,7 +44,7 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Logger extends \Monolog\Logger
 {
-    const XML_PATH_CONFIGURATION_DEBUG = 'teretaimport/configuration/debug';
+    const XML_PATH_CONFIGURATION_DEBUG = 'tereta_import/configuration/debug';
 
     /**
      * @var null
