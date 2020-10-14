@@ -34,6 +34,7 @@
 
 namespace Tereta\Import\Model\Core;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
@@ -274,6 +275,11 @@ class Scope extends AbstractModel
     {
         // Convert mapped fields
         $data = [];
+        if (!isset($csvData[$this->getRevertedMapAttribute('sku')])) {
+            throw new LocalizedException(__('SKU field in the document can not be found'));
+        }
+
+        $sku = $csvData[$this->getRevertedMapAttribute('sku')];
         foreach($csvData as $key=>$item) {
             if (!trim($key)) {
                 continue;
@@ -283,7 +289,19 @@ class Scope extends AbstractModel
                 continue;
             }
 
-            $data[$this->_getMapAttribute(trim($key))] = trim($item);
+            if (!is_string($item) && !is_null($item) && !is_numeric($item) && !is_bool($item)) {
+                $this->logger->debug(
+                    __(
+                        'Warning: field "%1" is not proccessable value for the product #%2 (%3)',
+                        $key,
+                        $sku,
+                        print_r($item, true)
+                    )
+                );
+                $item = '';
+            }
+
+            $data[$this->getMapAttribute(trim($key))] = trim($item);
         }
 
         // Visibility and Status from configurations
@@ -328,7 +346,7 @@ class Scope extends AbstractModel
      * @param $fieldLabel
      * @return mixed|string|void
      */
-    protected function _getMapAttribute($fieldLabel)
+    protected function getMapAttribute($fieldLabel)
     {
         $fieldLabel = trim($fieldLabel);
         if (!$fieldLabel) {
@@ -338,6 +356,16 @@ class Scope extends AbstractModel
 
         if (!$attributeCode) {
             $attributeCode = $fieldLabel;
+        }
+
+        return $attributeCode;
+    }
+
+    protected function getRevertedMapAttribute($attributeCode)
+    {
+        $mapping = array_flip($this->mapAttributes->getData());
+        if (isset($mapping[$attributeCode])) {
+            return $mapping[$attributeCode];
         }
 
         return $attributeCode;
@@ -466,7 +494,7 @@ class Scope extends AbstractModel
                 continue;
             }
 
-            $mappedAttribute = $this->_getMapAttribute($csvField);
+            $mappedAttribute = $this->getMapAttribute($csvField);
             if (!$mappedAttribute) continue;
             array_push($attributes, $mappedAttribute);
         }
