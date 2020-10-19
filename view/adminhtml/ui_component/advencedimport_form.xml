@@ -194,7 +194,7 @@
             </argument>
         </field>
 
-        <field name="sope_limit">
+        <field name="scope_limit">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Scope Limit</item>
