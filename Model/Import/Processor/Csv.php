@@ -78,8 +78,6 @@ class Csv extends AbstractModel
 
     public function import($dataModel)
     {
-        $this->beforeImport($dataModel);
-
         $file = $dataModel->getData('csv_file');
 
         $this->logger->info(__('Import starting...'));

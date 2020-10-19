@@ -48,16 +48,6 @@ use Tereta\Import\Model\Logger;
 abstract class AbstractModel
 {
     /**
-     * @var OutputInterface|null
-     */
-    protected $commandOutput;
-
-    /**
-     * @var boolean
-     */
-    protected $htmlOutput;
-
-    /**
      * @var ScopeFactory
      */
     protected $scopeFactory;
@@ -71,11 +61,6 @@ abstract class AbstractModel
      * @var Logger
      */
     protected $logger;
-
-    /**
-     *
-     */
-    const LOGGER_DIR = "log/import";
 
     /**
      * AbstractModel constructor.
@@ -107,23 +92,6 @@ abstract class AbstractModel
     abstract public function import($dataModel);
 
     /**
-     * @param $dataModel
-     * @throws \Magento\Framework\Exception\FileSystemException
-     */
-    protected function beforeImport($dataModel)
-    {
-        $logPath = $this->directoryList->getPath(DirectoryList::VAR_DIR) . '/' . static::LOGGER_DIR . '/' . $dataModel->getData('identifier') . '.log';
-        $this->logger->pushHandler(
-            new \Monolog\Handler\StreamHandler($logPath)
-        );
-        $this->logger->warn('asd');
-        if ($dataModel->getCommandOutput()) {
-            $this->logger->setCommandOutput($dataModel->getCommandOutput());
-        }
-        $this->setHtmlOutput($dataModel->getHtmlOutput());
-    }
-
-    /**
      * @return Updater\Scope
      */
     protected function scopeCreate($importModel)
@@ -134,26 +102,6 @@ abstract class AbstractModel
         ]);
 
         return $scopeModel;
-    }
-
-    /**
-     * @param OutputInterface $output
-     * @return $this
-     */
-    public function setCommandOutput(OutputInterface $output)
-    {
-        $this->commandOutput = $output;
-        return $this;
-    }
-
-    /**
-     * @param $boolean
-     * @return $this
-     */
-    public function setHtmlOutput($boolean)
-    {
-        $this->htmlOutput = $boolean;
-        return $this;
     }
 
     /**
@@ -168,5 +116,10 @@ abstract class AbstractModel
      */
     public function decodeData(&$data)
     {
+    }
+
+    public function setLogger(Logger $logger)
+    {
+        $this->logger = $logger;
     }
 }

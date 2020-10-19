@@ -455,10 +455,11 @@ class Scope extends AbstractModel
             $this->logger->debug('DB transaction has beed commited, time spent: ' . (time() - $debugTime) . 'sec.');
 
             // Indexation common indexes
-            $this->extension->reindex();
-            if ($this->skuEntities->getData()){
-                $this->getResource()->reindex($this->skuEntities);
+            foreach($this->skuEntities->getData() as $item){
+                $this->_configuration->addProductToReindex($item['entity_id']);
             }
+
+            $this->extension->reindex();
 
             // Move to resource and do configuration!!
             if ($this->getResource()->getStatisticRowFieldSkuSkipped()) {

@@ -42,7 +42,6 @@ use Magento\Framework\Model\ResourceModel\Db\Context;
 use Magento\Framework\DataObject;
 use Tereta\Import\Model\Logger;
 use Magento\Framework\DataObjectFactory;
-use Magento\Framework\Indexer\IndexerRegistry;
 
 /**
  * Class Scope
@@ -86,13 +85,7 @@ class Scope extends AbstractDb
     protected $statisticRowFieldSkuSkipped = [];
 
     /**
-     * @var IndexerRegistry
-     */
-    protected $indexerRegistry;
-
-    /**
      * Scope constructor.
-     * @param IndexerRegistry $indexerRegistry
      * @param AttributeRepository $attributeRepository
      * @param DataObjectFactory $dataObjectFactory
      * @param Context $context
@@ -100,14 +93,12 @@ class Scope extends AbstractDb
      * @param null $connectionName
      */
     public function __construct(
-        IndexerRegistry $indexerRegistry,
         AttributeRepository $attributeRepository,
         DataObjectFactory $dataObjectFactory,
         Context $context,
         Logger $logger,
         $connectionName = null
     ) {
-        $this->indexerRegistry = $indexerRegistry;
         $this->attributeRepository = $attributeRepository;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->logger = $logger;
@@ -218,38 +209,6 @@ class Scope extends AbstractDb
             $connection->insertOnDuplicate($this->getTable('catalog_product_entity_varchar'), $data);
         }
         $this->logger->debug("Updated or inserted " . count($data) . " records in the 'catalog_product_entity_varchar' table");
-    }
-
-    /**
-     *
-     */
-    public function reindex(DataObject $skuEntities)
-    {
-        $productIds = [];
-        foreach($skuEntities->getData() as $item) {
-            array_push($productIds, $item['entity_id']);
-        }
-
-        $time = time();
-        $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Eav\Processor::INDEXER_ID)->reindexList($productIds);
-        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Eav\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
-
-        $time = time();
-        $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Price\Processor::INDEXER_ID)->reindexList($productIds);
-        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Price\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
-
-        try{
-            $time = time();
-            $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID)->reindexList($productIds);
-            $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
-        }
-        catch(\Exception $e) {
-            $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products is not avaliable.');
-        }
-
-        $time = time();
-        $this->indexerRegistry->get(\Magento\CatalogSearch\Model\Indexer\Fulltext\Processor::INDEXER_ID)->reindexList($productIds);
-        $this->logger->debug('The ' . \Magento\CatalogSearch\Model\Indexer\Fulltext\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
     }
 
     /**

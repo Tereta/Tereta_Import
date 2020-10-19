@@ -34,6 +34,7 @@
 
 namespace Tereta\Import\Model;
 
+use Magento\Framework\Indexer\IndexerRegistry;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
@@ -45,6 +46,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Tereta\Import\Model\Import\Processor as ImportProcessor;
 
 use Symfony\Component\Console\Output\OutputInterface;
+use Magento\Framework\App\Filesystem\DirectoryList;
 
 /**
  * Class Import
@@ -83,7 +85,49 @@ class Import extends AbstractModel
     protected $_adapter = [];
 
     /**
+     * @var \Tereta\Import\Model\LoggerFactory
+     */
+    protected $loggerFactory;
+
+    /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
+     * @var DirectoryList
+     */
+    protected $directoryList;
+
+    /**
+     * @var IndexerRegistry
+     */
+    protected $indexerRegistry;
+
+    /**
+     * @var array
+     */
+    protected $processorAdapter = [];
+
+    /**
+     * @var null|integer
+     */
+    protected $startTime = null;
+
+    /**
+     * @var array
+     */
+    protected $reindexProductIds = [];
+
+    /**
+     *
+     */
+    const LOGGER_DIR = "log/import";
+
+    /**
      * Import constructor.
+     * @param DirectoryList $directoryList
+     * @param \Tereta\Import\Model\LoggerFactory $loggerFactory
      * @param ImportProcessor $importProcessor
      * @param Context $context
      * @param Registry $registry
@@ -94,6 +138,9 @@ class Import extends AbstractModel
      * @param array $data
      */
     public function __construct(
+        IndexerRegistry $indexerRegistry,
+        DirectoryList $directoryList,
+        LoggerFactory $loggerFactory,
         ImportProcessor $importProcessor,
         Context $context,
         Registry $registry,
@@ -103,6 +150,9 @@ class Import extends AbstractModel
         AbstractDb $resourceCollection = null,
         array $data = array()
     ) {
+        $this->indexerRegistry = $indexerRegistry;
+        $this->directoryList = $directoryList;
+        $this->loggerFactory = $loggerFactory;
         $this->_storeManager = $storeManager;
         $this->processor = $importProcessor;
         $this->_dataObjectFactory = $dataObjectFactory;
@@ -129,7 +179,15 @@ class Import extends AbstractModel
             $adapterIdentifier = $this->getData('type');
         }
 
-        return $this->processor->getAdapter($adapterIdentifier);
+        if (isset($this->processorAdapter[$adapterIdentifier])) {
+            return $this->processorAdapter[$adapterIdentifier];
+        }
+
+        $this->processorAdapter[$adapterIdentifier] = $this->processor->getAdapter($adapterIdentifier);
+        if ($this->logger) {
+            $this->processorAdapter[$adapterIdentifier]->setLogger($this->logger);
+        }
+        return $this->processorAdapter[$adapterIdentifier];
     }
 
     /**
@@ -247,6 +305,17 @@ class Import extends AbstractModel
             return;
         }
 
+        // + Logger
+        $this->logger = $this->loggerFactory->create();
+        $logPath = $this->directoryList->getPath(DirectoryList::VAR_DIR) . '/' . static::LOGGER_DIR . '/' . $this->getData('identifier') . '.log';
+        $this->logger->pushHandler(
+            new \Monolog\Handler\StreamHandler($logPath)
+        );
+        if ($this->getCommandOutput()) {
+            $this->logger->setCommandOutput($this->getCommandOutput());
+        }
+        // - Logger
+
         $data = $this->getData();
         $this->decodeData($data);
         $this->setData($data);
@@ -305,12 +374,6 @@ class Import extends AbstractModel
         return $this->htmlOutput;
     }
 
-
-    /**
-     * @var null|integer
-     */
-    protected $startTime = null;
-
     /**
      *
      */
@@ -324,10 +387,48 @@ class Import extends AbstractModel
      */
     public function finish()
     {
+        $this->reindex();
+
         $this->setData('generated_at', time());
         if ($this->startTime){
             $this->setData(time() - $this->startTime);
         }
         $this->save();
+    }
+
+    /**
+     * @param $productId
+     */
+    public function addProductToReindex($productId)
+    {
+        array_push($this->reindexProductIds, $productId);
+    }
+
+    /**
+     *
+     */
+    protected function reindex()
+    {
+        $productIds = $this->reindexProductIds;
+        $time = time();
+        $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Eav\Processor::INDEXER_ID)->reindexList($productIds);
+        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Eav\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
+
+        $time = time();
+        $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Price\Processor::INDEXER_ID)->reindexList($productIds);
+        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Price\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
+
+        try{
+            $time = time();
+            $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID)->reindexList($productIds);
+            $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
+        }
+        catch(\Exception $e) {
+            $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products is not avaliable.');
+        }
+
+        $time = time();
+        $this->indexerRegistry->get(\Magento\CatalogSearch\Model\Indexer\Fulltext\Processor::INDEXER_ID)->reindexList($productIds);
+        $this->logger->debug('The ' . \Magento\CatalogSearch\Model\Indexer\Fulltext\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
     }
 }

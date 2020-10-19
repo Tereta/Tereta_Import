@@ -94,8 +94,6 @@ class Http extends AbstractModel
      */
     public function import($dataModel)
     {
-        $this->beforeImport($dataModel);
-
         if (!$dataModel->getData('http_url')) {
             throw new \Exception(__('HTTP URL was not present.'));
         }

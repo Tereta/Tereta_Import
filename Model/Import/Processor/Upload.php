@@ -90,8 +90,6 @@ class Upload extends AbstractModel
      */
     public function import($dataModel)
     {
-        $this->beforeImport($dataModel);
-
         $importDir = $this->directoryList->getPath('media') . '/' .  static::DIR_PATH;
 
         if ($uploadFile = $dataModel->getData('upload_file')) {
