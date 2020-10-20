@@ -394,6 +394,10 @@ class Import extends AbstractModel
             $this->setData(time() - $this->startTime);
         }
         $this->save();
+
+        if ($this->startTime) {
+            $this->logger->debug(__('Full import finished during %1sec.', (time() - $this->startTime)));
+        }
     }
 
     /**
