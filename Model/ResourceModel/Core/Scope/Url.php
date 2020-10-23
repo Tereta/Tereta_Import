@@ -34,12 +34,10 @@
 
 namespace Tereta\Import\Model\ResourceModel\Core\Scope;
 
-use Tereta\Import\Model\Core\Scope as ScopeModel;
-use Tereta\Import\Model\ResourceModel\Core\Scope\AbstractDb;
+use Magento\Eav\Api\AttributeRepositoryInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Model\ResourceModel\Db\Context;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Eav\Api\AttributeRepositoryInterface;
 
 /**
  * Tereta\Import\Model\ResourceModel\Core\Scope\Url
@@ -114,7 +112,9 @@ class Url extends AbstractDb
      */
     public function collect($data)
     {
-        if (!isset($data['sku']) || !($sku = $data['sku']) || !isset($data['url_key']) || !$data['url_key']) return;
+        if (!isset($data['sku']) || !($sku = $data['sku']) || !isset($data['url_key']) || !$data['url_key']) {
+            return;
+        }
 
         $collectedDataItem = [
             'entity_id' => null,
@@ -153,9 +153,8 @@ class Url extends AbstractDb
 
         if ($this->configuration->getStoreId()) {
             $this->saveStoreUrls($this->configuration->getStoreId());
-        }
-        else {
-            foreach($this->storeManager->getStores() as $storeModel) {
+        } else {
+            foreach ($this->storeManager->getStores() as $storeModel) {
                 $this->saveStoreUrls($storeModel->getStoreId());
             }
         }
@@ -190,7 +189,7 @@ class Url extends AbstractDb
         $updateRecords = [];
         $deleteRecords = [];
 
-        foreach($urlKeyValues as $item) {
+        foreach ($urlKeyValues as $item) {
             $value = $item['value'];
             if (!is_null($item['store_value'])) {
                 $item['value'] = $item['store_value'];
@@ -218,7 +217,7 @@ class Url extends AbstractDb
 
         $insertRecordsFull = $insertRecords;
 
-        foreach($recordsInDb as $item) {
+        foreach ($recordsInDb as $item) {
             $entityId = $item['entity_id'];
 
             //if ($item['metadata'] !== null) {
@@ -229,8 +228,7 @@ class Url extends AbstractDb
 
             if ($this->isRecordExists($item, $insertRecordItem)) {
                 unset($insertRecords[$entityId]);
-            }
-            else {
+            } else {
                 $updateRecords[$item['url_rewrite_id']] = $item;
                 $updateRecords[$item['url_rewrite_id']]['target_path'] = $insertRecordItem['request_path'];
                 $updateRecords[$item['url_rewrite_id']]['redirect_type'] = '301';
@@ -240,18 +238,18 @@ class Url extends AbstractDb
         if ($updateRecords) {
             $connection->insertOnDuplicate($this->getTable('url_rewrite'), array_values($updateRecords));
         }
-        $this->logger->debug("Update " . count($updateRecords) . " records in the 'url_rewrite' table");
+        $this->logger->debug(__("Update %1 records into the 'url_rewrite' table for the #%2 store.", count($updateRecords), $storeId));
 
         if ($insertRecords) {
             $connection->insertOnDuplicate($this->getTable('url_rewrite'), array_values($insertRecords));
         }
-        $this->logger->debug("Insert " . count($insertRecords) . " records in the 'url_rewrite' table");
+        $this->logger->debug(__("Insert %1 records into the 'url_rewrite' table for the #%2 store.", count($insertRecords), $storeId));
 
         if ($deleteRecords) {
             $selectDelete = $connection->select()->from($this->getTable('url_rewrite'))->where('url_rewrite_id IN (?)', $deleteRecords);
             $connection->deleteFromSelect($selectDelete, $this->getTable('url_rewrite'));
         }
-        $this->logger->debug("Delete " . count($deleteRecords) . " records in the 'url_rewrite' table");
+        $this->logger->debug(__("Delete %1 records into the 'url_rewrite' table for the #%2 store.", count($deleteRecords), $storeId));
     }
 
     /**
@@ -262,7 +260,7 @@ class Url extends AbstractDb
     protected function isRecordExists($itemExists, $insertUpdateRecordItem)
     {
         $return = true;
-        foreach($itemExists as $key=>$value) {
+        foreach ($itemExists as $key=>$value) {
             if ($key != "url_rewrite_id" && !array_key_exists($key, $insertUpdateRecordItem)) {
                 $return = false;
                 break;
@@ -274,7 +272,7 @@ class Url extends AbstractDb
             }
         }
 
-        foreach($insertUpdateRecordItem as $key=>$item) {
+        foreach ($insertUpdateRecordItem as $key=>$item) {
             if ($key != "url_rewrite_id" && !array_key_exists($key, $itemExists)) {
                 $return = false;
                 break;

@@ -40,6 +40,7 @@ use Tereta\Import\Model\Core\ScopeFactory;
 use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\Import\ProcessorFactory as ImportProcessorFactory;
 use Magento\Framework\DataObjectFactory;
+use Exception;
 
 /**
  * Class Http
@@ -91,11 +92,12 @@ class Http extends AbstractModel
     /**
      * @param $dataModel
      * @throws \Magento\Framework\Exception\FileSystemException
+     * @throws Exception
      */
     public function import($dataModel)
     {
         if (!$dataModel->getData('http_url')) {
-            throw new \Exception(__('HTTP URL was not present.'));
+            throw new Exception(__('HTTP URL was not present.'));
         }
 
         $dataModel->start();
@@ -110,7 +112,7 @@ class Http extends AbstractModel
         $result = $this->ioFile->read($dataModel->getData('http_url'), $filePath);
 
         if (!$result) {
-            throw new \Exception(__('Remote file "%1" was not downloaded.', $dataModel->getData('http_url')));
+            throw new Exception(__('Remote file "%1" was not downloaded.', $dataModel->getData('http_url')));
         }
 
         $processAdaptor = $this->importProcessorFactory->create()->getAdapter('csv');

@@ -34,9 +34,9 @@
 
 namespace Tereta\Import\Model;
 
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
  * Class Logger
@@ -63,7 +63,7 @@ class Logger extends \Monolog\Logger
      * @param array $handlers
      * @param array $processors
      */
-    public function __construct(ScopeConfigInterface $scopeConfig, $name, array $handlers = array(), array $processors = array())
+    public function __construct(ScopeConfigInterface $scopeConfig, $name, array $handlers = [], array $processors = [])
     {
         $this->_scopeConfig = $scopeConfig;
 
@@ -101,19 +101,17 @@ class Logger extends \Monolog\Logger
      * @param array $context
      * @return bool
      */
-    public function addRecord($level, $message, array $context = array())
+    public function addRecord($level, $message, array $context = [])
     {
         if ($this->_commandOutput) {
             $commandMessage = $message;
 
-            switch($level) {
+            switch ($level) {
                 case (static::INFO):
                     $commandMessage = '<info>' . $commandMessage . '</info>';
                     break;
-                case (static::ERROR):
-                    $commandMessage = '<error>' . $commandMessage . '</error>';
-                    break;
                 case (static::WARNING):
+                case (static::ERROR):
                     $commandMessage = '<error>' . $commandMessage . '</error>';
                     break;
                 case (static::DEBUG):
@@ -132,18 +130,15 @@ class Logger extends \Monolog\Logger
             if ($showMessage) {
                 $this->_commandOutput->writeln($commandMessage);
             }
-        }
-        elseif ($this->htmlOutput) {
+        } elseif ($this->htmlOutput) {
             $commandMessage = $message;
 
-            switch($level) {
+            switch ($level) {
                 case (static::INFO):
                     $commandMessage = '<div class="info">' . $commandMessage . '</div>';
                     break;
-                case (static::ERROR):
-                    $commandMessage = '<div class="error">' . $commandMessage . '</div>';
-                    break;
                 case (static::WARNING):
+                case (static::ERROR):
                     $commandMessage = '<div class="error">' . $commandMessage . '</div>';
                     break;
                 case (static::DEBUG):

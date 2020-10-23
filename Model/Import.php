@@ -34,19 +34,19 @@
 
 namespace Tereta\Import\Model;
 
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Indexer\IndexerRegistry;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
-use Magento\Framework\Registry;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
-use Magento\Framework\Data\Collection\AbstractDb;
-use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Registry;
+
 use Magento\Store\Model\StoreManagerInterface;
 
-use Tereta\Import\Model\Import\Processor as ImportProcessor;
-
 use Symfony\Component\Console\Output\OutputInterface;
-use Magento\Framework\App\Filesystem\DirectoryList;
+use Tereta\Import\Model\Import\Processor as ImportProcessor;
 
 /**
  * Class Import
@@ -148,7 +148,7 @@ class Import extends AbstractModel
         StoreManagerInterface $storeManager,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        array $data = array()
+        array $data = []
     ) {
         $this->indexerRegistry = $indexerRegistry;
         $this->directoryList = $directoryList;
@@ -285,7 +285,8 @@ class Import extends AbstractModel
      * @return AbstractModel|void
      * @throws \Exception
      */
-    public function beforeSave() {
+    public function beforeSave()
+    {
         if (!$this->getData('type')) {
             return;
         }
@@ -300,7 +301,8 @@ class Import extends AbstractModel
      * @return AbstractModel|void
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function afterLoad() {
+    public function afterLoad()
+    {
         if (!$this->getData('type')) {
             return;
         }
@@ -322,34 +324,30 @@ class Import extends AbstractModel
 
         if ($skipDocumentFields = $this->getData('skip_document_fields')) {
             $this->setData('skip_document_fields_object', $this->_dataObjectFactory->create(['data' => (array) json_decode($skipDocumentFields)]));
-        }
-        else {
+        } else {
             $this->setData('skip_document_fields_object', $this->_dataObjectFactory->create());
         }
 
         if ($skipEmptyAttributes = $this->getData('skip_empty_attributes')) {
             $this->setData('skip_empty_attributes_object', $this->_dataObjectFactory->create(['data' => (array) json_decode($skipEmptyAttributes)]));
-        }
-        else {
+        } else {
             $this->setData('skip_empty_attributes_object', $this->_dataObjectFactory->create());
         }
 
         if ($clearEmptyAttributes = $this->getData('clear_empty_attributes')) {
             $this->setData('clear_empty_attributes_object', $this->_dataObjectFactory->create(['data' => (array) json_decode($clearEmptyAttributes)]));
-        }
-        else {
+        } else {
             $this->setData('clear_empty_attributes_object', $this->_dataObjectFactory->create());
         }
 
         if ($mappingAttribute = $this->getData('mapping_attribute')) {
             $data = json_decode($mappingAttribute);
             $dataObject = $this->_dataObjectFactory->create();
-            foreach($data as $item){
+            foreach ($data as $item) {
                 $dataObject->setData($item->key, $item->value);
             }
             $this->setData('mapping_attribute_object', $dataObject);
-        }
-        else {
+        } else {
             $this->setData('mapping_attribute_object', $this->_dataObjectFactory->create());
         }
 
@@ -390,7 +388,7 @@ class Import extends AbstractModel
         $this->reindex();
 
         $this->setData('generated_at', time());
-        if ($this->startTime){
+        if ($this->startTime) {
             $this->setData(time() - $this->startTime);
         }
         $this->save();
@@ -422,12 +420,11 @@ class Import extends AbstractModel
         $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Price\Processor::INDEXER_ID)->reindexList($productIds);
         $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Price\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
 
-        try{
+        try {
             $time = time();
             $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID)->reindexList($productIds);
             $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products is not avaliable.');
         }
 

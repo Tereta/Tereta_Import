@@ -35,7 +35,6 @@
 namespace Tereta\Import\Model\Import\Processor;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
-use Symfony\Component\Console\Output\OutputInterface;
 use Tereta\Import\Model\Core\ScopeFactory as ScopeFactory;
 use Tereta\Import\Model\Logger;
 

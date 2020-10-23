@@ -34,13 +34,13 @@
 
 namespace Tereta\Import\Model\Ui\Form;
 
-use Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider as DataProviderExtend;
+use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\Search\ReportingInterface;
 use Magento\Framework\Api\Search\SearchCriteriaBuilder;
 use Magento\Framework\App\RequestInterface;
-use Magento\Framework\Api\FilterBuilder;
-use Tereta\Import\Model\ResourceModel\Import\CollectionFactory as ImportCollectionFactory;
+use Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider as DataProviderExtend;
 use Tereta\Import\Model\Import as ImportModel;
+use Tereta\Import\Model\ResourceModel\Import\CollectionFactory as ImportCollectionFactory;
 
 /**
  * Tereta\Import\Model\UI\Form\DataProvider
@@ -86,8 +86,8 @@ class DataProvider extends DataProviderExtend
         RequestInterface $request,
         FilterBuilder $filterBuilder,
         ImportModel $importModel,
-        array $meta = array(),
-        array $data = array()
+        array $meta = [],
+        array $data = []
     ) {
         $this->_importCollection = $importCollectionFactory->create();
         $this->_importModel = $importModel;
@@ -108,7 +108,8 @@ class DataProvider extends DataProviderExtend
     /**
      * @return array
      */
-    public function getData() {
+    public function getData()
+    {
         $items = $this->_importCollection->getItems();
 
         if ($this->_loadedData) {

@@ -34,7 +34,7 @@
 
 namespace Tereta\Import\Block\Adminhtml\Block\Edit\RunButton;
 
-use \Magento\Ui\Component\Control\Button;
+use Magento\Ui\Component\Control\Button;
 
 /**
  * Tereta\Import\Block\Adminhtml\Block\Edit\RunButton\Template
