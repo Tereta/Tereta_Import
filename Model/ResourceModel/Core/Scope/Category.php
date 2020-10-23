@@ -34,9 +34,8 @@
 
 namespace Tereta\Import\Model\ResourceModel\Core\Scope;
 
-use Magento\Framework\Model\ResourceModel\Db\Context;
-use Tereta\Import\Model\ResourceModel\Core\Scope\AbstractDb;
 use Magento\Framework\Indexer\IndexerRegistry;
+use Magento\Framework\Model\ResourceModel\Db\Context;
 
 /**
  * Tereta\Import\Model\ResourceModel\Core\Scope\Category
@@ -95,8 +94,8 @@ class Category extends AbstractDb
         if (!is_array($categoryIds)) {
             $categoryIds = [$categoryIds];
         }
-        
-        foreach($categoryIds as $categoryId){
+
+        foreach ($categoryIds as $categoryId) {
             $categoryId = trim($categoryId);
 
             $collectedDataItem = [
@@ -115,7 +114,7 @@ class Category extends AbstractDb
      */
     public function fillEntityIds($skuIds)
     {
-        foreach($this->collectedData as $key=>$item) {
+        foreach ($this->collectedData as $key=>$item) {
             $sku = $item['sku'];
             if (!$skuIds->getData($sku)) {
                 unset($this->collectedData[$key]);
@@ -143,10 +142,12 @@ class Category extends AbstractDb
             );
         }
 
-        $this->logger->debug('Uploaded and saved ' . count($this->collectedData) . ' records in the "catalog_category_product" table, time spent: ' . (time() - $time) . 'sec.');
+        $this->logger->debug(
+            __('Uploaded and saved %1 records in the "catalog_category_product" table (%2sec).', count($this->collectedData), (time() - $time))
+        );
 
         $productIds = [];
-        foreach($this->collectedData as $item){
+        foreach ($this->collectedData as $item) {
             array_push($productIds, $item['product_id']);
         }
 
@@ -160,19 +161,26 @@ class Category extends AbstractDb
     {
         $time = time();
         $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Category::INDEXER_ID)->reindexList($this->reindexProductIds);
-        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Category::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+        $this->logger->debug(
+            __('The %1 index was processed (%2sec).', \Magento\Catalog\Model\Indexer\Product\Category::INDEXER_ID, (time() - $time))
+        );
 
         $time = time();
         $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Category\Product::INDEXER_ID)->reindexList($this->reindexProductIds);
-        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Category\Product::INDEXER_ID . ' index was processed in: ' . (time() - $time) . 'sec.');
+        $this->logger->debug(
+            __('The %1 index was processed (%2sec).', \Magento\Catalog\Model\Indexer\Category\Product::INDEXER_ID, (time() - $time))
+        );
 
         $time = time();
         $this->indexerRegistry->get(\Magento\CatalogRule\Model\Indexer\Rule\RuleProductProcessor::INDEXER_ID)->reindexList($this->reindexProductIds);
-        $this->logger->debug('The ' . \Magento\CatalogRule\Model\Indexer\Rule\RuleProductProcessor::INDEXER_ID . ' index with ' . count($this->reindexProductIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
+        $this->logger->debug(
+            __('The %1 index was processed (%2sec).', \Magento\CatalogRule\Model\Indexer\Rule\RuleProductProcessor::INDEXER_ID, (time() - $time))
+        );
 
         $time = time();
         $this->indexerRegistry->get(\Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor::INDEXER_ID)->reindexList($this->reindexProductIds);
-        $this->logger->debug('The ' . \Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor::INDEXER_ID . ' index with ' . count($this->reindexProductIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
-
+        $this->logger->debug(
+            __('The %1 index was processed (%2sec).', \Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor::INDEXER_ID, (time() - $time))
+        );
     }
 }

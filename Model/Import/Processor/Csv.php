@@ -35,13 +35,12 @@
 namespace Tereta\Import\Model\Import\Processor;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
-use Magento\Indexer\Model\IndexerFactory;
-use Magento\ImportExport\Model\Import\Source\CsvFactory;
-use Magento\Framework\Filesystem\Directory\ReadFactory as DirectoryReadFactory;
 use Magento\Framework\Filesystem;
+use Magento\Framework\Filesystem\Directory\ReadFactory as DirectoryReadFactory;
+use Magento\ImportExport\Model\Import\Source\CsvFactory;
 
-use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\Core\ScopeFactory as ScopeFactory;
+use Tereta\Import\Model\Logger;
 
 /**
  * Class Csv
@@ -59,8 +58,20 @@ class Csv extends AbstractModel
      */
     protected $fileSystem;
 
+    /**
+     * @var DirectoryReadFactory
+     */
     protected $directoryReadFactory;
 
+    /**
+     * Csv constructor.
+     * @param Filesystem $fileSystem
+     * @param CsvFactory $csvFactory
+     * @param DirectoryList $directoryList
+     * @param ScopeFactory $scopeFactory
+     * @param Logger $logger
+     * @param DirectoryReadFactory $directoryReadFactory
+     */
     public function __construct(
         Filesystem $fileSystem,
         CsvFactory $csvFactory,
@@ -76,6 +87,10 @@ class Csv extends AbstractModel
         parent::__construct($directoryList, $scopeFactory, $logger);
     }
 
+    /**
+     * @param $dataModel
+     * @return mixed|void
+     */
     public function import($dataModel)
     {
         $file = $dataModel->getData('csv_file');
@@ -95,7 +110,7 @@ class Csv extends AbstractModel
 
         $csv->rewind();
 
-        $time = time();
+        $collectTime = time();
         $counter = 0;
 
         $scopeModel = $this->scopeCreate($dataModel);
@@ -106,22 +121,23 @@ class Csv extends AbstractModel
                 $scopeModel->collectItem($csv->current());
 
                 if (($counter % $dataModel->getScopeLimit()) == 0) {
-                    $this->logger->info(__("Collected %1 records, time spent %2sec.", $counter, time() - $time));
+                    $this->logger->info(__("Collected %1 records (%2sec).", $counter, time() - $collectTime));
+                    $saveTime = time();
                     $scopeModel->save();
                     $scopeModel = $this->scopeCreate($dataModel);
-                    $this->logger->info(__("Processed %1 records, time spent %2sec.", $counter, time() - $time));
+                    $this->logger->info(__("Saved %1 records (%2sec).", $counter, time() - $saveTime));
                 }
-            }
-            catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $this->logger->error($e->getMessage());
             }
 
             $csv->next();
         }
-        if ($scopeModel->isCollected()){
-            $this->logger->info(__("Collected %1 records, time spent %2sec.", $counter, time() - $time));
+        if ($scopeModel->isCollected()) {
+            $this->logger->info(__("Collected %1 records (%2sec).", $counter, time() - $collectTime));
+            $saveTime = time();
             $scopeModel->save();
-            $this->logger->info(__("Processed %1 records, time spent %2sec.", $counter, time() - $time));
+            $this->logger->info(__("Saved %1 records (%2sec).", $counter, time() - $saveTime));
         }
 
         $this->logger->info(__('Import finished'));

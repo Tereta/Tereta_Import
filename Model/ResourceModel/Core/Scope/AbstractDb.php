@@ -85,7 +85,6 @@ abstract class AbstractDb extends FrameworkAbstractDb
      */
     public function reindex()
     {
-        
     }
 
     /**

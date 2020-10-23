@@ -51,9 +51,6 @@ use Magento\Framework\Filesystem\Io\File as IoFile;
 use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\Core\Scope\ExtensionFactory;
 use Tereta\Import\Model\Core\Scope\AttributeSetFactory;
-//use Tereta\Import\Model\Core\Scope\StockFactory;
-//use Tereta\Import\Model\Core\Scope\MediaFactory;
-//use Tereta\Import\Model\Core\Scope\CategoryFactory;
 use Tereta\Import\Model\ResourceModel\Core\Scope as ScopeResource;
 
 use Magento\Framework\Model\Context;
@@ -395,64 +392,66 @@ class Scope extends AbstractModel
 
             $debugTime = time();
             $this->getResource()->fillSkuEntities($this->skuEntities, $this->_configuration);
-            $this->logger->debug('Fill IDS for entities, time spent: ' . (time() - $debugTime) . 'sec.');
+            $this->logger->debug(__('Fill IDS for entities (%1sec).', (time() - $debugTime)));
 
             $this->extension->fillEntityIds($this->skuEntities);
 
             $debugTime = time();
             $this->_fillAttributeTypeEntityIds(static::ATTRIBUTE_TYPE_INT);
-            $this->logger->debug('Fill IDS for the INT type, time spent: ' . (time() - $debugTime) . 'sec.');
+            $this->logger->debug(__('Fill IDS for the INT type (%1sec).', (time() - $debugTime)));
 
             $debugTime = time();
             $this->_fillAttributeTypeEntityIds(static::ATTRIBUTE_TYPE_DECIMAL);
-            $this->logger->debug('Fill IDS for the DECIMAL type, time spent: ' . (time() - $debugTime) . 'sec.');
+            $this->logger->debug(__('Fill IDS for the DECIMAL type (%1sec).', (time() - $debugTime)));
             $debugTime = time();
             $this->_fillAttributeTypeEntityIds(static::ATTRIBUTE_TYPE_DATETIME);
-            $this->logger->debug('Filling IDS for the DATETIME type, time spent: ' . (time() - $debugTime) . 'sec.');
+            $this->logger->debug(__('Fill IDS for the DATETIME type (%1sec)', (time() - $debugTime)));
             $debugTime = time();
             $this->_fillAttributeTypeEntityIds(static::ATTRIBUTE_TYPE_TEXT);
-            $this->logger->debug('Filling IDS for the TEXT type, time spent: ' . (time() - $debugTime) . 'sec.');
+            $this->logger->debug(__('Fill IDS for the TEXT type (%1sec).', (time() - $debugTime)));
             $debugTime = time();
             $this->_fillAttributeTypeEntityIds(static::ATTRIBUTE_TYPE_VARCHAR);
-            $this->logger->debug('Filling IDS for the VARCHAR type, time spent: ' . (time() - $debugTime) . 'sec.');
+            $this->logger->debug(__('Fill IDS for the VARCHAR type (%1sec).', (time() - $debugTime)));
 
             $this->logger->debug('DB transaction begin...');
             $this->getResource()->beginTransaction();
 
             $debugTime = time();
             $this->getResource()->saveTypeValues($this->skuEntities, $this->_attributeTypeEntities);
-            $this->logger->debug('Save values, time spent: ' . (time() - $debugTime) . 'sec.');
+            $this->logger->debug(__('Save values (%1sec).', (time() - $debugTime)));
 
             $debugTime = time();
             $this->getResource()->removeTypeValues($this->skuEntities, $this->_attributeTypeEntitiesRemove);
-            $this->logger->debug('Remove values, time spent: ' . (time() - $debugTime) . 'sec.');
+            $this->logger->debug(__('Remove values (%1sec).', (time() - $debugTime)));
 
             $debugTime = time();
             $this->getResource()->saveEntityWebsite($this->skuEntities);
-            $this->logger->debug('Remove values, time spent: ' . (time() - $debugTime) . 'sec.');
+            $this->logger->debug(__('Remove values (%1sec).', (time() - $debugTime)));
 
             $this->extension->save();
 
             $debugTime = time();
-            $this->logger->debug('DB transaction commit...');
+            $this->logger->debug(__('DB transaction commit...'));
             $this->getResource()->commitTransaction();
-            $this->logger->debug('DB transaction has beed commited, time spent: ' . (time() - $debugTime) . 'sec.');
+            $this->logger->debug(__('DB transaction has beed commited (%1sec).', (time() - $debugTime)));
 
             // Save update time on main table and for append value tables
             $this->getResource()->saveUpdateTimes($this->skuEntities, $updateStatisticAttributes);
 
             if ($this->getResource()->getStatisticFieldSkuSkipped()) {
-                $this->logger->warning('Can not find SKUs for field with value: "' . (implode('", "', $this->getResource()->getStatisticFieldSkuSkipped())) . '"');
+                $this->logger->warning(
+                    __('Can not find SKUs for field with value: "%1"', (implode('", "', $this->getResource()->getStatisticFieldSkuSkipped())))
+                );
             }
 
-            $this->logger->debug('DB transaction begin...');
+            $this->logger->debug(__('DB transaction begin...'));
             $this->getResource()->beginTransaction();
 
             $this->extension->saveAfter();
 
-            $this->logger->debug('DB transaction commit...');
+            $this->logger->debug(__('DB transaction commit...'));
             $this->getResource()->commitTransaction();
-            $this->logger->debug('DB transaction has beed commited, time spent: ' . (time() - $debugTime) . 'sec.');
+            $this->logger->debug(__('DB transaction has beed commited (%1sec).', (time() - $debugTime)));
 
             // Indexation common indexes
             foreach($this->skuEntities->getData() as $item){
@@ -473,9 +472,13 @@ class Scope extends AbstractModel
                 }
             }
         } catch (\Exception $e) {
-            $this->logger->error("SKUs: ('" . implode("','", array_keys($this->skuEntities->getData())) . "''); Error message: " . $e->getMessage());
-            $this->logger->debug('Exception Throw: ' . $e->getFile() . ':' . $e->getLine());
-            $this->logger->debug('Exception Trace: ' . $e->getTraceAsString());
+            $this->logger->error(
+                __("SKUs: ('%1'); Error message: %2", implode("','", array_keys($this->skuEntities->getData())), $e->getMessage())
+            );
+            $this->logger->debug(
+                __('Exception Throw: %1:%2', $e->getFile(), $e->getLine())
+            );
+            $this->logger->debug(__('Exception Trace: %1', $e->getTraceAsString()));
         }
     }
 

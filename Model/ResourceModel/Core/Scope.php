@@ -185,30 +185,35 @@ class Scope extends AbstractDb
     {
         $connection = $this->getConnection();
 
+        $unitTime = time();
         if ($data = $this->fetchTypeValues(ScopeModel::ATTRIBUTE_TYPE_INT, $attributeTypeEntities)) {
             $connection->insertOnDuplicate($this->getTable('catalog_product_entity_int'), $data);
         }
-        $this->logger->debug("Updated or inserted " . count($data) . " records in the 'catalog_product_entity_int' table");
+        $this->logger->debug(__("Updated or inserted %1 records in the 'catalog_product_entity_int' table (%2sec).", count($data), time() - $unitTime));
 
+        $unitTime = time();
         if ($data = $this->fetchTypeValues(ScopeModel::ATTRIBUTE_TYPE_DECIMAL, $attributeTypeEntities)) {
             $connection->insertOnDuplicate($this->getTable('catalog_product_entity_decimal'), $data);
         }
-        $this->logger->debug("Updated or inserted " . count($data) . " records in the 'catalog_product_entity_decimal' table");
+        $this->logger->debug(__("Updated or inserted %1 records in the 'catalog_product_entity_decimal' table (%2sec).", count($data), time() - $unitTime));
 
+        $unitTime = time();
         if ($data = $this->fetchTypeValues(ScopeModel::ATTRIBUTE_TYPE_DATETIME, $attributeTypeEntities)) {
             $connection->insertOnDuplicate($this->getTable('catalog_product_entity_datetime'), $data);
         }
-        $this->logger->debug("Updated or inserted " . count($data) . " records in the 'catalog_product_entity_datetime' table");
+        $this->logger->debug(__("Updated or inserted %1 records in the 'catalog_product_entity_datetime' table (%2sec).", count($data), time() - $unitTime));
 
+        $unitTime = time();
         if ($data = $this->fetchTypeValues(ScopeModel::ATTRIBUTE_TYPE_TEXT, $attributeTypeEntities)) {
             $connection->insertOnDuplicate($this->getTable('catalog_product_entity_text'), $data);
         }
-        $this->logger->debug("Updated or inserted " . count($data) . " records in the 'catalog_product_entity_text' table");
+        $this->logger->debug(__("Updated or inserted %1 records in the 'catalog_product_entity_text' table (%2sec).", count($data), time() - $unitTime));
 
+        $unitTime = time();
         if ($data = $this->fetchTypeValues(ScopeModel::ATTRIBUTE_TYPE_VARCHAR, $attributeTypeEntities)) {
             $connection->insertOnDuplicate($this->getTable('catalog_product_entity_varchar'), $data);
         }
-        $this->logger->debug("Updated or inserted " . count($data) . " records in the 'catalog_product_entity_varchar' table");
+        $this->logger->debug(__("Updated or inserted %1 records in the 'catalog_product_entity_varchar' table (%2sec).", count($data), time() - $unitTime));
     }
 
     /**
@@ -220,43 +225,87 @@ class Scope extends AbstractDb
         $connection = $this->getConnection();
 
         if ($data = $this->fetchTypeValues(ScopeModel::ATTRIBUTE_TYPE_INT, $attributeTypeEntities)) {
+            $unitTime = time();
+            $this->logger->debug("Deleting values (catalog_product_entity_int)");
+
             $select = $connection->select()->from($this->getTable('catalog_product_entity_int'));
             foreach($data as $item) {
                 $select->orWhere('attribute_id = ' . $item['attribute_id'] . ' AND store_id = ' . $item['store_id'] . ' AND entity_id = ' . $item['entity_id']);
             }
+
+            $this->logQueryExplain($select->deleteFromSelect('catalog_product_entity_int'));
             $connection->query($select->deleteFromSelect('catalog_product_entity_int'));
+
+            $unitTime = time() - $unitTime;
+            $unitCount = count($data);
+            $this->logger->debug(__("Deleted %1 records (%2sec).", $unitCount, $unitTime));
         }
 
         if ($data = $this->fetchTypeValues(ScopeModel::ATTRIBUTE_TYPE_DECIMAL, $attributeTypeEntities)) {
+            $unitTime = time();
+            $this->logger->debug("Deleting values (catalog_product_entity_decimal)");
+
             $select = $connection->select()->from($this->getTable('catalog_product_entity_decimal'));
             foreach($data as $item) {
                 $select->orWhere('attribute_id = ' . $item['attribute_id'] . ' AND store_id = ' . $item['store_id'] . ' AND entity_id = ' . $item['entity_id']);
             }
+            $this->logQueryExplain($select->deleteFromSelect('catalog_product_entity_decimal'));
             $connection->query($select->deleteFromSelect('catalog_product_entity_decimal'));
+
+            $unitTime = time() - $unitTime;
+            $unitCount = count($data);
+            $this->logger->debug(__("Deleted %1 records (%2sec).", $unitCount, $unitTime));
         }
 
         if ($data = $this->fetchTypeValues(ScopeModel::ATTRIBUTE_TYPE_DATETIME, $attributeTypeEntities)) {
+            $unitTime = time();
+            $this->logger->debug("Deleting values (catalog_product_entity_datetime)");
+
             $select = $connection->select()->from($this->getTable('catalog_product_entity_datetime'));
             foreach($data as $item) {
                 $select->orWhere('attribute_id = ' . $item['attribute_id'] . ' AND store_id = ' . $item['store_id'] . ' AND entity_id = ' . $item['entity_id']);
             }
+
+            $this->logQueryExplain($select->deleteFromSelect('catalog_product_entity_datetime'));
             $connection->query($select->deleteFromSelect('catalog_product_entity_datetime'));
+
+            $unitTime = time() - $unitTime;
+            $unitCount = count($data);
+            $this->logger->debug(__("Deleted %1 records (%2sec).", $unitCount, $unitTime));
         }
 
         if ($data = $this->fetchTypeValues(ScopeModel::ATTRIBUTE_TYPE_TEXT, $attributeTypeEntities)) {
+            $unitTime = time();
+            $this->logger->debug("Deleting values (catalog_product_entity_text)");
+
             $select = $connection->select()->from($this->getTable('catalog_product_entity_text'));
             foreach($data as $item) {
                 $select->orWhere('attribute_id = ' . $item['attribute_id'] . ' AND store_id = ' . $item['store_id'] . ' AND entity_id = ' . $item['entity_id']);
             }
+
+            $this->logQueryExplain($select->deleteFromSelect('catalog_product_entity_text'));
             $connection->query($select->deleteFromSelect('catalog_product_entity_text'));
+
+            $unitTime = time() - $unitTime;
+            $unitCount = count($data);
+            $this->logger->debug(__("Deleted %1 records (%2sec).", $unitCount, $unitTime));
         }
 
         if ($data = $this->fetchTypeValues(ScopeModel::ATTRIBUTE_TYPE_VARCHAR, $attributeTypeEntities)) {
+            $unitTime = time();
+            $this->logger->debug("Deleting values (catalog_product_entity_varchar)");
+
             $select = $connection->select()->from($this->getTable('catalog_product_entity_varchar'));
             foreach($data as $item) {
                 $select->orWhere('attribute_id = ' . $item['attribute_id'] . ' AND store_id = ' . $item['store_id'] . ' AND entity_id = ' . $item['entity_id']);
             }
+
+            $this->logQueryExplain($select->deleteFromSelect('catalog_product_entity_varchar'));
             $connection->query($select->deleteFromSelect('catalog_product_entity_varchar'));
+
+            $unitTime = time() - $unitTime;
+            $unitCount = count($data);
+            $this->logger->debug(__("Deleted %1 records (%2sec).", $unitCount, $unitTime));
         }
     }
 
@@ -441,5 +490,20 @@ class Scope extends AbstractDb
         }
 
         $this->logger->debug("Created " . count($skuEntities) . " new products");
+    }
+
+    /**
+     * @param $query
+     */
+    protected function logQueryExplain($query)
+    {
+        $connection = $this->getConnection();
+        $data = $connection->fetchRow('EXPLAIN ' . $query);
+        $out = '';
+
+        foreach($data as $key=>$item){
+            $out .= "{$key}: {$item}\n";
+        }
+        $this->logger->debug('EXPLAIN ' . substr($query, 0, 100) . "...\n" . $out);
     }
 }

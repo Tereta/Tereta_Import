@@ -387,7 +387,7 @@
     <fieldset name="advencedimport_fieldset_attributes">
         <argument name="data" xsi:type="array">
             <item name="config" xsi:type="array">
-                <item name="label" xsi:type="string" translate="true">SEO URLs</item>
+                <item name="label" xsi:type="string" translate="true">Attributes</item>
                 <item name="collapsible" xsi:type="boolean">true</item>
                 <item name="opened" xsi:type="boolean">false</item>
                 <item name="sortOrder" xsi:type="number">400</item>

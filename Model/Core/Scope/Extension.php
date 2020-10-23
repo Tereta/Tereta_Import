@@ -34,13 +34,13 @@
 
 namespace Tereta\Import\Model\Core\Scope;
 
+use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
-use Magento\Framework\Registry;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
-use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Registry;
 use Tereta\Import\Model\Logger;
 
 /**
@@ -137,7 +137,7 @@ class Extension extends AbstractModel
      */
     public function collect(&$data)
     {
-        foreach($this->registeredClasses as $key=>$item) {
+        foreach ($this->registeredClasses as $key=>$item) {
             $this->get($key)->collect($data);
         }
     }
@@ -148,10 +148,10 @@ class Extension extends AbstractModel
      */
     public function fillEntityIds($skuEntities)
     {
-        foreach($this->registeredClasses as $key=>$item) {
+        foreach ($this->registeredClasses as $key=>$item) {
             $debugTime = time();
             $this->get($key)->fillEntityIds($skuEntities);
-            $this->logger->debug("Fill IDS for '" . $key . "', time spent: " . (time() - $debugTime) . "sec.");
+            $this->logger->debug(__("Fill IDS for '%1' (%2sec).", $key, (time() - $debugTime)));
         }
     }
 
@@ -163,7 +163,7 @@ class Extension extends AbstractModel
     {
         $skipAttributes = [];
 
-        foreach($this->registeredClasses as $key=>$item) {
+        foreach ($this->registeredClasses as $key=>$item) {
             $skipAttributes = array_merge(
                 $skipAttributes,
                 $this->get($key)->getSkipAttributes()
@@ -181,7 +181,7 @@ class Extension extends AbstractModel
     {
         $attributes = [];
 
-        foreach($this->registeredClasses as $key=>$item) {
+        foreach ($this->registeredClasses as $key=>$item) {
             $attributes = array_merge(
                 $attributes,
                 $this->get($key)->getIncludeAttributes()
@@ -196,7 +196,7 @@ class Extension extends AbstractModel
      */
     public function reindex()
     {
-        foreach($this->registeredClasses as $key=>$item) {
+        foreach ($this->registeredClasses as $key=>$item) {
             $this->get($key)->reindex();
         }
     }
@@ -209,7 +209,7 @@ class Extension extends AbstractModel
     {
         $attributes = [];
 
-        foreach($this->registeredClasses as $key=>$item) {
+        foreach ($this->registeredClasses as $key=>$item) {
             $attributes = array_merge(
                 $attributes,
                 $this->get($key)->getUpdateStatisticAttributes()
@@ -225,10 +225,10 @@ class Extension extends AbstractModel
      */
     public function save()
     {
-        foreach($this->registeredClasses as $key=>$item) {
+        foreach ($this->registeredClasses as $key=>$item) {
             $debugTime = time();
             $this->get($key)->save();
-            $this->logger->debug("Save '" . $key . "', time spent: " . (time() - $debugTime) . "sec.");
+            $this->logger->debug(__("Save '%1' (%2sec).", $key, (time() - $debugTime)));
         }
     }
 
@@ -237,10 +237,10 @@ class Extension extends AbstractModel
      */
     public function saveAfter()
     {
-        foreach($this->registeredClasses as $key=>$item) {
+        foreach ($this->registeredClasses as $key=>$item) {
             $debugTime = time();
             $this->get($key)->saveAfter();
-            $this->logger->debug("Save (after) '" . $key . "', time spent: " . (time() - $debugTime) . "sec.");
+            $this->logger->debug(__("Save (after) '%1' (%2sec).", $key, (time() - $debugTime)));
         }
     }
 }

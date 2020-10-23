@@ -34,14 +34,12 @@
 
 namespace Tereta\Import\Model\ResourceModel\Core\Scope;
 
-use Tereta\Import\Model\ResourceModel\Core\Scope\AbstractDb;
-use Magento\Framework\Model\ResourceModel\Db\Context;
-use Magento\Store\Model\StoreManagerInterface;
-use Tereta\Import\Model\Logger;
-use Magento\InventorySalesApi\Api\StockResolverInterface;
-use Magento\InventorySalesApi\Api\Data\SalesChannelInterface;
-use Magento\InventoryApi\Api\GetSourcesAssignedToStockOrderedByPriorityInterface;
 use Magento\Framework\Indexer\IndexerRegistry;
+use Magento\Framework\Model\ResourceModel\Db\Context;
+use Magento\InventoryApi\Api\GetSourcesAssignedToStockOrderedByPriorityInterface;
+use Magento\InventorySalesApi\Api\Data\SalesChannelInterface;
+use Magento\InventorySalesApi\Api\StockResolverInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Stock
@@ -249,11 +247,11 @@ class Stock extends AbstractDb
      */
     protected function getBooleanValue($value)
     {
-        if (in_array($value, $this->booleanValues[true])){
+        if (in_array($value, $this->booleanValues[true])) {
             return true;
         }
 
-        if (in_array($value, $this->booleanValues[false])){
+        if (in_array($value, $this->booleanValues[false])) {
             return false;
         }
 
@@ -276,7 +274,7 @@ class Stock extends AbstractDb
 
         // $stockDataRecords
         $stockStatusIds = [];
-        foreach($stockDataRecords as $key=>$item) {
+        foreach ($stockDataRecords as $key=>$item) {
             array_push($stockStatusIds, $item['product_id']);
 
             if (!in_array($item['product_id'], $productIds)) {
@@ -291,13 +289,13 @@ class Stock extends AbstractDb
 
         $loadedRecords = $connection->fetchAll($select);
         $stockDataRecordsInsert = $stockDataRecords;
-        foreach($loadedRecords as $item) {
+        foreach ($loadedRecords as $item) {
             $stockDataRecords[$item['product_id']] = $stockDataRecords[$item['product_id']] + $item;
             unset($stockDataRecordsInsert[$item['product_id']]);
         }
 
-        try{
-            foreach($stockDataRecords as $item) {
+        try {
+            foreach ($stockDataRecords as $item) {
                 $this->getConnection()->update(
                     $this->getTable('cataloginventory_stock_status'),
                     $item,
@@ -306,7 +304,7 @@ class Stock extends AbstractDb
             }
             $this->logger->debug("Updated " . count($stockDataRecords) . " records in the 'cataloginventory_stock_status' table");
 
-            foreach($stockDataRecordsInsert as $key=>$item) {
+            foreach ($stockDataRecordsInsert as $key=>$item) {
                 if (!isset($stockDataRecordsInsert[$key]['qty'])) {
                     $stockDataRecordsInsert[$key]['qty'] = 0;
                 }
@@ -320,15 +318,14 @@ class Stock extends AbstractDb
             }
 
             $this->logger->debug("Inserted " . count($stockDataRecordsInsert) . " records into the 'cataloginventory_stock_status' table");
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw $e;
         }
 
         // StockItemDataRecords
         $stockItemDataRecords = $this->stockItemDataRecords;
         $stockStatusIds = [];
-        foreach($stockItemDataRecords as $key=>$item) {
+        foreach ($stockItemDataRecords as $key=>$item) {
             array_push($stockStatusIds, $item['product_id']);
             if (!in_array($item['product_id'], $productIds)) {
                 array_push($productIds, $item['product_id']);
@@ -342,13 +339,13 @@ class Stock extends AbstractDb
 
         $loadedRecords = $connection->fetchAll($select);
         $stockItemDataRecordsInsert = $stockItemDataRecords;
-        foreach($loadedRecords as $item) {
+        foreach ($loadedRecords as $item) {
             $stockItemDataRecords[$item['product_id']] = $stockItemDataRecords[$item['product_id']] + $item;
             unset($stockItemDataRecordsInsert[$item['product_id']]);
         }
 
         try {
-            foreach($stockItemDataRecords as $item) {
+            foreach ($stockItemDataRecords as $item) {
                 $this->getConnection()->update(
                     $this->getTable('cataloginventory_stock_item'),
                     $item,
@@ -356,15 +353,13 @@ class Stock extends AbstractDb
                 );
             }
 
-
             $this->logger->debug("Updated " . count($stockItemDataRecords) . " records in the 'cataloginventory_stock_item' table");
 
             if ($stockItemDataRecordsInsert) {
                 $connection->insertOnDuplicate($this->getTable('cataloginventory_stock_item'), $stockItemDataRecordsInsert);
             }
             $this->logger->debug("Inserted " . count($stockItemDataRecordsInsert) . " records into the 'cataloginventory_stock_item' table");
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw $e;
         }
 
