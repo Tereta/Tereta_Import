@@ -302,7 +302,7 @@ class Stock extends AbstractDb
                     ['product_id = ?' => $item['product_id'], 'stock_id = ?' => $item['stock_id'], 'website_id = ?' => $item['website_id']]
                 );
             }
-            $this->logger->debug("Updated " . count($stockDataRecords) . " records in the 'cataloginventory_stock_status' table");
+            $this->logger->debug(__("Updated %1 records in the 'cataloginventory_stock_status' table.", count($stockDataRecords)));
 
             foreach ($stockDataRecordsInsert as $key=>$item) {
                 if (!isset($stockDataRecordsInsert[$key]['qty'])) {
@@ -317,7 +317,7 @@ class Stock extends AbstractDb
                 $connection->insertOnDuplicate($this->getTable('cataloginventory_stock_status'), $stockDataRecordsInsert, ['product_id', 'website_id', 'stock_id', 'qty', 'stock_status']);
             }
 
-            $this->logger->debug("Inserted " . count($stockDataRecordsInsert) . " records into the 'cataloginventory_stock_status' table");
+            $this->logger->debug(__("Inserted %1 records in the 'cataloginventory_stock_status' table.", count($stockDataRecordsInsert)));
         } catch (\Exception $e) {
             throw $e;
         }
@@ -353,12 +353,12 @@ class Stock extends AbstractDb
                 );
             }
 
-            $this->logger->debug("Updated " . count($stockItemDataRecords) . " records in the 'cataloginventory_stock_item' table");
+            $this->logger->debug(__("Updated %1 records in the 'cataloginventory_stock_item' table", count($stockItemDataRecords)));
 
             if ($stockItemDataRecordsInsert) {
                 $connection->insertOnDuplicate($this->getTable('cataloginventory_stock_item'), $stockItemDataRecordsInsert);
             }
-            $this->logger->debug("Inserted " . count($stockItemDataRecordsInsert) . " records into the 'cataloginventory_stock_item' table");
+            $this->logger->debug(__("Inserted %1 records in the 'cataloginventory_stock_item' table", count($stockItemDataRecords)));
         } catch (\Exception $e) {
             throw $e;
         }
@@ -366,7 +366,7 @@ class Stock extends AbstractDb
         // Source Stock Data
         if ($this->stockSourceDataRecords) {
             $connection->insertOnDuplicate($this->getTable('inventory_source_item'), $this->stockSourceDataRecords, ['source_code', 'sku']);
-            $this->logger->debug("InsertOnDuplicate " . count($this->stockSourceDataRecords) . " records into the 'inventory_source_item' table");
+            $this->logger->debug(__("InsertOnDuplicate %1 records into the 'inventory_source_item' table", count($this->stockSourceDataRecords)));
         }
 
         $this->reindexProductIds = $productIds;
