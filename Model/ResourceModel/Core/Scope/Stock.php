@@ -216,7 +216,8 @@ class Stock extends AbstractDb
         foreach ($this->getSourceCodesAssignedToStock($stockId) as $sourceCode) {
             $record = [
                 'source_code' => $sourceCode,
-                'sku' => $productSku
+                'sku' => $productSku,
+                'quantity' => 0
             ];
 
             if (isset($data['is_in_stock']) && $data['is_in_stock'] !== '') {
@@ -260,6 +261,7 @@ class Stock extends AbstractDb
 
     /**
      * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Exception
      */
     public function saveStock()
     {
@@ -356,7 +358,11 @@ class Stock extends AbstractDb
             $this->logger->debug(__("Updated %1 records in the 'cataloginventory_stock_item' table", count($stockItemDataRecords)));
 
             if ($stockItemDataRecordsInsert) {
-                $connection->insertOnDuplicate($this->getTable('cataloginventory_stock_item'), $stockItemDataRecordsInsert);
+                $connection->insertOnDuplicate(
+                    $this->getTable('cataloginventory_stock_item'),
+                    $stockItemDataRecordsInsert,
+                    ['product_id', 'website_id', 'stock_id', 'is_in_stock', 'manage_stock', 'use_config_manage_stock', 'qty']
+                );
             }
             $this->logger->debug(__("Inserted %1 records in the 'cataloginventory_stock_item' table", count($stockItemDataRecords)));
         } catch (\Exception $e) {
@@ -365,8 +371,15 @@ class Stock extends AbstractDb
 
         // Source Stock Data
         if ($this->stockSourceDataRecords) {
-            $connection->insertOnDuplicate($this->getTable('inventory_source_item'), $this->stockSourceDataRecords, ['source_code', 'sku']);
-            $this->logger->debug(__("InsertOnDuplicate %1 records into the 'inventory_source_item' table", count($this->stockSourceDataRecords)));
+            $connection->insertOnDuplicate(
+                $this->getTable('inventory_source_item'),
+                $this->stockSourceDataRecords,
+                ['source_code', 'sku']
+            );
+
+            $this->logger->debug(
+                __("InsertOnDuplicate %1 records into the 'inventory_source_item' table", count($this->stockSourceDataRecords))
+            );
         }
 
         $this->reindexProductIds = $productIds;

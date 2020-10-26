@@ -34,29 +34,29 @@
 
 namespace Tereta\Import\Model\Core;
 
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Model\AbstractModel;
-use Magento\Framework\DataObject;
-use Magento\Framework\DataObjectFactory;
 use Magento\Catalog\Model\Product as ProductModel;
+use Magento\Catalog\Model\ResourceModel\Eav\Attribute as EavAttribute;
+use Magento\Eav\Api\AttributeOptionManagementInterface;
+use Magento\Eav\Api\Data\AttributeOptionInterfaceFactory;
+use Magento\Eav\Api\Data\AttributeOptionLabelInterfaceFactory;
 use Magento\Eav\Model\AttributeRepository;
 use Magento\Eav\Model\Entity\Attribute\Source\Table as SourceTable;
-use Magento\Eav\Api\Data\AttributeOptionLabelInterfaceFactory;
-use Magento\Eav\Api\Data\AttributeOptionInterfaceFactory;
-use Magento\Eav\Api\AttributeOptionManagementInterface;
-use Magento\Catalog\Model\ResourceModel\Eav\Attribute as EavAttribute;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\DataObject;
+use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem\Io\File as IoFile;
 
-use Tereta\Import\Model\Logger;
-use Tereta\Import\Model\Core\Scope\ExtensionFactory;
-use Tereta\Import\Model\Core\Scope\AttributeSetFactory;
-use Tereta\Import\Model\ResourceModel\Core\Scope as ScopeResource;
-
+use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
-use Magento\Framework\Registry;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
-use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Registry;
+
+use Tereta\Import\Model\Core\Scope\AttributeSetFactory;
+use Tereta\Import\Model\Core\Scope\ExtensionFactory;
+use Tereta\Import\Model\Logger;
+use Tereta\Import\Model\ResourceModel\Core\Scope as ScopeResource;
 
 /**
  * Class Scope
@@ -277,7 +277,7 @@ class Scope extends AbstractModel
         }
 
         $sku = $csvData[$this->getRevertedMapAttribute('sku')];
-        foreach($csvData as $key=>$item) {
+        foreach ($csvData as $key=>$item) {
             if (!trim($key)) {
                 continue;
             }
@@ -391,7 +391,7 @@ class Scope extends AbstractModel
             $updateStatisticAttributes = $this->extension->getUpdateStatisticAttributes();
 
             $debugTime = time();
-            $this->getResource()->fillSkuEntities($this->skuEntities, $this->_configuration);
+            $this->getResource()->fillSkuEntities($this->skuEntities);
             $this->logger->debug(__('Fill IDS for entities (%1sec).', (time() - $debugTime)));
 
             $this->extension->fillEntityIds($this->skuEntities);
@@ -454,20 +454,20 @@ class Scope extends AbstractModel
             $this->logger->debug(__('DB transaction has beed commited (%1sec).', (time() - $debugTime)));
 
             // Indexation common indexes
-            foreach($this->skuEntities->getData() as $item){
+            foreach ($this->skuEntities->getData() as $item) {
                 $this->_configuration->addProductToReindex($item['entity_id']);
             }
 
             $this->extension->reindex();
 
-            // Move to resource and do configuration!!
+            // Move to resource and do configuration!! ALEXDEB!!!
             if ($this->getResource()->getStatisticRowFieldSkuSkipped()) {
                 $logDir = $this->directoryList->getPath('log') . '/tereta';
                 if (!is_dir($logDir)) {
                     $this->ioFile->mkdir($logDir);
                 }
                 file_put_contents($logDir . '/importSkippedFields.csv', "");
-                foreach($this->getResource()->getStatisticRowFieldSkuSkipped() as $item) {
+                foreach ($this->getResource()->getStatisticRowFieldSkuSkipped() as $item) {
                     file_put_contents($logDir . '/importSkippedFields.csv', '"' . implode('", "', $item) . '"' . "\n", FILE_APPEND);
                 }
             }
@@ -499,7 +499,9 @@ class Scope extends AbstractModel
             }
 
             $mappedAttribute = $this->getMapAttribute($csvField);
-            if (!$mappedAttribute) continue;
+            if (!$mappedAttribute) {
+                continue;
+            }
             array_push($attributes, $mappedAttribute);
         }
 
@@ -589,13 +591,13 @@ class Scope extends AbstractModel
             return false;
         }
 
-        foreach($attribute->getSource()->getAllOptions() as $option){
+        foreach ($attribute->getSource()->getAllOptions() as $option) {
             $optionsData->setData($option['value'], (string) $option['label']);
             $optionsDataReverce->setData((string) $option['label'], $option['value']);
             $optionsDataReverce->setData((string) $option['value'], $option['value']);
         }
 
-        switch($attribute->getAttributeCode()) {
+        switch ($attribute->getAttributeCode()) {
             case('status'):
                 $optionsDataReverce->setData([]);
                 $optionsDataReverce->setData('enabled', $attribute->getSource()::STATUS_ENABLED);
@@ -625,8 +627,8 @@ class Scope extends AbstractModel
      */
     protected function clearValue($attributeType, $value)
     {
-        switch($attributeType){
-            case('decimal') :
+        switch ($attributeType) {
+            case('decimal'):
                 $value = str_replace(",", ".", $value);
                 $value = preg_replace("/[^0-9\.]/", "", $value);
                 $valueExploded = explode(".", $value);
@@ -660,10 +662,14 @@ class Scope extends AbstractModel
         $storeId = $this->_configuration->getStoreId();
 
         foreach ($this->attributeTypes[$attributeType] as $attributeCode) {
-            if (!isset($data[$attributeCode])) continue;
+            if (!isset($data[$attributeCode])) {
+                continue;
+            }
 
             $value = trim($data[$attributeCode]);
-            if ($value === '') $value = null;
+            if ($value === '') {
+                $value = null;
+            }
 
             $value = $this->clearValue($attributeType, $value);
 
@@ -819,7 +825,7 @@ class Scope extends AbstractModel
                     continue;
                 }
                 foreach ($skuArray[$sku] as $key => $item) {
-                    if (!$this->attributeSet->isAllowedAttribute($skuData['attribute_set_id'], $item['attribute_id'])){
+                    if (!$this->attributeSet->isAllowedAttribute($skuData['attribute_set_id'], $item['attribute_id'])) {
                         $this->logger->warning('The "' . $this->attributeModelsById->getData($item['attribute_id'])->getAttributeCode() . '" attribute is not present in the #' . $skuData['attribute_set_id'] . '# attribute set');
                         unset($skuArray[$sku][$key]);
                         continue;

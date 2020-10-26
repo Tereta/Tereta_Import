@@ -103,7 +103,11 @@ class Logger extends \Monolog\Logger
      */
     public function addRecord($level, $message, array $context = [])
     {
-        if ($this->_commandOutput) {
+        $blockCommandOutput = (isset($context['blockCommandOutput']) && $context['blockCommandOutput'] == true) ? true : false;
+        $htmlOutput = (isset($context['blockHtmlOutput']) && $context['blockHtmlOutput'] == true) ? true : false;
+        $allLog = (isset($context['allLog']) && $context['allLog'] == true) ? true : false;
+
+        if ($this->_commandOutput && !$blockCommandOutput) {
             $commandMessage = $message;
 
             switch ($level) {
@@ -130,7 +134,7 @@ class Logger extends \Monolog\Logger
             if ($showMessage) {
                 $this->_commandOutput->writeln($commandMessage);
             }
-        } elseif ($this->htmlOutput) {
+        } elseif ($this->htmlOutput && !$htmlOutput) {
             $commandMessage = $message;
 
             switch ($level) {
@@ -153,11 +157,7 @@ class Logger extends \Monolog\Logger
             return;
         }
 
-        if ($level == static::DEBUG) {
-            return;
-        }
-
-        if (!$this->_scopeConfig->isSetFlag(self::XML_PATH_CONFIGURATION_DEBUG, ScopeInterface::SCOPE_STORE)) {
+        if (!$allLog && $level <= static::DEBUG && !$this->_scopeConfig->isSetFlag(self::XML_PATH_CONFIGURATION_DEBUG, ScopeInterface::SCOPE_STORE)) {
             return;
         }
 
