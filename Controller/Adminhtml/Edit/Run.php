@@ -40,8 +40,11 @@ use Tereta\Import\Model\ImportFactory;
 use Magento\Framework\View\Result\PageFactory;
 
 /**
+ * Tereta\Import\Controller\Adminhtml\Edit\Run
+ *
  * Class Run
  * @package Tereta\Import\Controller\Adminhtml\Edit
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Run extends Action
 {

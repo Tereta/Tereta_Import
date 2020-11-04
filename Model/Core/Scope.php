@@ -59,8 +59,11 @@ use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\ResourceModel\Core\Scope as ScopeResource;
 
 /**
+ * Tereta\Import\Model\Core\Scope
+ *
  * Class Scope
  * @package Tereta\Import\Model\Core
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Scope extends AbstractModel
 {
@@ -358,6 +361,10 @@ class Scope extends AbstractModel
         return $attributeCode;
     }
 
+    /**
+     * @param $attributeCode
+     * @return mixed
+     */
     protected function getRevertedMapAttribute($attributeCode)
     {
         $mapping = array_flip($this->mapAttributes->getData());
@@ -458,7 +465,7 @@ class Scope extends AbstractModel
                 $this->_configuration->addProductToReindex($item['entity_id']);
             }
 
-            $this->extension->reindex();
+            $this->_configuration->addIndexToReindex($this->extension->getIndexer());
 
             // Move to resource and do configuration!! ALEXDEB!!!
             if ($this->getResource()->getStatisticRowFieldSkuSkipped()) {
@@ -488,8 +495,6 @@ class Scope extends AbstractModel
      */
     protected function _prepareAttributes(array $csvFields)
     {
-        $attributes = [];
-
         $skipAttributes = $this->extension->getSkipAttributes();
 
         $attributes = [];

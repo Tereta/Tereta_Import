@@ -42,6 +42,7 @@ use Tereta\Import\Block\Adminhtml\Block\Edit\RunButton\Template as RunButtonTemp
  *
  * Class RunButton
  * @package Tereta\Import\Block\Adminhtml\Block\Edit
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class RunButton extends GenericButton implements ButtonProviderInterface
 {

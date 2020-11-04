@@ -36,16 +36,19 @@ namespace Tereta\Import\Controller\Adminhtml\Edit;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\Filesystem;
 use Magento\Framework\App\Filesystem\DirectoryList;
-use Magento\MediaStorage\Model\File\UploaderFactory;
 use Magento\Framework\Controller\ResultFactory;
-use Tereta\Import\Model\Import\Processor\Upload as ProcessorUpload;
+use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\Io\File as IoFile;
+use Magento\MediaStorage\Model\File\UploaderFactory;
+use Tereta\Import\Model\Import\Processor\Upload as ProcessorUpload;
 
 /**
+ * Tereta\Import\Controller\Adminhtml\Edit\UploadFile
+ *
  * Class UploadFile
  * @package Tereta\Import\Controller\Adminhtml\Edit
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class UploadFile extends Action
 {
@@ -92,7 +95,7 @@ class UploadFile extends Action
             $uploader->setAllowedExtensions(['csv', 'xls']);
             $path = $this->varDirectory->getAbsolutePath(ProcessorUpload::DIR_PATH);
 
-            if (!is_dir($path)){
+            if (!is_dir($path)) {
                 $this->ioFile->mkdir($path);
             }
 

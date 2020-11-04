@@ -41,6 +41,7 @@ use Magento\Catalog\Model\Product\Visibility as VisibilitySource;
  *
  * Class Visibility
  * @package Tereta\Import\Model\Config\Source
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Visibility extends VisibilitySource
 {

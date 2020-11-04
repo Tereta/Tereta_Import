@@ -42,6 +42,7 @@ use Magento\Store\Model\StoreManagerInterface;
  *
  * Class Stores
  * @package Tereta\SeoFilters\Model\Config\Source
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Stores implements ArrayInterface
 {
@@ -54,7 +55,8 @@ class Stores implements ArrayInterface
      * Stores constructor.
      * @param StoreManagerInterface $storeManager
      */
-    public function __construct(StoreManagerInterface $storeManager) {
+    public function __construct(StoreManagerInterface $storeManager)
+    {
         $this->_storeManager = $storeManager;
     }
 
@@ -66,7 +68,7 @@ class Stores implements ArrayInterface
         $return = [];
 
         array_push($return, ['value' => 0, 'label' => __('All Store Views')]);
-        foreach($this->_storeManager->getStores() as $storeModel){
+        foreach ($this->_storeManager->getStores() as $storeModel) {
             array_push($return, ['value' => $storeModel->getStoreId(), 'label' => $storeModel->getName()]);
         }
 
@@ -82,5 +84,4 @@ class Stores implements ArrayInterface
     {
         return [];
     }
-
 }

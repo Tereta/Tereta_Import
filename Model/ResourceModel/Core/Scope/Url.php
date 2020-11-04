@@ -44,6 +44,7 @@ use Magento\Store\Model\StoreManagerInterface;
  *
  * Class Url
  * @package Tereta\Import\Model\ResourceModel\Core\Scope
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Url extends AbstractDb
 {

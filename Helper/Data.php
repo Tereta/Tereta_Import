@@ -43,6 +43,7 @@ use Magento\Framework\Filesystem\DirectoryList;
  *
  * Class Data
  * @package Tereta\Import\Helper
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Data extends AbstractHelper
 {

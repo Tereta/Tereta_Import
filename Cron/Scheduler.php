@@ -34,14 +34,17 @@
 
 namespace Tereta\Import\Cron;
 
-use Tereta\Import\Model\ImportFactory;
-use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Cron\Model\ScheduleFactory as ScheduleFactory;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Psr\Log\LoggerInterface;
+use Tereta\Import\Model\ImportFactory;
 
 /**
+ * Tereta\Import\Cron\Scheduler
+ *
  * Class Scheduler
  * @package Tereta\Import\Cron
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Scheduler
 {
@@ -72,7 +75,7 @@ class Scheduler
      * @param DateTime $dateTime
      * @param ScheduleFactory $modelScheduleFactory
      */
-    public function __construct(LoggerInterface $logger, ImportFactory $importFactory,  DateTime $dateTime, ScheduleFactory $modelScheduleFactory)
+    public function __construct(LoggerInterface $logger, ImportFactory $importFactory, DateTime $dateTime, ScheduleFactory $modelScheduleFactory)
     {
         $this->importFactory = $importFactory;
         $this->dateTime = $dateTime;
@@ -92,8 +95,7 @@ class Scheduler
             $startTime = $this->dateTime->timestamp();
             if ($scopeTime) {
                 $processed = $this->executeModels($processedImports, $scopeTime);
-            }
-            else {
+            } else {
                 $processed = $this->executeModels($processedImports, $startTime);
             }
             $endTime = $this->dateTime->timestamp();
@@ -110,7 +112,7 @@ class Scheduler
     protected function generateScopeTime($startTime, $endTime)
     {
         $timeScope = [];
-        for($step = $startTime; $step <= $endTime; $step = $step + 60) {
+        for ($step = $startTime; $step <= $endTime; $step = $step + 60) {
             array_push($timeScope, $step);
         }
 
@@ -131,8 +133,8 @@ class Scheduler
         }
         $importCollection = $this->importFactory->create()->getCollection();
 
-        foreach($currentTimeArray as $currentTime){
-            foreach($importCollection as $importModel){
+        foreach ($currentTimeArray as $currentTime) {
+            foreach ($importCollection as $importModel) {
                 if (!trim($importModel->getData('cron_expression'))) {
                     continue;
                 }
@@ -141,7 +143,7 @@ class Scheduler
                 $modelSchedule->setScheduledAt($currentTime);
                 $modelSchedule->setCronExpr($importModel->getData('cron_expression'));
                 if ($modelSchedule->trySchedule()) {
-                    try{
+                    try {
                         $importIdentifier = $importModel->getData('identifier');
                         if (in_array($importIdentifier, $processedImports)) {
                             continue;
@@ -154,8 +156,7 @@ class Scheduler
                         $importModel->afterLoad();
                         $importModel->import();
                         $this->logger->debug('Finished the "' . $importIdentifier . '" import in ' . (time() - $time) . 'sec.');
-                    }
-                    catch(\Exception $e){
+                    } catch (\Exception $e) {
                         $this->logger->error('The "' . $importIdentifier . '" can not be processed , message: "' . $e->getMessage() . '"');
                     }
                 }

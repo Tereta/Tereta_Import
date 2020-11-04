@@ -34,13 +34,17 @@
 
 namespace Tereta\Import\Model\Config\Source;
 
+use Magento\Framework\Option\ArrayInterface;
 use Tereta\Import\Model\Import as ImportModel;
 
 /**
- * @api
- * @since 100.0.2
+ * Tereta\Import\Model\Config\Source\Types
+ *
+ * Class Types
+ * @package Tereta\Import\Model\Config\Source
+ * @author Tereta Alexander <tereta@mail.ua>
  */
-class Types implements \Magento\Framework\Option\ArrayInterface
+class Types implements ArrayInterface
 {
     /**
      * @var ImportModel
@@ -51,7 +55,8 @@ class Types implements \Magento\Framework\Option\ArrayInterface
      * Types constructor.
      * @param ImportModel $importModel
      */
-    public function __construct(ImportModel $importModel) {
+    public function __construct(ImportModel $importModel)
+    {
         $this->_importModel = $importModel;
     }
 
@@ -68,7 +73,7 @@ class Types implements \Magento\Framework\Option\ArrayInterface
 
         $adapters = $this->_importModel->getProcessorAdapters();
 
-        foreach($adapters as $key=>$item){
+        foreach ($adapters as $key=>$item) {
             array_push($return, ['value' => $key, 'label' => __($item['label'])]);
         }
 
@@ -85,4 +90,3 @@ class Types implements \Magento\Framework\Option\ArrayInterface
         return [];
     }
 }
-

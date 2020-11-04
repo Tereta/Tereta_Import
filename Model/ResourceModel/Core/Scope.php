@@ -36,16 +36,18 @@ namespace Tereta\Import\Model\ResourceModel\Core;
 
 use Magento\Catalog\Model\Product as ProductModel;
 use Magento\Eav\Model\AttributeRepository;
-use Tereta\Import\Model\Core\Scope as ScopeModel;
+use Magento\Framework\DataObject;
+use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 use Magento\Framework\Model\ResourceModel\Db\Context;
-use Magento\Framework\DataObject;
+use Tereta\Import\Model\Core\Scope as ScopeModel;
 use Tereta\Import\Model\Logger;
-use Magento\Framework\DataObjectFactory;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Scope
  * @package Tereta\Import\Model\ResourceModel\Core
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Scope extends AbstractDb
 {
@@ -86,6 +88,7 @@ class Scope extends AbstractDb
 
     /**
      * Scope constructor.
+     * @param StoreManagerInterface $storeManagerInterface
      * @param AttributeRepository $attributeRepository
      * @param DataObjectFactory $dataObjectFactory
      * @param Context $context
@@ -93,12 +96,14 @@ class Scope extends AbstractDb
      * @param null $connectionName
      */
     public function __construct(
+        StoreManagerInterface $storeManagerInterface,
         AttributeRepository $attributeRepository,
         DataObjectFactory $dataObjectFactory,
         Context $context,
         Logger $logger,
         $connectionName = null
     ) {
+        $this->storeManager = $storeManagerInterface;
         $this->attributeRepository = $attributeRepository;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->logger = $logger;
@@ -145,7 +150,7 @@ class Scope extends AbstractDb
         $connection = $this->getConnection();
 
         $skusArray = [];
-        foreach(array_keys($skus) as $item) {
+        foreach (array_keys($skus) as $item) {
             array_push($skusArray, (string) $item);
         }
 
@@ -161,12 +166,22 @@ class Scope extends AbstractDb
     public function saveEntityWebsite($skus)
     {
         $websiteId = $this->configuration->getWebsiteId();
+        if ($websiteId) {
+            $websiteIds = [$websiteId];
+        } else {
+            $websiteIds = [];
+            foreach ($this->storeManager->getWebsites() as $item) {
+                array_push($websiteIds, $item->getWebsiteId());
+            }
+        }
         $arrayToInsert = [];
-        foreach ($skus->getData() as $item){
-            array_push($arrayToInsert, [
-                'product_id' => $item['entity_id'],
-                'website_id' => $websiteId
-            ]);
+        foreach ($skus->getData() as $item) {
+            foreach ($websiteIds as $websiteId) {
+                array_push($arrayToInsert, [
+                    'product_id' => $item['entity_id'],
+                    'website_id' => $websiteId
+                ]);
+            }
         }
 
         if ($arrayToInsert) {
@@ -229,7 +244,7 @@ class Scope extends AbstractDb
             $this->logger->debug("Deleting values (catalog_product_entity_int)");
 
             $select = $connection->select()->from($this->getTable('catalog_product_entity_int'));
-            foreach($data as $item) {
+            foreach ($data as $item) {
                 $select->orWhere('attribute_id = ' . $item['attribute_id'] . ' AND store_id = ' . $item['store_id'] . ' AND entity_id = ' . $item['entity_id']);
             }
 
@@ -246,7 +261,7 @@ class Scope extends AbstractDb
             $this->logger->debug("Deleting values (catalog_product_entity_decimal)");
 
             $select = $connection->select()->from($this->getTable('catalog_product_entity_decimal'));
-            foreach($data as $item) {
+            foreach ($data as $item) {
                 $select->orWhere('attribute_id = ' . $item['attribute_id'] . ' AND store_id = ' . $item['store_id'] . ' AND entity_id = ' . $item['entity_id']);
             }
             $this->logQueryExplain($select->deleteFromSelect('catalog_product_entity_decimal'));
@@ -262,7 +277,7 @@ class Scope extends AbstractDb
             $this->logger->debug("Deleting values (catalog_product_entity_datetime)");
 
             $select = $connection->select()->from($this->getTable('catalog_product_entity_datetime'));
-            foreach($data as $item) {
+            foreach ($data as $item) {
                 $select->orWhere('attribute_id = ' . $item['attribute_id'] . ' AND store_id = ' . $item['store_id'] . ' AND entity_id = ' . $item['entity_id']);
             }
 
@@ -279,7 +294,7 @@ class Scope extends AbstractDb
             $this->logger->debug("Deleting values (catalog_product_entity_text)");
 
             $select = $connection->select()->from($this->getTable('catalog_product_entity_text'));
-            foreach($data as $item) {
+            foreach ($data as $item) {
                 $select->orWhere('attribute_id = ' . $item['attribute_id'] . ' AND store_id = ' . $item['store_id'] . ' AND entity_id = ' . $item['entity_id']);
             }
 
@@ -296,7 +311,7 @@ class Scope extends AbstractDb
             $this->logger->debug("Deleting values (catalog_product_entity_varchar)");
 
             $select = $connection->select()->from($this->getTable('catalog_product_entity_varchar'));
-            foreach($data as $item) {
+            foreach ($data as $item) {
                 $select->orWhere('attribute_id = ' . $item['attribute_id'] . ' AND store_id = ' . $item['store_id'] . ' AND entity_id = ' . $item['entity_id']);
             }
 
@@ -344,18 +359,18 @@ class Scope extends AbstractDb
         $storeId = $this->configuration->getStoreId();
         $entityIds = [];
         $attributeIds = [];
-        foreach($skuEntities->getData() as $item) {
+        foreach ($skuEntities->getData() as $item) {
             array_push($entityIds, $item['entity_id']);
         }
 
-        foreach($updateStatisticAttributes as $item) {
+        foreach ($updateStatisticAttributes as $item) {
             $attributeModel = $this->attributeRepository->get('catalog_product', $item);
             array_push($attributeIds, $attributeModel->getAttributeId());
         }
 
         $insertOrUpdate = [];
-        foreach($entityIds as $entityId){
-            foreach($attributeIds as $attributeId) {
+        foreach ($entityIds as $entityId) {
+            foreach ($attributeIds as $attributeId) {
                 array_push($insertOrUpdate, [
                     'attribute_id' => $attributeId,
                     'store_id' => $storeId,
@@ -385,7 +400,7 @@ class Scope extends AbstractDb
             return [];
         }
 
-        foreach($attributeTypeEntities[$type] as $key=>$item) {
+        foreach ($attributeTypeEntities[$type] as $key=>$item) {
             $valuesAgregated = array_merge($valuesAgregated, $item);
         }
 
@@ -402,7 +417,7 @@ class Scope extends AbstractDb
     public function fillSkusByField($attributeCode, &$object)
     {
         if (!isset($object[$attributeCode])) {
-            throw new \Exception('The "' . $attributeCode . '" field in the file document was not found to find sku by the attribute.' );
+            throw new \Exception('The "' . $attributeCode . '" field in the file document was not found to find sku by the attribute.');
         }
 
         $fieldValue = $object[$attributeCode];
@@ -419,8 +434,7 @@ class Scope extends AbstractDb
         $entityData = $connection->fetchRow($select);
         if (isset($entityData['sku'])) {
             $object['sku'] = $entityData['sku'];
-        }
-        else {
+        } else {
             array_push($this->statisticFieldSkuSkipped, $fieldValue);
             array_push($this->statisticRowFieldSkuSkipped, $object);
         }
@@ -451,7 +465,7 @@ class Scope extends AbstractDb
 
         $skuEmpty = $object->getData();
 
-        foreach($skuEntities as $key => $item) {
+        foreach ($skuEntities as $key => $item) {
             unset($skuEmpty[$item['sku']]);
             $object->setData($item['sku'], $item);
         }
@@ -463,7 +477,8 @@ class Scope extends AbstractDb
      * @param DataObject $object
      * @param $skuEmpty
      */
-    public function createSkuEntities(DataObject $object, $skuEmpty){
+    public function createSkuEntities(DataObject $object, $skuEmpty)
+    {
         if (!$this->configuration->getProductCreateNew() || !$skuEmpty) {
             return;
         }
@@ -472,7 +487,7 @@ class Scope extends AbstractDb
         $select = $connection->select('entity_id')->from($this->getTable('catalog_product_entity'))->order('entity_id DESC')->limit(1);
         $entityIdCounter = (integer) $connection->fetchOne($select);
         $recordsInsert = [];
-        foreach($skuEmpty as $sku => $item) {
+        foreach ($skuEmpty as $sku => $item) {
             $entityIdCounter++;
             array_push($recordsInsert, [
                 'entity_id' => $entityIdCounter,
@@ -485,7 +500,7 @@ class Scope extends AbstractDb
 
         // Fill created items
         $skuEntities = $this->getEntities($skuEmpty);
-        foreach($skuEntities as $key => $item) {
+        foreach ($skuEntities as $key => $item) {
             $object->setData($item['sku'], $item);
         }
 
@@ -501,7 +516,7 @@ class Scope extends AbstractDb
         $data = $connection->fetchRow('EXPLAIN ' . $query);
         $out = '';
 
-        foreach($data as $key=>$item){
+        foreach ($data as $key=>$item) {
             $out .= "{$key}: {$item}\n";
         }
         $this->logger->debug('EXPLAIN ' . substr($query, 0, 100) . "...\n" . $out);

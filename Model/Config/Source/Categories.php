@@ -34,16 +34,18 @@
 
 namespace Tereta\Import\Model\Config\Source;
 
-use Magento\Catalog\Model\CategoryFactory;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
+use Magento\Catalog\Model\CategoryFactory;
+use Magento\Framework\Option\ArrayInterface;
 
 /**
  * Tereta\Import\Model\Config\Source\Categories
  *
  * Class Categories
  * @package Tereta\Import\Model\Config\Source
+ * @author Tereta Alexander <tereta@mail.ua>
  */
-class Categories implements \Magento\Framework\Option\ArrayInterface
+class Categories implements ArrayInterface
 {
     /**
      * @var
@@ -93,7 +95,7 @@ class Categories implements \Magento\Framework\Option\ArrayInterface
         if (count($childCategories)) {
             $data['optgroup'] = [];
 
-            foreach($childCategories as $itemData){
+            foreach ($childCategories as $itemData) {
                 $item = [
                     'value' => $itemData->getId(),
                     'is_active' => 1,

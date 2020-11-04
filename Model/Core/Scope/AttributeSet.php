@@ -34,19 +34,20 @@
 
 namespace Tereta\Import\Model\Core\Scope;
 
-use Magento\Framework\Model\AbstractModel;
-use Magento\Framework\Registry;
+use Magento\Catalog\Api\ProductAttributeManagementInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
+use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
-use Magento\Catalog\Api\ProductAttributeManagementInterface;
+use Magento\Framework\Registry;
 
 /**
  * Tereta\Import\Model\Core\Scope\AttributeSet
  *
  * Class AttributeSet
  * @package Tereta\Import\Model\Core\Scope
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class AttributeSet extends AbstractModel
 {

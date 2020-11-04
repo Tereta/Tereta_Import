@@ -19,6 +19,7 @@
         <column name="create_new_options" xsi:type="boolean" default="false" nullable="false" comment="Create New Options For Select Attributes" />
         <column name="store_id" xsi:type="int" default="0" nullable="false" comment="Store ID" />
         <column name="mapping_attribute" xsi:type="text" nullable="true" comment="Mapping Attributes JSON" />
+        <column name="mapping_categories" xsi:type="text" nullable="true" comment="Mapping Categories JSON" />
         <column name="skip_empty_attributes" xsi:type="text" nullable="true" comment="Skip Empty Attributes JSON" />
         <column name="clear_empty_attributes" xsi:type="text" nullable="true" comment="Clear Empty Attributes JSON" />
         <column name="manage_stock" xsi:type="smallint" nullable="false" default="0" comment="Manage Stock" />

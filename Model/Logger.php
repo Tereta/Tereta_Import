@@ -39,8 +39,11 @@ use Magento\Store\Model\ScopeInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
+ * Tereta\Import\Model\Logger
+ *
  * Class Logger
  * @package Tereta\Import\Model
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Logger extends \Monolog\Logger
 {

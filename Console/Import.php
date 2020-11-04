@@ -35,16 +35,18 @@
 namespace Tereta\Import\Console;
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
 use Tereta\Import\Model\ImportFactory;
 
 /**
+ * Tereta\Import\Console\Import
  * php bin/magento advenced:import test
  *
  * Class Import
  * @package Tereta\Import\Console
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Import extends Command
 {
@@ -59,7 +61,8 @@ class Import extends Command
      * Import constructor.
      * @param ImportFactory $importFactory
      */
-    public function __construct(ImportFactory $importFactory) {
+    public function __construct(ImportFactory $importFactory)
+    {
         $this->importFactory = $importFactory;
 
         parent::__construct();
@@ -92,8 +95,8 @@ class Import extends Command
         $importModel = $this->importFactory->create();
 
         if (!$identifier) {
-            foreach($importModel->getCollection() as $item){
-                $output->writeln(str_pad($item->getData('identifier'),50," ") . str_pad($item->getData('name'),50," "));
+            foreach ($importModel->getCollection() as $item) {
+                $output->writeln(str_pad($item->getData('identifier'), 50, " ") . str_pad($item->getData('name'), 50, " "));
             }
 
             return;

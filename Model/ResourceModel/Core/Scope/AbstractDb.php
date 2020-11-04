@@ -42,6 +42,7 @@ use Tereta\Import\Model\Logger;
  *
  * Class AbstractDb
  * @package Tereta\Import\Model\ResourceModel\Core\Scope
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 abstract class AbstractDb extends FrameworkAbstractDb
 {

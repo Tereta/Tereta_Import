@@ -37,8 +37,11 @@ namespace Tereta\Import\Model\ResourceModel;
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 
 /**
+ * Tereta\Import\Model\ResourceModel\Import
+ *
  * Class Import
  * @package Tereta\Import\Model\ResourceModel
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Import extends AbstractDb
 {

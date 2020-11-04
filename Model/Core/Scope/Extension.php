@@ -48,6 +48,7 @@ use Tereta\Import\Model\Logger;
  *
  * Class Extension
  * @package Tereta\Import\Model\Core\Scope
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Extension extends AbstractModel
 {
@@ -194,11 +195,17 @@ class Extension extends AbstractModel
     /**
      * @throws \Exception
      */
-    public function reindex()
+    public function getIndexer()
     {
+        $indexers = [];
+
         foreach ($this->registeredClasses as $key=>$item) {
-            $this->get($key)->reindex();
+            foreach ($this->get($key)->getIndexer() as $index) {
+                array_push($indexers, $index);
+            }
         }
+
+        return $indexers;
     }
 
     /**

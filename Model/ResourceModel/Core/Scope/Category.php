@@ -42,6 +42,7 @@ use Magento\Framework\Model\ResourceModel\Db\Context;
  *
  * Class Category
  * @package Tereta\Import\Model\ResourceModel\Core\Scope
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Category extends AbstractDb
 {
@@ -78,26 +79,13 @@ class Category extends AbstractDb
     }
 
     /**
-     *
+     * @param $data
      */
     public function collect($data)
     {
-        if (!isset($data['product_category_ids']) || !$data['product_category_ids']) {
-            return;
-        }
-        $categoryIds = [];
-
-        if (trim($data['product_category_ids'])) {
-            $categoryIds = json_decode($data['product_category_ids']);
-        }
-
-        if (!is_array($categoryIds)) {
-            $categoryIds = [$categoryIds];
-        }
+        $categoryIds = $data['product_category_ids'];
 
         foreach ($categoryIds as $categoryId) {
-            $categoryId = trim($categoryId);
-
             $collectedDataItem = [
                 'category_id' => $categoryId,
                 'product_id' => null,

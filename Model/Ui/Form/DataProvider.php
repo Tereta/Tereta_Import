@@ -43,7 +43,11 @@ use Tereta\Import\Model\Import as ImportModel;
 use Tereta\Import\Model\ResourceModel\Import\CollectionFactory as ImportCollectionFactory;
 
 /**
- * Tereta\Import\Model\UI\Form\DataProvider
+ * Tereta\Import\Model\Ui\Form\DataProvider
+ *
+ * Class DataProvider
+ * @package Tereta\Import\Model\Ui\Form
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class DataProvider extends DataProviderExtend
 {

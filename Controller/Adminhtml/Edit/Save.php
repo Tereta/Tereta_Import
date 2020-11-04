@@ -39,8 +39,11 @@ use Magento\Backend\App\Action\Context;
 use Tereta\Import\Model\ImportFactory as ModelImportFactory;
 
 /**
+ * Tereta\Import\Controller\Adminhtml\Edit\Save
+ *
  * Class Save
  * @package Tereta\Import\Controller\Adminhtml\Edit
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Save extends Action
 {

@@ -1,24 +1,24 @@
 define(['jquery', 'ko', 'uiRegistry'], function($, ko, uiRegistry){
-    var viewModel = {
-        rowCounter: 0,
-        rowData: ko.observableArray(),
-        element: null,
-        fieldName: null,
+    var viewModel = function(element, fieldCode){
+        this.rowCounter = 0;
+        this.rowData = ko.observableArray();
+        this.element = element;
+        this.fieldCode = fieldCode;
 
-        actionAdd: function() {
+        this.actionAdd = function() {
             this.rowCounter++;
 
             this.rowData.push({
-                "csv": "",
-                "attribute": "",
+                "key": "",
+                "value": "",
                 "rowId": this.rowCounter,
                 "parentModel": this
             });
 
             this.encodeValueString();
-        },
+        };
 
-        actionRemove: function(observableData, ev) {
+        this.actionRemove = function(observableData, ev) {
             var rowId = observableData.rowId;
             var viewModel = observableData.parentModel;
             var indexRemove = null;
@@ -34,38 +34,42 @@ define(['jquery', 'ko', 'uiRegistry'], function($, ko, uiRegistry){
             }
 
             viewModel.encodeValueString();
-        },
+        };
 
-        changeValue: function(observableData, ev)
+        this.changeValue = function(observableData, ev)
         {
             var object = $(ev.target);
             var key = object.attr('name');
-            var keyPrefix = "field_attributes_";
+            var keyPrefix = "field_";
             if (key.substring(0, keyPrefix.length) == keyPrefix) {
                 key = key.substring(keyPrefix.length);
             }
 
             observableData[key] = object.val();
             this.parentModel.encodeValueString();
-        },
+        };
 
-        encodeValueString: function()
+        this.encodeValueString = function()
         {
             var data = [];
             $(this.rowData()).each(function(key, value){
-                if (!value.csv || !value.attribute) {
+                if (!value.key || !value.value) {
                     return;
                 }
-                data.push({'key': value.csv, 'value': value.attribute});
+                data.push({'key': value.key, 'value': value.value});
             });
-            var jsonData = JSON.stringify(data);
-            uiRegistry.get('advencedimport_form.advencedimport_form_data_source').data.mapping_attribute = jsonData;
-        },
 
-        decodeValueString: function()
+            var jsonData = JSON.stringify(data);
+
+            uiRegistry.get('advencedimport_form.advencedimport_form_data_source').data[this.fieldCode] = jsonData;
+            debugger;
+        };
+
+        this.decodeValueString = function()
         {
             var _this = this;
-            var mappingAttribute = uiRegistry.get('advencedimport_form.advencedimport_form_data_source').data.mapping_attribute;
+
+            var mappingAttribute = uiRegistry.get('advencedimport_form.advencedimport_form_data_source').data[this.fieldCode];
             if (typeof mappingAttribute == 'undefined') {
                 mappingAttribute = '[]';
             }
@@ -76,8 +80,8 @@ define(['jquery', 'ko', 'uiRegistry'], function($, ko, uiRegistry){
             $(data).each(function(key, item){
                 _this.rowCounter++;
                 rowData.push({
-                    "csv": item.key,
-                    "attribute": item.value,
+                    "key": item.key,
+                    "value": item.value,
                     "rowId": _this.rowCounter,
                     "parentModel": _this
                 });
@@ -85,23 +89,23 @@ define(['jquery', 'ko', 'uiRegistry'], function($, ko, uiRegistry){
 
             this.rowData(rowData);
         }
+
+        this.decodeValueString();
     };
 
-    var attributesMapping = function(config, element){
+    var mapValues = function(config, element){
         this.element = element;
         this.config = config;
 
         this.init = function(){
-            viewModel.element = this.element;
-            viewModel.fieldName = this.config.fieldName;
-            viewModel.decodeValueString();
-            var binded = ko.applyBindings(viewModel, this.element);
+            var currentViewModel = new viewModel(this.element, this.config.fieldCode);
+            ko.applyBindings(currentViewModel, this.element);
         }
 
         this.init();
     }
 
     return function(config, element){
-        return new attributesMapping(config, element);
+        return new mapValues(config, element);
     };
 })

@@ -43,8 +43,11 @@ use Magento\Framework\DataObjectFactory;
 use Exception;
 
 /**
+ * Tereta\Import\Model\Import\Extract\Http
+ *
  * Class Http
  * @package Tereta\Import\Model\Import\Extract
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Http extends AbstractModel
 {

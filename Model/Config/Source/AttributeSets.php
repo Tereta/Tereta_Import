@@ -35,16 +35,18 @@
 namespace Tereta\Import\Model\Config\Source;
 
 use Magento\Eav\Api\AttributeSetRepositoryInterface;
-use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Option\ArrayInterface;
 
 /**
  * Tereta\Import\Model\Config\Source\Categories
  *
  * Class AttributeSets
  * @package Tereta\Import\Model\Config\Source
+ * @author Tereta Alexander <tereta@mail.ua>
  */
-class AttributeSets implements \Magento\Framework\Option\ArrayInterface
+class AttributeSets implements ArrayInterface
 {
     /**
      * @var AttributeSetRepositoryInterface
@@ -67,7 +69,7 @@ class AttributeSets implements \Magento\Framework\Option\ArrayInterface
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
      */
-    public function __construct(AttributeSetRepositoryInterface $attributeSetRepository,  SearchCriteriaBuilder $searchCriteriaBuilder, FilterBuilder $filterBuilder)
+    public function __construct(AttributeSetRepositoryInterface $attributeSetRepository, SearchCriteriaBuilder $searchCriteriaBuilder, FilterBuilder $filterBuilder)
     {
         $this->filterBuilder = $filterBuilder;
         $this->attributeSetRepository = $attributeSetRepository;
@@ -85,7 +87,7 @@ class AttributeSets implements \Magento\Framework\Option\ArrayInterface
         $searchCriteria = $this->searchCriteriaBuilder->addFilters([$filter])->create();
         $attributeList = $this->attributeSetRepository->getList($searchCriteria);
 
-        foreach($attributeList->getItems() as $item) {
+        foreach ($attributeList->getItems() as $item) {
             array_push($dataList, [
                 'value' => $item->getAttributeSetId(),
                 'is_active' => true,

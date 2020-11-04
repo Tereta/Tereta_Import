@@ -39,8 +39,11 @@ use Tereta\Import\Model\ImportFactory as ModelImportFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
+ * Tereta\Import\Block\Adminhtml\Block\Edit\GenericButton
+ *
  * Class GenericButton
  * @package Tereta\Import\Block\Adminhtml\Block\Edit
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class GenericButton
 {

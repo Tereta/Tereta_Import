@@ -43,8 +43,11 @@ use Tereta\Import\Model\Core\ScopeFactory as ScopeFactory;
 use Tereta\Import\Model\Logger;
 
 /**
+ * Tereta\Import\Model\Import\Processor\Csv
+ *
  * Class Csv
  * @package Tereta\Import\Model\Import\Processor
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Csv extends AbstractModel
 {

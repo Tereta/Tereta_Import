@@ -37,7 +37,11 @@ namespace Tereta\Import\Block\Adminhtml\Block\Edit;
 use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
 
 /**
+ * Tereta\Import\Block\Adminhtml\Block\Edit\BackButton
+ *
  * Class BackButton
+ * @package Tereta\Import\Block\Adminhtml\Block\Edit
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class BackButton extends GenericButton implements ButtonProviderInterface
 {

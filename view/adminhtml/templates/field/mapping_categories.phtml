@@ -1,12 +1,12 @@
 <div class="admin__field-label">
     <label>
-        <span><?php echo __('Mapping Attributes') ?></span>
+        <span><?php echo __('Mapping Categories') ?></span>
     </label>
 </div>
-<div class="admin__field-control" data-role="mapping_attributes">
+<div class="admin__field-control" data-role="mapping_categories">
     <table>
         <thead>
-            <th>Document Filed</th><th>Attribute Code</th></th><th></th>
+            <th>Document Category Value</th><th>Category ID</th></th><th></th>
         </thead>
         <tbody data-bind="foreach: rowData">
             <tr data-bind="attr: {'data-id': rowId}">
@@ -32,8 +32,8 @@
         'jquery',
         'Tereta_Import/js/view/mapValues'
     ], function ($, importAttributes) {
-        $('[data-role="mapping_attributes"]').each(function (index, element) {
-            importAttributes({fieldCode: 'mapping_attribute'}, element);
+        $('[data-role="mapping_categories"]').each(function (index, element) {
+            importAttributes({fieldCode: 'mapping_categories'}, element);
         });
     });
 </script>

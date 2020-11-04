@@ -34,23 +34,31 @@
 
 namespace Tereta\Import\Model;
 
+use Magento\Catalog\Model\Indexer\Product\Eav\Processor as IndexerEav;
+use Magento\Catalog\Model\Indexer\Product\Flat\Processor as IndexerFlat;
+use Magento\Catalog\Model\Indexer\Product\Price\Processor as IndexerPrice;
+use Magento\CatalogSearch\Model\Indexer\Fulltext\Processor as IndexerFulltext;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Indexer\IndexerRegistry;
+
 use Magento\Framework\Model\AbstractModel;
+
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
+
 use Magento\Framework\Registry;
-
 use Magento\Store\Model\StoreManagerInterface;
-
 use Symfony\Component\Console\Output\OutputInterface;
 use Tereta\Import\Model\Import\Processor as ImportProcessor;
 
 /**
+ * Tereta\Import\Model\Import
+ *
  * Class Import
  * @package Tereta\Import\Model
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Import extends AbstractModel
 {
@@ -118,6 +126,16 @@ class Import extends AbstractModel
      * @var array
      */
     protected $reindexProductIds = [];
+
+    /**
+     * @var array
+     */
+    protected $indexes = [
+        IndexerEav::INDEXER_ID,
+        IndexerPrice::INDEXER_ID,
+        IndexerFlat::INDEXER_ID,
+        IndexerFulltext::INDEXER_ID
+    ];
 
     /**
      *
@@ -407,29 +425,34 @@ class Import extends AbstractModel
     }
 
     /**
+     * @param $indexes
+     */
+    public function addIndexToReindex($indexes)
+    {
+        foreach ($indexes as $index) {
+            if (in_array($index, $this->indexes)) {
+                continue;
+            }
+
+            array_push($this->indexes, $index);
+        }
+    }
+
+    /**
      *
      */
     protected function reindex()
     {
         $productIds = $this->reindexProductIds;
-        $time = time();
-        $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Eav\Processor::INDEXER_ID)->reindexList($productIds);
-        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Eav\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
 
-        $time = time();
-        $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Price\Processor::INDEXER_ID)->reindexList($productIds);
-        $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Price\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
-
-        try {
-            $time = time();
-            $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID)->reindexList($productIds);
-            $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
-        } catch (\Exception $e) {
-            $this->logger->debug('The ' . \Magento\Catalog\Model\Indexer\Product\Flat\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products is not avaliable.');
+        foreach ($this->indexes as $index) {
+            try {
+                $time = time();
+                $this->indexerRegistry->get($index)->reindexList($productIds);
+                $this->logger->debug('The ' . $index . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
+            } catch (\Exception $e) {
+                $this->logger->debug('The ' . $index . ' index with ' . count($productIds) . ' products is not avaliable.');
+            }
         }
-
-        $time = time();
-        $this->indexerRegistry->get(\Magento\CatalogSearch\Model\Indexer\Fulltext\Processor::INDEXER_ID)->reindexList($productIds);
-        $this->logger->debug('The ' . \Magento\CatalogSearch\Model\Indexer\Fulltext\Processor::INDEXER_ID . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
     }
 }

@@ -34,10 +34,10 @@
 
 namespace Tereta\Import\Model\Import\Processor;
 
-use Tereta\Import\Model\Import\ProcessorFactory as ImportProcessorFactory;
 use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem\Io\File as IoFile;
 use Tereta\Import\Model\Core\ScopeFactory;
+use Tereta\Import\Model\Import\ProcessorFactory as ImportProcessorFactory;
 use Tereta\Import\Model\Logger;
 
 /**
@@ -45,6 +45,7 @@ use Tereta\Import\Model\Logger;
  *
  * Class Upload
  * @package Tereta\Import\Model\Import\Processor
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Upload extends AbstractModel
 {
@@ -90,7 +91,7 @@ class Upload extends AbstractModel
      */
     public function import($dataModel)
     {
-        $importDir = $this->directoryList->getPath('media') . '/' .  static::DIR_PATH;
+        $importDir = $this->directoryList->getPath('media') . '/' . static::DIR_PATH;
 
         if ($uploadFile = $dataModel->getData('upload_file')) {
             $uploadFile = reset($uploadFile);
@@ -98,8 +99,7 @@ class Upload extends AbstractModel
 
         if ($uploadFile && isset($uploadFile['file'])) {
             $uploadFile = $uploadFile['file'];
-        }
-        else {
+        } else {
             return;
         }
 
@@ -123,7 +123,7 @@ class Upload extends AbstractModel
         $importDir = $this->directoryList->getPath('media') . '/' . static::DIR_PATH;
         $isChanged = false;
         if (isset($data['upload_file']) && $data['upload_file']) {
-            foreach($data['upload_file'] as $key=>$item) {
+            foreach ($data['upload_file'] as $key=>$item) {
                 $tempPrefix = 'temp_';
                 if (substr($item['file'], 0, strlen($tempPrefix)) == $tempPrefix) {
                     $currentFileName = $item['file'];

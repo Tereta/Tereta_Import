@@ -32,6 +32,9 @@
  *     www.tereta.dev
  */
 
+/**
+ * @author Tereta Alexander <tereta@mail.ua>
+ */
 \Magento\Framework\Component\ComponentRegistrar::register(
     \Magento\Framework\Component\ComponentRegistrar::MODULE,
     'Tereta_Import',

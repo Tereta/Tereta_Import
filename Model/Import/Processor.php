@@ -41,9 +41,13 @@ use Magento\Framework\DataObject;
  *
  * Class Processor
  * @package Tereta\Import\Model\Import
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Processor extends DataObject
 {
+    /**
+     * @var array
+     */
     protected $_adapter = [];
 
     /**

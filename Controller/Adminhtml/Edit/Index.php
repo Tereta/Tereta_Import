@@ -38,8 +38,11 @@ use Magento\Backend\App\Action;
 use Magento\Framework\Controller\ResultFactory;
 
 /**
+ * Tereta\Import\Controller\Adminhtml\Edit\Index
+ *
  * Class Index
  * @package Tereta\Import\Controller\Adminhtml\Edit
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Index extends Action
 {

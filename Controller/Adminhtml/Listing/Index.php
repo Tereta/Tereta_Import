@@ -35,15 +35,22 @@
 namespace Tereta\Import\Controller\Adminhtml\Listing;
 
 use Magento\Backend\App\Action;
-use Magento\Framework\Controller\ResultFactory;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\View\Result\Page;
+use Magento\Framework\View\Result\PageFactory;
 
 /**
+ * Tereta\Import\Controller\Adminhtml\Listing\Index
+ *
  * Class Index
  * @package Tereta\Import\Controller\Adminhtml\Listing
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Index extends Action
 {
-    /** @var \Magento\Framework\View\Result\PageFactory  */
+    /** @var PageFactory  */
     protected $resultPageFactory;
 
     /**
@@ -56,21 +63,19 @@ class Index extends Action
 
     /**
      * Index constructor.
-     * @param \Magento\Backend\App\Action\Context $context
-     * @param \Magento\Framework\View\Result\PageFactory $resultPageFactory
+     * @param Context $context
+     * @param PageFactory $resultPageFactory
      */
     public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        \Magento\Framework\View\Result\PageFactory $resultPageFactory
+        Context $context,
+        PageFactory $resultPageFactory
     ) {
         $this->resultPageFactory = $resultPageFactory;
         parent::__construct($context);
     }
 
     /**
-     * Load the page defined in view/frontend/layout/samplenewpage_index_index.xml
-     *
-     * @return \Magento\Framework\View\Result\Page
+     * @return ResponseInterface|ResultInterface|Page
      */
     public function execute()
     {

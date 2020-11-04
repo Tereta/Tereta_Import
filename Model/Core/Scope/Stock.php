@@ -34,22 +34,19 @@
 
 namespace Tereta\Import\Model\Core\Scope;
 
-use Tereta\Import\Model\Core\Scope\AbstractModel;
 use Magento\Framework\DataObject;
 
-use Magento\Framework\Model\Context;
-use Magento\Framework\Registry;
-use Magento\Framework\Model\ResourceModel\AbstractResource;
-use Magento\Framework\Data\Collection\AbstractDb;
-
-use Tereta\Import\Model\ResourceModel\Core\Scope\Stock as StockResource;
 use Tereta\Import\Model\Logger;
+use Tereta\Import\Model\ResourceModel\Core\Scope\Stock as StockResource;
+use Magento\InventoryIndexer\Indexer\InventoryIndexer;
+use Magento\CatalogInventory\Model\Indexer\Stock\Processor as StockIndexer;
 
 /**
  * Tereta\Import\Model\Core\Scope\Stock
  *
  * Class Stock
  * @package Tereta\Import\Model\Core\Scope
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Stock extends AbstractModel
 {
@@ -150,8 +147,10 @@ class Stock extends AbstractModel
     /**
      *
      */
-    public function reindex()
+    public function getIndexer()
     {
-        $this->getResource()->reindex();
+        return [
+            InventoryIndexer::INDEXER_ID, StockIndexer::INDEXER_ID
+        ];
     }
 }

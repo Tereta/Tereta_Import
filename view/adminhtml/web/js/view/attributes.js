@@ -92,7 +92,7 @@ define(['jquery', 'ko', 'uiRegistry'], function($, ko, uiRegistry){
 
         this.init = function(){
             var currentViewModel = new viewModel(this.element, this.config.fieldCode);
-            var binded = ko.applyBindings(currentViewModel, this.element);
+            ko.applyBindings(currentViewModel, this.element);
         }
 
         this.init();

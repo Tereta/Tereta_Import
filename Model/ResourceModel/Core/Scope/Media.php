@@ -41,8 +41,11 @@ use Magento\Framework\Model\ResourceModel\Db\Context;
 use Tereta\Import\Helper\Data as DataHelper;
 
 /**
+ * Tereta\Import\Model\ResourceModel\Core\Scope\Media
+ *
  * Class Media
  * @package Tereta\Import\Model\ResourceModel\Core\Scope
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Media extends AbstractDb
 {

@@ -34,7 +34,6 @@
 
 namespace Tereta\Import\Model\Core\Scope;
 
-use Tereta\Import\Model\Core\Scope\AbstractModel;
 use Tereta\Import\Model\ResourceModel\Core\Scope\Url as UrlResource;
 
 /**
@@ -42,6 +41,7 @@ use Tereta\Import\Model\ResourceModel\Core\Scope\Url as UrlResource;
  *
  * Class Url
  * @package Tereta\Import\Model\Core\Scope
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Url extends AbstractModel
 {
@@ -105,7 +105,7 @@ class Url extends AbstractModel
         $string = strtolower($string);
         $string = preg_replace('/[^a-z0-9]/U', '-', $string);
 
-        while(strpos($string, "--") !== false) {
+        while (strpos($string, "--") !== false) {
             $string = str_replace('--', '-', $string);
         }
 

@@ -41,6 +41,7 @@ use Magento\Ui\Component\Control\Button;
  *
  * Class Template
  * @package Tereta\Import\Block\Adminhtml\Block\Edit\RunButton
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Template extends Button
 {

@@ -43,6 +43,7 @@ use Tereta\Import\Model\Logger;
  *
  * Class AbstractModel
  * @package Tereta\Import\Model\Import\Extract
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 abstract class AbstractModel
 {

@@ -37,8 +37,11 @@ namespace Tereta\Import\Model\ResourceModel\Import;
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 
 /**
+ * Tereta\Import\Model\ResourceModel\Import\Collection
+ *
  * Class Collection
  * @package Tereta\Import\Model\ResourceModel\Import
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Collection extends AbstractCollection
 {

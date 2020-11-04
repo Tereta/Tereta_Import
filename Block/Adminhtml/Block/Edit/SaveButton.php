@@ -37,8 +37,11 @@ namespace Tereta\Import\Block\Adminhtml\Block\Edit;
 use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
 
 /**
+ * Tereta\Import\Block\Adminhtml\Block\Edit\SaveButton
+ *
  * Class SaveButton
  * @package Tereta\Import\Block\Adminhtml\Block\Edit
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class SaveButton extends GenericButton implements ButtonProviderInterface
 {

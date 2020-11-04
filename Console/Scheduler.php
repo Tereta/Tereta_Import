@@ -40,8 +40,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Tereta\Import\Cron\Scheduler as SchedulerCron;
 
 /**
+ * Tereta\Import\Console\Scheduler
+ *
  * Class Scheduler
  * @package Tereta\Import\Console
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Scheduler extends Command
 {

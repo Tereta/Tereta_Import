@@ -34,13 +34,6 @@
 
 namespace Tereta\Import\Model\Core\Scope;
 
-use Magento\Framework\Data\Collection\AbstractDb;
-use Magento\Framework\DataObject;
-use Tereta\Import\Model\Core\Scope\AbstractModel;
-use Magento\Framework\Model\Context;
-use Magento\Framework\Model\ResourceModel\AbstractResource;
-use Magento\Framework\Registry;
-use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\ResourceModel\Core\Scope\Media as MediaResource;
 
 /**
@@ -48,6 +41,7 @@ use Tereta\Import\Model\ResourceModel\Core\Scope\Media as MediaResource;
  *
  * Class Media
  * @package Tereta\Import\Model\Core\Scope
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 class Media extends AbstractModel
 {

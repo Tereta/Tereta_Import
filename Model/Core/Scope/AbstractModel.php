@@ -47,6 +47,7 @@ use Tereta\Import\Model\Logger;
  *
  * Class AbstractModel
  * @package Tereta\Import\Model\Core\Scope
+ * @author Tereta Alexander <tereta@mail.ua>
  */
 abstract class AbstractModel extends AbstractModelSource
 {
@@ -140,7 +141,8 @@ abstract class AbstractModel extends AbstractModelSource
     /**
      *
      */
-    public function reindex()
+    public function getIndexer()
     {
+        return [];
     }
 }
