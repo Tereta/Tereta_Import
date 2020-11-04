@@ -34,7 +34,7 @@
 
 namespace Tereta\Import\Model\Import\Processor;
 
-use Magento\Framework\Filesystem\DirectoryList;
+use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem\Io\File as IoFile;
 use Tereta\Import\Model\Core\ScopeFactory;
 use Tereta\Import\Model\Import\ProcessorFactory as ImportProcessorFactory;
