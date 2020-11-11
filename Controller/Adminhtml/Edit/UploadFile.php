@@ -82,11 +82,6 @@ class UploadFile extends Action
         parent::__construct($context);
     }
 
-    /**
-     * Save action
-     *
-     * @return \Magento\Framework\Controller\ResultInterface
-     */
     public function execute()
     {
         try {

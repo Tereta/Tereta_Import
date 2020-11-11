@@ -89,7 +89,7 @@ abstract class AbstractModel extends AbstractModelSource
     /**
      * @return array
      */
-    public function getSkipAttributes()
+    public function getSkipAttributes(): array
     {
         return [];
     }
@@ -97,51 +97,51 @@ abstract class AbstractModel extends AbstractModelSource
     /**
      * @return array
      */
-    public function getIncludeAttributes()
+    public function getIncludeAttributes(): array
     {
         return [];
     }
 
     /**
-     * @param $data
+     * @param array $data
      */
-    public function collect(&$data)
+    public function collect(array &$data): void
     {
     }
 
     /**
      * @return array
      */
-    public function getUpdateStatisticAttributes()
+    public function getUpdateStatisticAttributes(): array
     {
         return [];
     }
 
     /**
-     * @param $skuEntities
+     * @param DataObject $skuEntities
      */
-    public function fillEntityIds($skuEntities)
+    public function fillEntityIds(DataObject $skuEntities): void
     {
     }
 
     /**
      * @return void
      */
-    public function save()
+    public function save(): void
     {
     }
 
     /**
      * @return void
      */
-    public function saveAfter()
+    public function saveAfter(): void
     {
     }
 
     /**
      *
      */
-    public function getIndexer()
+    public function getIndexer(): array
     {
         return [];
     }

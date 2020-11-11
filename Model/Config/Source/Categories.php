@@ -37,6 +37,7 @@ namespace Tereta\Import\Model\Config\Source;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Model\CategoryFactory;
 use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 
 /**
  * Tereta\Import\Model\Config\Source\Categories
@@ -71,7 +72,7 @@ class Categories implements ArrayInterface
     /**
      * @return array|mixed
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         $data = [
             'value' => 0,
@@ -89,7 +90,7 @@ class Categories implements ArrayInterface
     /**
      * @param $data
      */
-    protected function fillChildCategories(&$data)
+    protected function fillChildCategories(&$data): void
     {
         $childCategories = $this->getCategoriesByParent($data['value']);
         if (count($childCategories)) {
@@ -111,9 +112,9 @@ class Categories implements ArrayInterface
 
     /**
      * @param $parentId
-     * @return \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
+     * @return AbstractCollection
      */
-    protected function getCategoriesByParent($parentId)
+    protected function getCategoriesByParent($parentId): AbstractCollection
     {
         $categoryCollection = $this->categoryFactory->create()->getCollection();
         $categoryCollection->addFieldToFilter('parent_id', $parentId);

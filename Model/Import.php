@@ -144,6 +144,7 @@ class Import extends AbstractModel
 
     /**
      * Import constructor.
+     * @param IndexerRegistry $indexerRegistry
      * @param DirectoryList $directoryList
      * @param \Tereta\Import\Model\LoggerFactory $loggerFactory
      * @param ImportProcessor $importProcessor
@@ -181,7 +182,7 @@ class Import extends AbstractModel
     /**
      *
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init('Tereta\Import\Model\ResourceModel\Import');
     }

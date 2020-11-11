@@ -50,28 +50,12 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Index extends Action
 {
-    /** @var PageFactory  */
-    protected $resultPageFactory;
-
     /**
      * @return bool
      */
-    protected function _isAllowed()
+    protected function _isAllowed(): bool
     {
         return $this->_authorization->isAllowed('Tereta_Import::import');
-    }
-
-    /**
-     * Index constructor.
-     * @param Context $context
-     * @param PageFactory $resultPageFactory
-     */
-    public function __construct(
-        Context $context,
-        PageFactory $resultPageFactory
-    ) {
-        $this->resultPageFactory = $resultPageFactory;
-        parent::__construct($context);
     }
 
     /**
@@ -79,6 +63,6 @@ class Index extends Action
      */
     public function execute()
     {
-        return $this->resultPageFactory->create();
+        return $this->resultFactory->create('page');
     }
 }

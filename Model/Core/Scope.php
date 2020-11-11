@@ -34,6 +34,8 @@
 
 namespace Tereta\Import\Model\Core;
 
+use Exception;
+
 use Magento\Catalog\Model\Product as ProductModel;
 use Magento\Catalog\Model\ResourceModel\Eav\Attribute as EavAttribute;
 use Magento\Eav\Api\AttributeOptionManagementInterface;
@@ -263,15 +265,16 @@ class Scope extends AbstractModel
     /**
      *
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init(ScopeResource::class);
     }
 
     /**
-     * @param array $data
+     * @param array $csvData
+     * @throws LocalizedException
      */
-    public function collectItem(array $csvData)
+    public function collectItem(array $csvData): void
     {
         // Convert mapped fields
         $data = [];
@@ -343,14 +346,14 @@ class Scope extends AbstractModel
     }
 
     /**
-     * @param $fieldLabel
-     * @return mixed|string|void
+     * @param string $fieldLabel
+     * @return string
      */
-    protected function getMapAttribute($fieldLabel)
+    protected function getMapAttribute(string $fieldLabel): ?string
     {
         $fieldLabel = trim($fieldLabel);
         if (!$fieldLabel) {
-            return;
+            return null;
         }
         $attributeCode = $this->mapAttributes->getData($fieldLabel);
 
@@ -362,10 +365,10 @@ class Scope extends AbstractModel
     }
 
     /**
-     * @param $attributeCode
-     * @return mixed
+     * @param string $attributeCode
+     * @return string
      */
-    protected function getRevertedMapAttribute($attributeCode)
+    protected function getRevertedMapAttribute(string $attributeCode): string
     {
         $mapping = array_flip($this->mapAttributes->getData());
         if (isset($mapping[$attributeCode])) {
@@ -378,7 +381,7 @@ class Scope extends AbstractModel
     /**
      * @return bool
      */
-    public function isCollected()
+    public function isCollected(): bool
     {
         return $this->_collected;
     }
@@ -386,7 +389,7 @@ class Scope extends AbstractModel
     /**
      * Save all values
      */
-    public function save()
+    public function save(): void
     {
         if (!$this->_collected) {
             return;
@@ -493,7 +496,7 @@ class Scope extends AbstractModel
      * @param array $csvFields
      * @return $this
      */
-    protected function _prepareAttributes(array $csvFields)
+    protected function _prepareAttributes(array $csvFields): self
     {
         $skipAttributes = $this->extension->getSkipAttributes();
 
@@ -547,8 +550,9 @@ class Scope extends AbstractModel
 
     /**
      * @param EavAttribute $attribute
+     * @throws LocalizedException
      */
-    protected function _prepareAttributesOptions(EavAttribute $attribute)
+    protected function _prepareAttributesOptions(EavAttribute $attribute): void
     {
         if (!$attribute->getSourceModel()) {
             return;
@@ -583,9 +587,9 @@ class Scope extends AbstractModel
      *
      * @param EavAttribute $attribute
      * @return bool
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
-    protected function prepareSpecificAttributesOptions(EavAttribute $attribute)
+    protected function prepareSpecificAttributesOptions(EavAttribute $attribute): bool
     {
         $optionsData = $this->_dataObjectFactory->create();
         $optionsDataReverce = $this->_dataObjectFactory->create();
@@ -626,11 +630,11 @@ class Scope extends AbstractModel
     /**
      * Clean wrong symbols for data type
      *
-     * @param $attributeType
-     * @param $value
-     * @return string|string[]|null
+     * @param string $attributeType
+     * @param string|null $value
+     * @return string|null
      */
-    protected function clearValue($attributeType, $value)
+    protected function clearValue(string $attributeType, ?string $value): ?string
     {
         switch ($attributeType) {
             case('decimal'):
@@ -651,7 +655,7 @@ class Scope extends AbstractModel
      * @param string $attributeType
      * @param array $data
      */
-    protected function _collectTypeValues(string $attributeType, array $data)
+    protected function _collectTypeValues(string $attributeType, array $data): void
     {
         if (!$this->getValue('sku', $data)) {
             $this->logger->debug('Tying to find ID for SKU: SKU not found');
@@ -727,9 +731,10 @@ class Scope extends AbstractModel
 
     /**
      * @param string $attributeCode
-     * @param string|null|integer|boolean $value
+     * @param $value
+     * @throws Exception
      */
-    protected function _collectTypeValuesProcessOptions(string $attributeCode, &$value)
+    protected function _collectTypeValuesProcessOptions(string $attributeCode, &$value): void
     {
         if (in_array($attributeCode, ['quantity_and_stock_status'])) {
             return;
@@ -760,11 +765,9 @@ class Scope extends AbstractModel
     /**
      * @param string $attributeCode
      * @param string $value
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\StateException
+     * @throws Exception
      */
-    protected function _collectTypeValuesAddOptions(string $attributeCode, string &$value)
+    protected function _collectTypeValuesAddOptions(string $attributeCode, string &$value): void
     {
         if (!$this->_configuration->getCreateNewOptions()) {
             return;
@@ -814,7 +817,7 @@ class Scope extends AbstractModel
     /**
      * @param string $attributeType
      */
-    protected function _fillAttributeTypeEntityIds(string $attributeType)
+    protected function _fillAttributeTypeEntityIds(string $attributeType): void
     {
         if (!isset($this->attributeTypes[$attributeType]) || !$this->attributeTypes[$attributeType]) {
             return;
@@ -857,11 +860,11 @@ class Scope extends AbstractModel
     }
 
     /**
-     * @param array $array
      * @param string $key
-     * @return mixed|null
+     * @param array $array
+     * @return string|null
      */
-    protected function getValue(string $key, array $array)
+    protected function getValue(string $key, array $array): ?string
     {
         if (!isset($array[$key])) {
             return null;

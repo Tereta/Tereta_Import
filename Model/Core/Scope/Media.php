@@ -35,6 +35,7 @@
 namespace Tereta\Import\Model\Core\Scope;
 
 use Tereta\Import\Model\ResourceModel\Core\Scope\Media as MediaResource;
+use Magento\Framework\DataObject;
 
 /**
  * Tereta\Import\Model\Core\Scope\Media
@@ -57,7 +58,7 @@ class Media extends AbstractModel
     /**
      * @return string
      */
-    protected function getMediaImageField()
+    protected function getMediaImageField(): string
     {
         return 'image_url';
     }
@@ -65,15 +66,15 @@ class Media extends AbstractModel
     /**
      * @return array
      */
-    public function getSkipAttributes()
+    public function getSkipAttributes(): array
     {
         return [$this->getMediaImageField()];
     }
 
     /**
-     * @param $data
+     * @param array $data
      */
-    public function collect(&$data)
+    public function collect(array &$data): void
     {
         if (!isset($data[$this->getMediaImageField()]) || !$data[$this->getMediaImageField()]) {
             return;
@@ -82,9 +83,9 @@ class Media extends AbstractModel
     }
 
     /**
-     * @param $skuEntities
+     * @param DataObject $skuEntities
      */
-    public function fillEntityIds($skuEntities)
+    public function fillEntityIds(DataObject $skuEntities): void
     {
         $this->getResource()->fillEntityIds($skuEntities);
     }
@@ -92,7 +93,7 @@ class Media extends AbstractModel
     /**
      * @return array
      */
-    public function getIncludeAttributes()
+    public function getIncludeAttributes(): array
     {
         return ['image', 'small_image', 'swatch_image', 'thumbnail'];
     }
@@ -100,7 +101,7 @@ class Media extends AbstractModel
     /**
      *
      */
-    public function save()
+    public function save(): void
     {
         $this->getResource()->saveCollectedMedia();
     }

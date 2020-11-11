@@ -48,7 +48,7 @@ class Visibility extends VisibilitySource
     /**
      * @return array
      */
-    public static function getOptionArray()
+    public static function getOptionArray(): array
     {
         $array = parent::getOptionArray();
         $array = array_merge([0 => __('Not In Use')], $array);
@@ -59,7 +59,7 @@ class Visibility extends VisibilitySource
     /**
      * @return array
      */
-    public static function getAllOptions()
+    public static function getAllOptions(): array
     {
         $res = [];
         foreach (static::getOptionArray() as $index => $value) {

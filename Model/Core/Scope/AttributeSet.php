@@ -90,7 +90,7 @@ class AttributeSet extends AbstractModel
      * @param $attributeId
      * @return bool
      */
-    public function isAllowedAttribute($attributeSetId, $attributeId)
+    public function isAllowedAttribute($attributeSetId, $attributeId): bool
     {
         $attributes = $this->getAttributeSetFields($attributeSetId);
         if (isset($attributes[$attributeId])) {
@@ -99,11 +99,6 @@ class AttributeSet extends AbstractModel
         return false;
     }
 
-    /**
-     * @param $attributeSetId
-     * @return mixed
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
     public function getAttributeSetFields($attributeSetId)
     {
         if (isset($this->_attributeSetIds[$attributeSetId])) {

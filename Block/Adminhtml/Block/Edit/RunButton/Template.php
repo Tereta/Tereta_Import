@@ -48,7 +48,7 @@ class Template extends Button
     /**
      * @return string
      */
-    protected function getTemplatePath()
+    protected function getTemplatePath(): string
     {
         return 'Tereta_Import::control/button/import.phtml';
     }

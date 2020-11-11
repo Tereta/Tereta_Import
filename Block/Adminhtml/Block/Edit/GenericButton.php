@@ -71,9 +71,9 @@ class GenericButton
     }
 
     /**
-     * @return mixed|null
+     * @return int|null
      */
-    public function getEntityId()
+    public function getEntityId(): ?integer
     {
         try {
             return $this->_modelImport->load(
@@ -91,7 +91,7 @@ class GenericButton
      * @param   array $params
      * @return  string
      */
-    public function getUrl($route = '', $params = [])
+    public function getUrl($route = '', $params = []): string
     {
         return $this->context->getUrlBuilder()->getUrl($route, $params);
     }

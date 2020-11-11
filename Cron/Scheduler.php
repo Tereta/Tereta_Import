@@ -38,6 +38,7 @@ use Magento\Cron\Model\ScheduleFactory as ScheduleFactory;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Psr\Log\LoggerInterface;
 use Tereta\Import\Model\ImportFactory;
+use Exception;
 
 /**
  * Tereta\Import\Cron\Scheduler
@@ -84,9 +85,9 @@ class Scheduler
     }
 
     /**
-     *
+     * @throws Exception
      */
-    public function execute()
+    public function execute(): void
     {
         $scopeTime = $startTime = $endTime = null;
 
@@ -109,7 +110,7 @@ class Scheduler
      * @param $endTime
      * @return array
      */
-    protected function generateScopeTime($startTime, $endTime)
+    protected function generateScopeTime($startTime, $endTime): array
     {
         $timeScope = [];
         for ($step = $startTime; $step <= $endTime; $step = $step + 60) {
@@ -123,9 +124,9 @@ class Scheduler
      * @param $processedImports
      * @param $currentTimeArray
      * @return array
-     * @throws \Magento\Framework\Exception\CronException
+     * @throws Exception;
      */
-    protected function executeModels(&$processedImports, $currentTimeArray)
+    protected function executeModels(&$processedImports, $currentTimeArray): array
     {
         $processed = [];
         if (!is_array($currentTimeArray)) {

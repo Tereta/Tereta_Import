@@ -67,7 +67,7 @@ class Scheduler extends Command
     /**
      *
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('advenced:import:scheduler')
             ->setDescription('Runs advenced import scheduler');
@@ -78,9 +78,9 @@ class Scheduler extends Command
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return int|void|null
+     * @return void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $this->schedulerCron->execute();
     }

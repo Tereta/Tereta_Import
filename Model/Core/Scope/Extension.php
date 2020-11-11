@@ -42,6 +42,7 @@ use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Registry;
 use Tereta\Import\Model\Logger;
+use Exception;
 
 /**
  * Tereta\Import\Model\Core\Scope\Extension
@@ -108,19 +109,14 @@ class Extension extends AbstractModel
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
     }
 
-    /**
-     * @param null $identifier
-     * @return mixed
-     * @throws \Exception
-     */
-    public function get($identifier = null)
+    public function get($identifier = null) // !!!!!!!!!!!!
     {
         if (isset($this->getClasses[$identifier])) {
             return $this->getClasses[$identifier];
         }
 
         if (!isset($this->registeredClasses[$identifier])) {
-            throw new \Exception('The "' . $identifier . '" registered calss was not found.');
+            throw new Exception('The "' . $identifier . '" registered calss was not found.');
         }
 
         $class = $this->registeredClasses[$identifier];
@@ -134,9 +130,9 @@ class Extension extends AbstractModel
 
     /**
      * @param $data
-     * @throws \Exception
+     * @throws Exception
      */
-    public function collect(&$data)
+    public function collect(array &$data): void
     {
         foreach ($this->registeredClasses as $key=>$item) {
             $this->get($key)->collect($data);
@@ -144,10 +140,10 @@ class Extension extends AbstractModel
     }
 
     /**
-     * @param $skuEntities
-     * @throws \Exception
+     * @param DataObject $skuEntities
+     * @throws Exception
      */
-    public function fillEntityIds($skuEntities)
+    public function fillEntityIds(DataObject $skuEntities): void
     {
         foreach ($this->registeredClasses as $key=>$item) {
             $debugTime = time();
@@ -158,9 +154,9 @@ class Extension extends AbstractModel
 
     /**
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getSkipAttributes()
+    public function getSkipAttributes(): array
     {
         $skipAttributes = [];
 
@@ -176,9 +172,9 @@ class Extension extends AbstractModel
 
     /**
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getIncludeAttributes()
+    public function getIncludeAttributes(): array
     {
         $attributes = [];
 
@@ -193,9 +189,9 @@ class Extension extends AbstractModel
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getIndexer()
+    public function getIndexer(): array
     {
         $indexers = [];
 
@@ -210,9 +206,9 @@ class Extension extends AbstractModel
 
     /**
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getUpdateStatisticAttributes()
+    public function getUpdateStatisticAttributes(): array
     {
         $attributes = [];
 
@@ -227,10 +223,10 @@ class Extension extends AbstractModel
     }
 
     /**
-     * @return AbstractModel|void
-     * @throws \Exception
+     * @return void
+     * @throws Exception
      */
-    public function save()
+    public function save(): void
     {
         foreach ($this->registeredClasses as $key=>$item) {
             $debugTime = time();
@@ -240,9 +236,9 @@ class Extension extends AbstractModel
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public function saveAfter()
+    public function saveAfter(): void
     {
         foreach ($this->registeredClasses as $key=>$item) {
             $debugTime = time();

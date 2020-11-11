@@ -34,6 +34,7 @@
 
 namespace Tereta\Import\Controller\Adminhtml\Edit;
 
+use Exception;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Tereta\Import\Model\ImportFactory as ModelImportFactory;
@@ -68,15 +69,11 @@ class Save extends Action
     /**
      * @return bool
      */
-    protected function _isAllowed()
+    protected function _isAllowed(): bool
     {
         return $this->_authorization->isAllowed('Tereta_Import::import');
     }
 
-    /**
-     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\Result\Redirect|\Magento\Framework\Controller\ResultInterface
-     * @throws \Exception
-     */
     public function execute()
     {
         $data = $this->getRequest()->getPostValue();
@@ -85,8 +82,7 @@ class Save extends Action
 
         if ($this->getRequest()->getPost('entity_id')) {
             $modelImport->load($this->getRequest()->getPost('entity_id'));
-        }
-        else {
+        } else {
             unset($data['entity_id']);
         }
 

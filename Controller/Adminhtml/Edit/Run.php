@@ -68,15 +68,15 @@ class Run extends Action
     /**
      * @return bool
      */
-    protected function _isAllowed()
+    protected function _isAllowed(): bool
     {
         return $this->_authorization->isAllowed('Tereta_Import::import');
     }
 
     /**
-     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface|\Magento\Framework\View\Result\Page
+     * @return string
      */
-    public function execute()
+    public function execute(): string
     {
         $importId = $this->getRequest()->getParam('import_id');
         $importModel = $this->importFactory->create();

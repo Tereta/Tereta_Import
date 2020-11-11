@@ -38,6 +38,7 @@ use Magento\Catalog\Model\Indexer\Category\Product as IndexerCategoryProduct;
 use Magento\Catalog\Model\Indexer\Product\Category as IndexerProductCategory;
 use Magento\Catalog\Model\Indexer\Product\Price\Processor as IndexerProductPrice;
 use Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor as IndexerProductProductRule;
+use Magento\Framework\DataObject;
 use Tereta\Import\Model\ResourceModel\Core\Scope\Category as CategoryResource;
 
 /**
@@ -57,7 +58,7 @@ class Category extends AbstractModel
     /**
      *
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init(CategoryResource::class);
         $this->getResource()->setConfiguration($this->configuration)->setLogger($this->logger);
@@ -74,7 +75,7 @@ class Category extends AbstractModel
     /**
      * @return array
      */
-    public function getSkipAttributes()
+    public function getSkipAttributes(): array
     {
         return [
             'product_category_ids'
@@ -82,9 +83,9 @@ class Category extends AbstractModel
     }
 
     /**
-     * @param $data
+     * @param array $data
      */
-    public function collect(&$data)
+    public function collect(array &$data): void
     {
         $data['product_category_ids'] = isset($data['product_category_ids']) ? trim($data['product_category_ids']) : null;
 
@@ -100,10 +101,10 @@ class Category extends AbstractModel
     }
 
     /**
-     * @param $categoryIds
-     * @return mixed
+     * @param array $categoryIds
+     * @return array
      */
-    protected function getMappedCategories($categoryIds)
+    protected function getMappedCategories(array $categoryIds): array
     {
         foreach ($categoryIds as $key=>$categoryValue) {
             $categoryIds[$key] = $this->getMappedCategoryId($categoryValue);
@@ -114,9 +115,9 @@ class Category extends AbstractModel
 
     /**
      * @param $categoryValue
-     * @return mixed
+     * @return string
      */
-    protected function getMappedCategoryId($categoryValue)
+    protected function getMappedCategoryId($categoryValue): string
     {
         if (isset($this->mappingCategories[$categoryValue])) {
             return $this->mappingCategories[$categoryValue];
@@ -126,9 +127,9 @@ class Category extends AbstractModel
     }
 
     /**
-     * @param $skuIds
+     * @param DataObject $skuIds
      */
-    public function fillEntityIds($skuIds)
+    public function fillEntityIds(DataObject $skuIds): void
     {
         $this->getResource()->fillEntityIds($skuIds);
     }
@@ -136,7 +137,7 @@ class Category extends AbstractModel
     /**
      *
      */
-    public function save()
+    public function save(): void
     {
         $this->getResource()->saveProductCategories();
     }
@@ -144,7 +145,7 @@ class Category extends AbstractModel
     /**
      * @return array
      */
-    public function getIndexer()
+    public function getIndexer(): array
     {
         return [
             IndexerProductCategory::INDEXER_ID,

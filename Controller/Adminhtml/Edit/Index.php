@@ -35,7 +35,7 @@
 namespace Tereta\Import\Controller\Adminhtml\Edit;
 
 use Magento\Backend\App\Action;
-use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\View\Result\Page as ResultPage;
 
 /**
  * Tereta\Import\Controller\Adminhtml\Edit\Index
@@ -46,37 +46,19 @@ use Magento\Framework\Controller\ResultFactory;
  */
 class Index extends Action
 {
-    /** @var \Magento\Framework\View\Result\PageFactory  */
-    protected $resultPageFactory;
-
     /**
      * @return bool
      */
-    protected function _isAllowed()
+    protected function _isAllowed(): bool
     {
         return $this->_authorization->isAllowed('Tereta_Import::import');
     }
 
     /**
-     * Index constructor.
-     * @param \Magento\Backend\App\Action\Context $context
-     * @param \Magento\Framework\View\Result\PageFactory $resultPageFactory
+     * @return ResultPage
      */
-    public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        \Magento\Framework\View\Result\PageFactory $resultPageFactory
-    ) {
-        $this->resultPageFactory = $resultPageFactory;
-        parent::__construct($context);
-    }
-
-    /**
-     * Load the page defined in view/frontend/layout/samplenewpage_index_index.xml
-     *
-     * @return \Magento\Framework\View\Result\Page
-     */
-    public function execute()
+    public function execute(): ResultPage
     {
-        return $this->resultPageFactory->create();
+        return $this->resultFactory->create('page');
     }
 }

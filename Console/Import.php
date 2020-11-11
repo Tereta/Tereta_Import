@@ -71,7 +71,7 @@ class Import extends Command
     /**
      *
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('advenced:import')
             ->setDescription('Runs advenced import')
@@ -87,9 +87,9 @@ class Import extends Command
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return int|void|null
+     * @return void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $identifier = $input->getArgument(static::KEY_IMPORT_IDENTIFIER);
         $importModel = $this->importFactory->create();

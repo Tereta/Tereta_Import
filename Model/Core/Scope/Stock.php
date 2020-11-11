@@ -35,7 +35,6 @@
 namespace Tereta\Import\Model\Core\Scope;
 
 use Magento\Framework\DataObject;
-
 use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\ResourceModel\Core\Scope\Stock as StockResource;
 use Magento\InventoryIndexer\Indexer\InventoryIndexer;
@@ -73,7 +72,7 @@ class Stock extends AbstractModel
     /**
      * @return array
      */
-    public function getSkipAttributes()
+    public function getSkipAttributes(): array
     {
         return [
             'is_in_stock',
@@ -85,7 +84,7 @@ class Stock extends AbstractModel
     /**
      * @return array
      */
-    public function getIncludeAttributes()
+    public function getIncludeAttributes(): array
     {
         return ['quantity_and_stock_status'];
     }
@@ -93,16 +92,16 @@ class Stock extends AbstractModel
     /**
      *
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init(StockResource::class);
         $this->getResource()->setConfiguration($this->configuration)->setLogger($this->logger);
     }
 
     /**
-     * @return AbstractModel|void
+     *
      */
-    public function save()
+    public function save(): void
     {
         $this->getResource()->saveStock();
     }
@@ -110,7 +109,7 @@ class Stock extends AbstractModel
     /**
      * @param array $data
      */
-    public function collect(&$data)
+    public function collect(array &$data): void
     {
         // FROM CONFIGURATION
         if (!isset($data['manage_stock']) && $this->configuration->getData('manage_stock') == 1) {
@@ -137,9 +136,9 @@ class Stock extends AbstractModel
     }
 
     /**
-     * @param array $skuEntities
+     * @param DataObject $skuEntities
      */
-    public function fillEntityIds($skuEntities)
+    public function fillEntityIds(DataObject $skuEntities): void
     {
         $this->getResource()->fillEntityIds($skuEntities);
     }
@@ -147,7 +146,7 @@ class Stock extends AbstractModel
     /**
      *
      */
-    public function getIndexer()
+    public function getIndexer(): array
     {
         return [
             InventoryIndexer::INDEXER_ID, StockIndexer::INDEXER_ID

@@ -65,7 +65,7 @@ class Types implements ArrayInterface
      *
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         $return = [
             ['value' => '', 'label' => __('Select Type')]
@@ -85,7 +85,7 @@ class Types implements ArrayInterface
      *
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return [];
     }

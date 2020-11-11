@@ -37,6 +37,7 @@ namespace Tereta\Import\Controller\Adminhtml\Edit;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Tereta\Import\Model\ImportFactory as ModelImportFactory;
+use Exception;
 
 /**
  * Tereta\Import\Controller\Adminhtml\Edit\Delete
@@ -69,15 +70,12 @@ class Delete extends Action
     /**
      * @return bool
      */
-    protected function _isAllowed()
+    protected function _isAllowed(): bool
     {
         return $this->_authorization->isAllowed('Tereta_Import::import');
     }
 
-    /**
-     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\Result\Redirect|\Magento\Framework\Controller\ResultInterface
-     */
-    public function execute()
+    public function execute() // !!!!!!!!!!!!!
     {
         $modelImport = $this->modelImportFactory->create();
         $resultRedirect = $this->resultRedirectFactory->create();
@@ -90,7 +88,7 @@ class Delete extends Action
                 $modelImport->delete();
                 $this->messageManager->addSuccessMessage(__('You deleted the configuration.'));
             }
-            catch(\Exception $e) {
+            catch(Exception $e) {
                 $this->messageManager->addErrorMessage($e->getMessage());
             }
         }

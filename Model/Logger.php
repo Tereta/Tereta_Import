@@ -60,6 +60,11 @@ class Logger extends \Monolog\Logger
     protected $_scopeConfig;
 
     /**
+     * @var bool
+     */
+    protected $htmlOutput = false;
+
+    /**
      * Logger constructor.
      * @param ScopeConfigInterface $scopeConfig
      * @param string $name
@@ -75,24 +80,19 @@ class Logger extends \Monolog\Logger
 
     /**
      * @param ConsoleOutput $output
-     * @return \GoMage\Netsuite\Logger\Logger
+     * @return $this
      */
-    public function setCommandOutput(ConsoleOutput $output)
+    public function setCommandOutput(ConsoleOutput $output): self
     {
         $this->_commandOutput = $output;
         return $this;
     }
 
     /**
-     * @var bool
-     */
-    protected $htmlOutput = false;
-
-    /**
-     * @param $boolean
+     * @param bool $boolean
      * @return $this
      */
-    public function setHtmlOutput($boolean)
+    public function setHtmlOutput(bool $boolean): self
     {
         $this->htmlOutput = $boolean;
         return $this;
@@ -104,9 +104,9 @@ class Logger extends \Monolog\Logger
      * @param array $context
      * @return bool
      */
-    public function addRecord($level, $message, array $context = [])
+    public function addRecord($level, $message, array $context = []): bool
     {
-        $blockCommandOutput = (isset($context['blockCommandOutput']) && $context['blockCommandOutput'] == true) ? true : false;
+        $blockCommandOutput = isset($context['blockCommandOutput']) && $context['blockCommandOutput'] == true;
         $htmlOutput = (isset($context['blockHtmlOutput']) && $context['blockHtmlOutput'] == true) ? true : false;
         $allLog = (isset($context['allLog']) && $context['allLog'] == true) ? true : false;
 
@@ -157,11 +157,11 @@ class Logger extends \Monolog\Logger
             }
 
             echo $commandMessage;
-            return;
+            return false;
         }
 
         if (!$allLog && $level <= static::DEBUG && !$this->_scopeConfig->isSetFlag(self::XML_PATH_CONFIGURATION_DEBUG, ScopeInterface::SCOPE_STORE)) {
-            return;
+            return false;
         }
 
         return parent::addRecord($level, $message, $context);

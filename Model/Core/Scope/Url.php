@@ -35,6 +35,7 @@
 namespace Tereta\Import\Model\Core\Scope;
 
 use Tereta\Import\Model\ResourceModel\Core\Scope\Url as UrlResource;
+use Magento\Framework\DataObject;
 
 /**
  * Tereta\Import\Model\Core\Scope\Url
@@ -48,7 +49,7 @@ class Url extends AbstractModel
     /**
      *
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init(UrlResource::class);
         $this->getResource()->setConfiguration($this->configuration)->setLogger($this->logger);
@@ -57,7 +58,7 @@ class Url extends AbstractModel
     /**
      * @return array
      */
-    public function getIncludeAttributes()
+    public function getIncludeAttributes(): array
     {
         return ['url_key'];
     }
@@ -65,7 +66,7 @@ class Url extends AbstractModel
     /**
      * @param $data
      */
-    public function collect(&$data)
+    public function collect(array &$data): void
     {
         if ($this->configuration->getCreateUrlKey() && isset($data['name']) && $data['name'] && (!isset($data['url_key']) || !$data['url_key'])) {
             $data['url_key'] = $this->transformString($data['name'] . '_' . $data['sku']);
@@ -75,18 +76,18 @@ class Url extends AbstractModel
     }
 
     /**
-     * @param $skuEntities
+     * @param DataObject $skuEntities
      */
-    public function fillEntityIds($skuEntities)
+    public function fillEntityIds(DataObject $skuEntities): void
     {
         $this->getResource()->fillEntityIds($skuEntities);
     }
 
     /**
-     * @param $string
+     * @param string $string
      * @return string
      */
-    protected function transformString($string)
+    protected function transformString(string $string): string
     {
         $cyrilic = [
             'а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п',
@@ -115,7 +116,7 @@ class Url extends AbstractModel
     /**
      * @return \Magento\Framework\Model\AbstractModel|void
      */
-    public function saveAfter()
+    public function saveAfter(): void
     {
         $this->getResource()->saveUrl();
     }
