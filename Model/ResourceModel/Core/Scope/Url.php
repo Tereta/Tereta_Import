@@ -38,6 +38,8 @@ use Magento\Eav\Api\AttributeRepositoryInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Model\ResourceModel\Db\Context;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\LocalizedException;
 
 /**
  * Tereta\Import\Model\ResourceModel\Core\Scope\Url
@@ -81,7 +83,7 @@ class Url extends AbstractDb
     /**
      *
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init('url_rewrite', 'url_rewrite_id');
     }
@@ -109,9 +111,9 @@ class Url extends AbstractDb
     }
 
     /**
-     * @param $data
+     * @param array $data
      */
-    public function collect($data)
+    public function collect(array $data): void
     {
         if (!isset($data['sku']) || !($sku = $data['sku']) || !isset($data['url_key']) || !$data['url_key']) {
             return;
@@ -126,10 +128,7 @@ class Url extends AbstractDb
         $this->collectedData[$sku] = $collectedDataItem;
     }
 
-    /**
-     * @param $skuEntities
-     */
-    public function fillEntityIds($skuEntities)
+    public function fillEntityIds($skuEntities): void
     {
         foreach ($this->collectedData as $key => $item) {
             $sku = $item['sku'];
@@ -142,9 +141,9 @@ class Url extends AbstractDb
     }
 
     /**
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
      */
-    public function saveUrl()
+    public function saveUrl(): void
     {
         if (!$this->configuration->getUpdateUrlRewrites()) {
             return;
@@ -162,9 +161,10 @@ class Url extends AbstractDb
     }
 
     /**
-     *
+     * @param int $storeId
+     * @throws LocalizedException
      */
-    public function saveStoreUrls($storeId)
+    public function saveStoreUrls(int $storeId): void
     {
         if (!$storeId) {
             return;
@@ -254,11 +254,11 @@ class Url extends AbstractDb
     }
 
     /**
-     * @param $itemExists
-     * @param $insertUpdateRecordItem
+     * @param array $itemExists
+     * @param array $insertUpdateRecordItem
      * @return bool
      */
-    protected function isRecordExists($itemExists, $insertUpdateRecordItem)
+    protected function isRecordExists(array $itemExists, array $insertUpdateRecordItem): bool
     {
         $return = true;
         foreach ($itemExists as $key=>$value) {
@@ -284,10 +284,10 @@ class Url extends AbstractDb
     }
 
     /**
-     * @param $urlKey
+     * @param string $urlKey
      * @return string
      */
-    protected function getUrl($urlKey)
+    protected function getUrl(string $urlKey): string
     {
         if ($urlSuffix = $this->scopeConfig->getValue('catalog/seo/category_url_suffix')) {
             $urlKey = $urlKey . $urlSuffix;

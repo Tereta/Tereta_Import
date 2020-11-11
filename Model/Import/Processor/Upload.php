@@ -87,9 +87,9 @@ class Upload extends AbstractModel
 
     /**
      * @param $dataModel
-     * @throws \Magento\Framework\Exception\FileSystemException
+     * @throws Exception
      */
-    public function import($dataModel)
+    public function import($dataModel): void
     {
         $importDir = $this->directoryList->getPath('media') . '/' . static::DIR_PATH;
 
@@ -115,9 +115,9 @@ class Upload extends AbstractModel
 
     /**
      * @param $object
-     * @throws \Magento\Framework\Exception\FileSystemException
+     * @throws FileSystemException
      */
-    public function afterSave($object)
+    public function afterSave($object): void
     {
         $data = $object->getData();
         $importDir = $this->directoryList->getPath('media') . '/' . static::DIR_PATH;
@@ -142,9 +142,9 @@ class Upload extends AbstractModel
     }
 
     /**
-     * @param $data
+     * @param array $data
      */
-    public function encodeData(&$data)
+    public function encodeData(array &$data): void
     {
         $dataUploadFile = null;
         $data['additional_data'] = '';
@@ -155,9 +155,9 @@ class Upload extends AbstractModel
     }
 
     /**
-     * @param $data
+     * @param array $data
      */
-    public function decodeData(&$data)
+    public function decodeData(array &$data): void
     {
         if (!$data['additional_data']) {
             return;

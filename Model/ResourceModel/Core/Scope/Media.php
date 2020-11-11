@@ -39,6 +39,7 @@ use Magento\Eav\Model\AttributeRepository;
 use Magento\Framework\Filesystem\Io\File as IoFile;
 use Magento\Framework\Model\ResourceModel\Db\Context;
 use Tereta\Import\Helper\Data as DataHelper;
+use Exception;
 
 /**
  * Tereta\Import\Model\ResourceModel\Core\Scope\Media
@@ -106,11 +107,11 @@ class Media extends AbstractDb
     }
 
     /**
-     * @param $sku
-     * @param $data
+     * @param string $sku
+     * @param array $data
      * @param $mediaImageUrlString
      */
-    public function collect($sku, &$data, $mediaImageUrlString)
+    public function collect(string $sku, array &$data, $mediaImageUrlString): void
     {
         if (!trim($mediaImageUrlString)) {
             return;
@@ -163,7 +164,7 @@ class Media extends AbstractDb
     /**
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function saveCollectedMedia()
+    public function saveCollectedMedia(): void
     {
         $time = time();
         $attributeModel = $this->attributeRepository->get(ProductModel::ENTITY, static::MEDIA_GALLERY_ATTRIBUTE_CODE);
@@ -271,11 +272,11 @@ class Media extends AbstractDb
     }
 
     /**
-     * @param $url
-     * @return mixed
-     * @throws \Magento\Framework\Exception\FileSystemException
+     * @param string $url
+     * @return string
+     * @throws Exception
      */
-    protected function downloadRemoteImage($url)
+    protected function downloadRemoteImage(string $url): string
     {
         list($fullPath, $filePath) = $this->dataHelper->getLocalFilePath($url);
         $pathInfo = pathinfo($fullPath);
@@ -284,7 +285,7 @@ class Media extends AbstractDb
             $this->ioFile->mkdir($dirPath, 0775);
         }
         if (!$this->ioFile->read($url, $fullPath)) {
-            throw new \Exception('Can not download and save remote file ("' . $url . '" > "' . $fullPath . '")');
+            throw new Exception('Can not download and save remote file ("' . $url . '" > "' . $fullPath . '")');
         }
 
         return $filePath;
@@ -293,7 +294,7 @@ class Media extends AbstractDb
     /**
      * @param $skuEntities
      */
-    public function fillEntityIds($skuEntities)
+    public function fillEntityIds($skuEntities): void
     {
         foreach ($this->mediaImagesCollected as $key => $item) {
             $this->mediaImagesCollected[$key]['entity_id'] = $skuEntities->getData($item['sku'])['entity_id'];
@@ -303,7 +304,7 @@ class Media extends AbstractDb
     /**
      * @return int
      */
-    public function getLastMediaGalleryId()
+    public function getLastMediaGalleryId(): int
     {
         $connection = $this->getConnection();
         $select = $connection->select('value_id')->from($this->getTable('catalog_product_entity_media_gallery'))->order('value_id DESC')->limit(1);

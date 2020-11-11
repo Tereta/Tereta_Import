@@ -34,10 +34,10 @@
 
 namespace Tereta\Import\Helper;
 
+use Exception;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Filesystem\DirectoryList;
-use Exception;
 
 /**
  * Tereta\Import\Helper\Data
@@ -79,11 +79,11 @@ class Data extends AbstractHelper
         $pathInfo = pathinfo($url);
 
         if (substr($url, 0, strlen("http://")) != "http://" && substr($url, 0, strlen("https://")) != "https://") {
-            throw new Exception("Wrong URL is present: \"" . $url ."\"");
+            throw new Exception("Wrong URL is present: \"" . $url . "\"");
         }
 
         if (!isset($pathInfo['extension'])) {
-            throw new Exception("Can't find extension of image in the \"" . $url ."\" URLs");
+            throw new Exception("Can't find extension of image in the \"" . $url . "\" URLs");
         }
 
         $extension = $pathInfo['extension'];
@@ -96,4 +96,3 @@ class Data extends AbstractHelper
         return [$fullPath, $filePath];
     }
 }
-

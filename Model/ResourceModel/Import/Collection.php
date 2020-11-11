@@ -50,7 +50,7 @@ class Collection extends AbstractCollection
      *
      * @return void
      */
-    public function _construct()
+    public function _construct(): void
     {
         $this->_init('Tereta\Import\Model\Import', 'Tereta\Import\Model\ResourceModel\Import');
     }

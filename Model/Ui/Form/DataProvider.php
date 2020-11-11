@@ -112,7 +112,7 @@ class DataProvider extends DataProviderExtend
     /**
      * @return array
      */
-    public function getData()
+    public function getData(): array
     {
         $items = $this->_importCollection->getItems();
 

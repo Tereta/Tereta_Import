@@ -94,7 +94,7 @@ class Csv extends AbstractModel
      * @param $dataModel
      * @return mixed|void
      */
-    public function import($dataModel)
+    public function import($dataModel): void
     {
         $file = $dataModel->getData('csv_file');
 
@@ -147,9 +147,9 @@ class Csv extends AbstractModel
     }
 
     /**
-     * @param $data
+     * @param array $data
      */
-    public function encodeData(&$data)
+    public function encodeData(array &$data): void
     {
         $jsonData = [];
         $jsonData['csv_file'] = $data['csv_file'];
@@ -158,9 +158,9 @@ class Csv extends AbstractModel
     }
 
     /**
-     * @param $data
+     * @param array $data
      */
-    public function decodeData(&$data)
+    public function decodeData(array &$data): void
     {
         if (!$data['additional_data']) {
             return;

@@ -38,6 +38,7 @@ use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Model\CategoryFactory;
 use Magento\Framework\Option\ArrayInterface;
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
+use Magento\Catalog\Model\ResourceModel\Category\Collection as CategoryCollection;
 
 /**
  * Tereta\Import\Model\Config\Source\Categories
@@ -111,10 +112,10 @@ class Categories implements ArrayInterface
     }
 
     /**
-     * @param $parentId
-     * @return AbstractCollection
+     * @param int $parentId
+     * @return CategoryCollection
      */
-    protected function getCategoriesByParent($parentId): AbstractCollection
+    protected function getCategoriesByParent(int $parentId): CategoryCollection
     {
         $categoryCollection = $this->categoryFactory->create()->getCollection();
         $categoryCollection->addFieldToFilter('parent_id', $parentId);
@@ -128,7 +129,7 @@ class Categories implements ArrayInterface
      *
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return [];
     }

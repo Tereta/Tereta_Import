@@ -52,7 +52,10 @@ use Magento\Framework\Registry;
 use Magento\Store\Model\StoreManagerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Tereta\Import\Model\Import\Processor as ImportProcessor;
-
+use Exception;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Tereta\Import\Model\Import\Processor\AbstractModel as ImportProcessorAbstract;
 /**
  * Tereta\Import\Model\Import
  *
@@ -188,11 +191,11 @@ class Import extends AbstractModel
     }
 
     /**
-     * @param null $adapterIdentifier
-     * @return mixed
-     * @throws \Exception
+     * @param string|null $adapterIdentifier
+     * @return ImportProcessorAbstract
+     * @throws Exception
      */
-    public function getProcessorAdapter($adapterIdentifier = null)
+    public function getProcessorAdapter(string $adapterIdentifier = null): ImportProcessorAbstract
     {
         if (!$adapterIdentifier) {
             $adapterIdentifier = $this->getData('type');
@@ -210,9 +213,9 @@ class Import extends AbstractModel
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getProcessorAdapters()
+    public function getProcessorAdapters(): array
     {
         return $this->processor->getData();
     }
@@ -221,31 +224,30 @@ class Import extends AbstractModel
      * @param OutputInterface $output
      * @return $this
      */
-    public function setCommandOutput(OutputInterface $output)
+    public function setCommandOutput(OutputInterface $output): self
     {
         $this->_commandOutput = $output;
         return $this;
     }
 
     /**
-     * @param OutputInterface $output
-     * @return $this
+     * @return OutputInterface|null
      */
-    public function getCommandOutput()
+    public function getCommandOutput(): ?OutputInterface
     {
         return $this->_commandOutput;
     }
 
     /**
-     * @param $id
-     * @throws \Exception
+     * @param integer $id
+     * @throws Exception
      */
-    public function importById($id)
+    public function importById(int $id): void
     {
         $this->load($id, 'entity_id');
 
         if (!$this->getData('entity_id')) {
-            throw new \Exception('The configuration by the "' . $id . '" id was not found.');
+            throw new Exception('The configuration by the "' . $id . '" id was not found.');
         }
 
         $adapterModel = $this->getProcessorAdapter();
@@ -253,10 +255,10 @@ class Import extends AbstractModel
     }
 
     /**
-     * @param null $identifier
-     * @throws \Exception
+     * @param string|null $identifier
+     * @throws Exception
      */
-    public function import($identifier = null)
+    public function import(string $identifier = null): void
     {
         if ($identifier) {
             $this->load($identifier, 'identifier');
@@ -275,10 +277,10 @@ class Import extends AbstractModel
     }
 
     /**
-     * @param $data
-     * @throws \Exception
+     * @param array $data
+     * @throws Exception
      */
-    public function encodeData(&$data)
+    public function encodeData(array &$data): void
     {
         if (!$this->getProcessorAdapter()) {
             return;
@@ -288,10 +290,10 @@ class Import extends AbstractModel
     }
 
     /**
-     * @param $data
-     * @throws \Exception
+     * @param array $data
+     * @throws Exception
      */
-    public function decodeData(&$data)
+    public function decodeData(array &$data): void
     {
         if (!$this->getProcessorAdapter()) {
             return;
@@ -301,13 +303,13 @@ class Import extends AbstractModel
     }
 
     /**
-     * @return AbstractModel|void
-     * @throws \Exception
+     * @return $this
+     * @throws Exception
      */
-    public function beforeSave()
+    public function beforeSave(): self
     {
         if (!$this->getData('type')) {
-            return;
+            return parent::beforeSave();
         }
         $data = $this->getData();
         $this->encodeData($data);
@@ -317,13 +319,14 @@ class Import extends AbstractModel
     }
 
     /**
-     * @return AbstractModel|void
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return $this
+     * @throws FileSystemException
+     * @throws NoSuchEntityException
      */
-    public function afterLoad()
+    public function afterLoad(): self
     {
         if (!$this->getData('type')) {
-            return;
+            return parent::afterLoad();
         }
 
         // + Logger
@@ -376,16 +379,13 @@ class Import extends AbstractModel
     }
 
     /**
-     * @param $boolean
+     * @param bool $boolean
      */
-    public function setHtmlOutput($boolean)
+    public function setHtmlOutput(bool $boolean): void
     {
         $this->htmlOutput = $boolean;
     }
 
-    /**
-     * @return mixed
-     */
     public function getHtmlOutput()
     {
         return $this->htmlOutput;
@@ -394,15 +394,15 @@ class Import extends AbstractModel
     /**
      *
      */
-    public function start()
+    public function start(): void
     {
         $this->startTime = time();
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public function finish()
+    public function finish(): void
     {
         $this->reindex();
 
@@ -418,17 +418,17 @@ class Import extends AbstractModel
     }
 
     /**
-     * @param $productId
+     * @param int $productId
      */
-    public function addProductToReindex($productId)
+    public function addProductToReindex(int $productId): void
     {
         array_push($this->reindexProductIds, $productId);
     }
 
     /**
-     * @param $indexes
+     * @param array $indexes
      */
-    public function addIndexToReindex($indexes)
+    public function addIndexToReindex(array $indexes): void
     {
         foreach ($indexes as $index) {
             if (in_array($index, $this->indexes)) {
@@ -442,7 +442,7 @@ class Import extends AbstractModel
     /**
      *
      */
-    protected function reindex()
+    protected function reindex(): void
     {
         $productIds = $this->reindexProductIds;
 

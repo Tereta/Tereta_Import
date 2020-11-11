@@ -73,14 +73,20 @@ class GenericButton
     /**
      * @return int|null
      */
-    public function getEntityId(): ?integer
+    public function getEntityId(): ?int
     {
         try {
-            return $this->_modelImport->load(
-                $this->context->getRequest()->getParam('entity_id')
-            )->getId();
+            $entityId = $this->context->getRequest()->getParam('entity_id');
+
+            $loadedModel = $this->_modelImport->load($entityId);
+            if (!$loadedModel->getId()) {
+                return null;
+            }
+
+            return $loadedModel->getId();
         } catch (NoSuchEntityException $e) {
         }
+
         return null;
     }
 

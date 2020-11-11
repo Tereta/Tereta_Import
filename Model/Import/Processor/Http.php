@@ -97,7 +97,7 @@ class Http extends AbstractModel
      * @throws \Magento\Framework\Exception\FileSystemException
      * @throws Exception
      */
-    public function import($dataModel)
+    public function import($dataModel): void
     {
         if (!$dataModel->getData('http_url')) {
             throw new Exception(__('HTTP URL was not present.'));
@@ -133,7 +133,7 @@ class Http extends AbstractModel
     /**
      * @param $data
      */
-    public function encodeData(&$data)
+    public function encodeData(array &$data): void
     {
         $jsonData = [];
         $jsonData['http_url'] = $data['http_url'];
@@ -144,7 +144,7 @@ class Http extends AbstractModel
     /**
      * @param $data
      */
-    public function decodeData(&$data)
+    public function decodeData(array &$data): void
     {
         if (!$data['additional_data']) {
             return;

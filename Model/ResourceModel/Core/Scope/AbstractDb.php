@@ -36,6 +36,7 @@ namespace Tereta\Import\Model\ResourceModel\Core\Scope;
 
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb as FrameworkAbstractDb;
 use Tereta\Import\Model\Logger;
+use Tereta\Import\Model\Import as ImportModel;
 
 /**
  * Tereta\Import\Model\ResourceModel\Core\Scope\AbstractDb
@@ -65,33 +66,26 @@ abstract class AbstractDb extends FrameworkAbstractDb
      * @param Logger $logger
      * @return $this
      */
-    public function setLogger(Logger $logger)
+    public function setLogger(Logger $logger): self
     {
         $this->logger = $logger;
         return $this;
     }
 
     /**
-     * @param $configuration
+     * @param ImportModel $importModel
      * @return $this
      */
-    public function setConfiguration($configuration)
+    public function setConfiguration(ImportModel $importModel): self
     {
-        $this->configuration = $configuration;
+        $this->configuration = $importModel;
         return $this;
-    }
-
-    /**
-     *
-     */
-    public function reindex()
-    {
     }
 
     /**
      * @param $productIds
      */
-    public function setReindexProductIds($productIds)
+    public function setReindexProductIds($productIds): void
     {
         $this->reindexProductIds = $productIds;
     }

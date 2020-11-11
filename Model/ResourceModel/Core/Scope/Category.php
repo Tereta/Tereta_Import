@@ -36,6 +36,8 @@ namespace Tereta\Import\Model\ResourceModel\Core\Scope;
 
 use Magento\Framework\Indexer\IndexerRegistry;
 use Magento\Framework\Model\ResourceModel\Db\Context;
+use Magento\Framework\DataObject;
+
 
 /**
  * Tereta\Import\Model\ResourceModel\Core\Scope\Category
@@ -98,9 +100,9 @@ class Category extends AbstractDb
     }
 
     /**
-     *
+     * @param DataObject $skuIds
      */
-    public function fillEntityIds($skuIds)
+    public function fillEntityIds(DataObject $skuIds): void
     {
         foreach ($this->collectedData as $key=>$item) {
             $sku = $item['sku'];
@@ -117,7 +119,7 @@ class Category extends AbstractDb
     /**
      *
      */
-    public function saveProductCategories()
+    public function saveProductCategories(): void
     {
         $connection = $this->getConnection();
         $time = time();
@@ -145,7 +147,7 @@ class Category extends AbstractDb
     /**
      *
      */
-    public function reindex()
+    public function reindex(): void
     {
         $time = time();
         $this->indexerRegistry->get(\Magento\Catalog\Model\Indexer\Product\Category::INDEXER_ID)->reindexList($this->reindexProductIds);

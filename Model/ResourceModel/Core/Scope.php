@@ -34,15 +34,17 @@
 
 namespace Tereta\Import\Model\ResourceModel\Core;
 
+use Exception;
 use Magento\Catalog\Model\Product as ProductModel;
 use Magento\Eav\Model\AttributeRepository;
 use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 use Magento\Framework\Model\ResourceModel\Db\Context;
+use Magento\Store\Model\StoreManagerInterface;
 use Tereta\Import\Model\Core\Scope as ScopeModel;
 use Tereta\Import\Model\Logger;
-use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
  * Class Scope
@@ -235,7 +237,7 @@ class Scope extends AbstractDb
      * @param DataObject $skuEntities
      * @param array $attributeTypeEntities
      */
-    public function removeTypeValues(DataObject $skuEntities, array $attributeTypeEntities)
+    public function removeTypeValues(DataObject $skuEntities, array $attributeTypeEntities): void
     {
         $connection = $this->getConnection();
 
@@ -327,7 +329,7 @@ class Scope extends AbstractDb
     /**
      * @return AbstractDb|void
      */
-    public function beginTransaction()
+    public function beginTransaction(): void
     {
         $connection = $this->getConnection();
         $connection->beginTransaction();
@@ -336,7 +338,7 @@ class Scope extends AbstractDb
     /**
      *
      */
-    public function commitTransaction()
+    public function commitTransaction(): void
     {
         $connection = $this->getConnection();
         $connection->commit();
@@ -345,11 +347,11 @@ class Scope extends AbstractDb
     /**
      * Save time whan attributes were update
      *
-     * @param $skuEntities
-     * @param $updateStatisticAttributes
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @param DataObject $skuEntities
+     * @param array $updateStatisticAttributes
+     * @throws NoSuchEntityException
      */
-    public function saveUpdateTimes($skuEntities, $updateStatisticAttributes)
+    public function saveUpdateTimes(DataObject $skuEntities, array $updateStatisticAttributes): void
     {
         if (!$updateStatisticAttributes) {
             return;
@@ -393,7 +395,7 @@ class Scope extends AbstractDb
      * @param array $attributeTypeEntities
      * @return array
      */
-    protected function fetchTypeValues(string $type, array $attributeTypeEntities)
+    protected function fetchTypeValues(string $type, array $attributeTypeEntities): array
     {
         $valuesAgregated = [];
         if (!isset($attributeTypeEntities[$type])) {
@@ -410,14 +412,14 @@ class Scope extends AbstractDb
     /**
      * Searching for SKUs by CSV field
      *
-     * @param $attributeCode
-     * @param $object
-     * @throws \Magento\Framework\Exception\NoSuchEntityException/home/tereta/Work/My/ExBuy/code
+     * @param string $attributeCode
+     * @param array $object
+     * @throws NoSuchEntityException
      */
-    public function fillSkusByField($attributeCode, &$object)
+    public function fillSkusByField(string $attributeCode, array &$object): void
     {
         if (!isset($object[$attributeCode])) {
-            throw new \Exception('The "' . $attributeCode . '" field in the file document was not found to find sku by the attribute.');
+            throw new Exception('The "' . $attributeCode . '" field in the file document was not found to find sku by the attribute.');
         }
 
         $fieldValue = $object[$attributeCode];
@@ -443,7 +445,7 @@ class Scope extends AbstractDb
     /**
      * @return array
      */
-    public function getStatisticFieldSkuSkipped()
+    public function getStatisticFieldSkuSkipped(): array
     {
         return $this->statisticFieldSkuSkipped;
     }
@@ -451,7 +453,7 @@ class Scope extends AbstractDb
     /**
      * @return array
      */
-    public function getStatisticRowFieldSkuSkipped()
+    public function getStatisticRowFieldSkuSkipped(): array
     {
         return $this->statisticRowFieldSkuSkipped;
     }
@@ -459,7 +461,7 @@ class Scope extends AbstractDb
     /**
      * @param DataObject $object
      */
-    public function fillSkuEntities(DataObject $object)
+    public function fillSkuEntities(DataObject $object): void
     {
         $skuEntities = $this->getEntities($object->getData());
 
@@ -475,9 +477,9 @@ class Scope extends AbstractDb
 
     /**
      * @param DataObject $object
-     * @param $skuEmpty
+     * @param array $skuEmpty
      */
-    public function createSkuEntities(DataObject $object, $skuEmpty)
+    public function createSkuEntities(DataObject $object, array $skuEmpty): void
     {
         if (!$this->configuration->getProductCreateNew() || !$skuEmpty) {
             return;
@@ -508,9 +510,9 @@ class Scope extends AbstractDb
     }
 
     /**
-     * @param $query
+     * @param string $query
      */
-    protected function logQueryExplain($query)
+    protected function logQueryExplain(string $query): void
     {
         $connection = $this->getConnection();
         $data = $connection->fetchRow('EXPLAIN ' . $query);

@@ -50,7 +50,7 @@ class Import extends AbstractDb
      *
      * @return void
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init('tereta_import', 'entity_id');
     }

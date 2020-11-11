@@ -41,6 +41,7 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
  * Tereta\Import\Model\Core\Scope\AttributeSet
@@ -86,11 +87,11 @@ class AttributeSet extends AbstractModel
     }
 
     /**
-     * @param $attributeSetId
-     * @param $attributeId
+     * @param int $attributeSetId
+     * @param int $attributeId
      * @return bool
      */
-    public function isAllowedAttribute($attributeSetId, $attributeId): bool
+    public function isAllowedAttribute(int $attributeSetId, int $attributeId): bool
     {
         $attributes = $this->getAttributeSetFields($attributeSetId);
         if (isset($attributes[$attributeId])) {
@@ -99,7 +100,12 @@ class AttributeSet extends AbstractModel
         return false;
     }
 
-    public function getAttributeSetFields($attributeSetId)
+    /**
+     * @param int $attributeSetId
+     * @return array
+     * @throws NoSuchEntityException
+     */
+    public function getAttributeSetFields(int $attributeSetId): array
     {
         if (isset($this->_attributeSetIds[$attributeSetId])) {
             return $this->_attributeSetIds[$attributeSetId];

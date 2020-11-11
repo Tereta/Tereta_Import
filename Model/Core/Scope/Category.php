@@ -114,10 +114,10 @@ class Category extends AbstractModel
     }
 
     /**
-     * @param $categoryValue
+     * @param string $categoryValue
      * @return string
      */
-    protected function getMappedCategoryId($categoryValue): string
+    protected function getMappedCategoryId(string $categoryValue): string
     {
         if (isset($this->mappingCategories[$categoryValue])) {
             return $this->mappingCategories[$categoryValue];

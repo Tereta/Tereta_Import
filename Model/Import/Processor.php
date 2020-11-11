@@ -35,6 +35,8 @@
 namespace Tereta\Import\Model\Import;
 
 use Magento\Framework\DataObject;
+use Tereta\Import\Model\Import\Processor\AbstractModel as ImportProcessor;
+use Exception;
 
 /**
  * Tereta\Import\Model\Import\Processor
@@ -69,11 +71,11 @@ class Processor extends DataObject
     }
 
     /**
-     * @param $adapterIdentifier
-     * @return mixed
-     * @throws \Exception
+     * @param string $adapterIdentifier
+     * @return ImportProcessor
+     * @throws Exception
      */
-    public function getAdapter($adapterIdentifier)
+    public function getAdapter(string $adapterIdentifier): ImportProcessor
     {
         if (isset($this->_adapter[$adapterIdentifier])) {
             return $this->_adapter[$adapterIdentifier];
@@ -81,7 +83,7 @@ class Processor extends DataObject
 
         $adapterModel = $this->getData($adapterIdentifier);
         if (!$adapterModel) {
-            throw new \Exception('Import model for "' . $adapterIdentifier . '" was not found');
+            throw new Exception('Import model for "' . $adapterIdentifier . '" was not found');
         }
         $this->_adapter[$adapterIdentifier] = $adapterModel['class'];
 

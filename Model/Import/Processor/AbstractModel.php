@@ -36,7 +36,9 @@ namespace Tereta\Import\Model\Import\Processor;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Tereta\Import\Model\Core\ScopeFactory as ScopeFactory;
+use Tereta\Import\Model\Import as ImportModel;
 use Tereta\Import\Model\Logger;
+use Tereta\Import\Model\Core\Scope;
 
 /**
  * Tereta\Import\Model\Import\Extract\AbstractModel
@@ -81,7 +83,7 @@ abstract class AbstractModel
     /**
      * @param $object
      */
-    public function afterSave($object)
+    public function afterSave($object): void
     {
     }
 
@@ -89,37 +91,41 @@ abstract class AbstractModel
      * @param $dataModel
      * @return mixed
      */
-    abstract public function import($dataModel);
+    abstract public function import(ImportModel $dataModel): void;
 
     /**
-     * @return Updater\Scope
+     * @param ImportModel $importModel
+     * @return Scope
      */
-    protected function scopeCreate($importModel)
+    protected function scopeCreate(ImportModel $importModel): Scope
     {
-        $scopeModel = $this->scopeFactory->create([
+        return $this->scopeFactory->create([
             'configuration' => $importModel,
             'logger' => $this->logger
         ]);
-
-        return $scopeModel;
     }
 
     /**
      * @param $data
      */
-    public function encodeData(&$data)
+    public function encodeData(array &$data): void
     {
     }
 
     /**
      * @param $data
      */
-    public function decodeData(&$data)
+    public function decodeData(array &$data): void
     {
     }
 
-    public function setLogger(Logger $logger)
+    /**
+     * @param Logger $logger
+     * @return $this
+     */
+    public function setLogger(Logger $logger): self
     {
         $this->logger = $logger;
+        return $this;
     }
 }
