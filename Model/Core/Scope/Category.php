@@ -89,7 +89,13 @@ class Category extends AbstractModel
     {
         $data['product_category_ids'] = isset($data['product_category_ids']) ? trim($data['product_category_ids']) : null;
 
-        if (!$data['product_category_ids']) {
+        if (!$data['product_category_ids'] && $this->configuration->getData('product_assign_categories')) {
+            $productAssignCategories = $this->configuration->getData('product_assign_categories');
+            if ($productAssignCategories) {
+                $productAssignCategories = json_decode($productAssignCategories);
+            }
+            $data['product_category_ids'] = implode(",", $productAssignCategories);
+
             return;
         }
 

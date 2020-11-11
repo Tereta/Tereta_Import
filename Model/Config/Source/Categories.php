@@ -37,7 +37,6 @@ namespace Tereta\Import\Model\Config\Source;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Model\CategoryFactory;
 use Magento\Framework\Option\ArrayInterface;
-use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 use Magento\Catalog\Model\ResourceModel\Category\Collection as CategoryCollection;
 
 /**

@@ -316,10 +316,6 @@ class Scope extends AbstractModel
             $data['status'] = $this->_configuration->getData('products_is_enabled');
         }
 
-        if (!isset($data['product_category_ids']) && $this->_configuration->getData('product_assign_categories')) {
-            $data['product_category_ids'] = $this->_configuration->getData('product_assign_categories');
-        }
-
         // Fill Skus By Field
         if ($this->_configuration->getData('product_search_by_field') && !$this->_configuration->getData('product_create_new')) {
             $this->getResource()->fillSkusByField($this->_configuration->getData('product_search_by_field'), $data);
