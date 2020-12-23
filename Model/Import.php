@@ -408,8 +408,9 @@ class Import extends AbstractModel
 
         $this->setData('generated_at', time());
         if ($this->startTime) {
-            $this->setData(time() - $this->startTime);
+            $this->setData('generation_time', time() - $this->startTime);
         }
+
         $this->save();
 
         if ($this->startTime) {

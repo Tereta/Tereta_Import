@@ -133,6 +133,7 @@ class Scheduler
             $currentTimeArray = [$currentTimeArray];
         }
         $importCollection = $this->importFactory->create()->getCollection();
+        $importCollection->addFieldToFilter('is_active', 1);
 
         foreach ($currentTimeArray as $currentTime) {
             foreach ($importCollection as $importModel) {
@@ -154,8 +155,7 @@ class Scheduler
                         array_push($processedImports, $importIdentifier);
                         $time = time();
                         $this->logger->debug('Starting the "' . $importIdentifier . '" import.');
-                        $importModel->afterLoad();
-                        $importModel->import();
+                        $importModel->import($importIdentifier);
                         $this->logger->debug('Finished the "' . $importIdentifier . '" import in ' . (time() - $time) . 'sec.');
                     } catch (\Exception $e) {
                         $this->logger->error('The "' . $importIdentifier . '" can not be processed , message: "' . $e->getMessage() . '"');
