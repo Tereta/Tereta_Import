@@ -545,6 +545,8 @@ class Scope extends AbstractModel
     }
 
     /**
+     * Preparing attribute options for loaded attributes
+     *
      * @param EavAttribute $attribute
      * @throws LocalizedException
      */
@@ -751,7 +753,7 @@ class Scope extends AbstractModel
 
         $getValueEncoded = urlencode($getValue);
 
-        if (isset($this->attributeOptionsReverce[$attributeCode]) && $this->attributeOptionsReverce[$attributeCode]->getData($getValueEncoded)) {
+        if (isset($this->attributeOptionsReverce[$attributeCode]) && $this->attributeOptionsReverce[$attributeCode]->hasData($getValueEncoded)) {
             $value = $this->attributeOptionsReverce[$attributeCode]->getData($getValueEncoded);
         } else {
             $this->_collectTypeValuesAddOptions($attributeCode, $value);
