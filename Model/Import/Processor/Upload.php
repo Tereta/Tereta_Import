@@ -104,10 +104,6 @@ class Upload extends AbstractModel
         }
 
         $processAdaptor = $this->importProcessorFactory->create()->getAdapter('csv');
-        if ($dataModel->getCommandOutput()) {
-            $processAdaptor->setCommandOutput($dataModel->getCommandOutput());
-        }
-        $processAdaptor->setHtmlOutput($dataModel->getHtmlOutput());
         $dataModel->setData('csv_file', $importDir . '/' . $uploadFile);
         $processAdaptor->import($dataModel);
         $dataModel->finish();

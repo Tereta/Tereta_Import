@@ -119,10 +119,7 @@ class Http extends AbstractModel
         }
 
         $processAdaptor = $this->importProcessorFactory->create()->getAdapter('csv');
-        if ($dataModel->getCommandOutput()) {
-            $processAdaptor->setCommandOutput($dataModel->getCommandOutput());
-        }
-        $processAdaptor->setHtmlOutput($dataModel->getHtmlOutput());
+        $processAdaptor->setLogger($this->logger);
         $dataModel->setData('csv_file', $filePath);
         $processAdaptor->import($dataModel);
         $dataModel->finish();
