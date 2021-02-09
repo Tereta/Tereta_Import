@@ -212,9 +212,12 @@ class Stock extends AbstractDb
             'stock_id' => (string)$stockId
         ];
 
+        if (!isset($data['manage_stock']) && !is_null($this->getManageStockConfig())) {
+            $data['manage_stock'] = $this->getManageStockConfig();
+        }
+
         if (isset($data['is_in_stock']) && $data['is_in_stock'] !== '') {
             $record['is_in_stock'] = $this->getBooleanValue(strtolower($data['is_in_stock']));
-            $data['manage_stock'] = true;
         }
 
         if (isset($data['manage_stock']) && $data['manage_stock'] !== '') {
@@ -248,6 +251,23 @@ class Stock extends AbstractDb
                 array_push($this->stockSourceDataRecords, $record);
             }
         }
+    }
+
+    /**
+     * @return bool|null
+     */
+    protected function getManageStockConfig(): ?bool
+    {
+        $manageStock = $this->configuration->getData('manage_stock');
+        if ($manageStock == 1) {
+            return true;
+        }
+
+        if ($manageStock == 2) {
+            return false;
+        }
+
+        return null;
     }
 
     /**

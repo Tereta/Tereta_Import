@@ -95,8 +95,6 @@ class Category extends AbstractModel
                 $productAssignCategories = json_decode($productAssignCategories);
             }
             $data['product_category_ids'] = implode(",", $productAssignCategories);
-
-            return;
         }
 
         $categoryIds = explode(",", $data['product_category_ids']);
