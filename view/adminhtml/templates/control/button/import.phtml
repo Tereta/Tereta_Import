@@ -1,3 +1,10 @@
-<button id="import" title="<?php echo __('Import') ?>" type="button" <?php if (!$this->getData('import_id')) : ?>disabled="disabled"<?php endif ?> class="import primary" onClick="window.location.href='<?php echo $this->getUrl('advencedimport/edit/run', ['import_id' => $this->getData('import_id')]) ?>'">
+<button
+    id="import"
+    title="<?php echo __('Import') ?>"
+    type="button"
+    <?php if (!$this->getData('import_id')) : ?>disabled="disabled"<?php endif ?>
+    class="<?php echo $this->getData('class') ?> primary"
+    onClick="window.location.href='<?php echo $this->getUrl($this->getData('import_url'), ['import_id' => $this->getData('import_id')]) ?>'"
+    >
     <?php echo __('Import') ?>
 </button>

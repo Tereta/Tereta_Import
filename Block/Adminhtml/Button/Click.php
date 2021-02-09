@@ -32,73 +32,100 @@
  *     www.tereta.dev
  */
 
-namespace Tereta\Import\Block\Adminhtml\Block\Edit;
+namespace Tereta\Import\Block\Adminhtml\Button;
 
 use Magento\Backend\Block\Widget\Context;
-use Tereta\Import\Model\ImportFactory as ModelImportFactory;
-use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
 
 /**
- * Tereta\Import\Block\Adminhtml\Block\Edit\GenericButton
+ * Tereta\Import\Block\Adminhtml\Button\Click
  *
- * Class GenericButton
- * @package Tereta\Import\Block\Adminhtml\Block\Edit
+ * Class Click
+ * @package Tereta\Import\Block\Adminhtml\Button
  * @author Tereta Alexander <tereta@mail.ua>
  */
-class GenericButton
+class Click extends Generic implements ButtonProviderInterface
 {
     /**
-     * @var Context
+     * @var string
      */
-    protected $context;
+    protected $label;
 
     /**
-     * @var \Tereta\Import\Model\Import
+     * @var string
      */
-    protected $_modelImport;
+    protected $url;
 
     /**
-     * GenericButton constructor.
+     * @var null
+     */
+    protected $confirmation;
+
+    /**
+     * @var string
+     */
+    protected $css;
+
+    /**
+     * @var int
+     */
+    protected $sort;
+
+    /**
+     * Click constructor.
      * @param Context $context
-     * @param ModelImportFactory $modelImportFactory
+     * @param $label
+     * @param $url
+     * @param null $css
+     * @param null $confirmation
+     * @param int $sort
      */
-    public function __construct(
-        Context $context,
-        ModelImportFactory $modelImportFactory
-    ) {
-        $this->context = $context;
-        $this->_modelImport = $modelImportFactory->create();
+    public function __construct(Context $context, $label, $url, $css = null, $confirmation = null, $sort = 100)
+    {
+        $this->label = $label;
+        $this->url = $url;
+        $this->confirmation = $confirmation;
+        $this->css = $css;
+        $this->sort = $sort;
+
+        parent::__construct($context);
     }
 
     /**
-     * @return int|null
+     * @inheritDoc
      */
-    public function getEntityId(): ?int
+    public function getButtonData()
     {
-        try {
-            $entityId = $this->context->getRequest()->getParam('entity_id');
+        $data = [
+            'label'      => $this->label,
+            'class'      => $this->css,
+            'on_click'   => $this->getOnClick(),
+            'sort_order' => $this->sort,
+        ];
+        return $data;
+    }
 
-            $loadedModel = $this->_modelImport->load($entityId);
-            if (!$loadedModel->getId()) {
-                return null;
-            }
+    protected function getOnClick()
+    {
+        if ($this->confirmation){
+            return 'deleteConfirm(\'' . __($this->confirmation) . '\', \'' . $this->getCurrentUrl() . '\', {"data": {}})';
+        }
+        else {
+            return sprintf("location.href = '%s';", $this->getCurrentUrl());
+        }
+    }
 
-            return $loadedModel->getId();
-        } catch (NoSuchEntityException $e) {
+    /**
+     * URL to send delete requests to.
+     *
+     * @return string
+     */
+    public function getCurrentUrl()
+    {
+        if ($this->getEntityId()){
+            return $this->getUrl($this->url, ['entity_id' => $this->getEntityId()]);
         }
 
-        return null;
-    }
-
-    /**
-     * Generate url by route and parameters
-     *
-     * @param   string $route
-     * @param   array $params
-     * @return  string
-     */
-    public function getUrl($route = '', $params = []): string
-    {
-        return $this->context->getUrlBuilder()->getUrl($route, $params);
+        return $this->getUrl($this->url);
     }
 }

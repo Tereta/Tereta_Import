@@ -26,25 +26,23 @@
  * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
  *
  * See COPYING.txt for license details.
- * Copyright © 2020 Tereta Alexander. All rights reserved.
+ * Copyright © 2020-2021 Tereta Alexander. All rights reserved.
  * Contacts:
  *     tereta@mail.ua
  *     www.tereta.dev
  */
 
-namespace Tereta\Import\Block\Adminhtml\Block\Edit;
+namespace Tereta\Import\Block\Adminhtml\Button;
 
-use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
-use Tereta\Import\Block\Adminhtml\Block\Edit\RunButton\Template as RunButtonTemplate;
+use Tereta\Import\Block\Adminhtml\Button\Run\Template as RunButtonTemplate;
 
 /**
- * Tereta\Import\Block\Adminhtml\Block\Edit\RunButton
+ * Tereta\Import\Block\Adminhtml\Button\Run
  *
- * Class RunButton
- * @package Tereta\Import\Block\Adminhtml\Block\Edit
- * @author Tereta Alexander <tereta@mail.ua>
+ * Class Run
+ * @package Tereta\Import\Block\Adminhtml\Button
  */
-class RunButton extends GenericButton implements ButtonProviderInterface
+class Run extends Click
 {
     /**
      * @return array
@@ -52,10 +50,12 @@ class RunButton extends GenericButton implements ButtonProviderInterface
     public function getButtonData(): array
     {
         return [
-            'label' => __('Run'),
-            'import_id' => $this->getEntityId(),
+            'label'      => $this->label,
+            'import_id'  => $this->getEntityId(),
             'sort_order' => 10,
-            'class_name' => RunButtonTemplate::class
+            'class_name' => RunButtonTemplate::class,
+            'class'      => $this->css,
+            'import_url' => $this->url
         ];
     }
 }

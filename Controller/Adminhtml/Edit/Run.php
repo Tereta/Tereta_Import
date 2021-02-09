@@ -76,7 +76,7 @@ class Run extends Action
     /**
      * @return string
      */
-    public function execute(): string
+    public function execute(): void
     {
         $importId = $this->getRequest()->getParam('import_id');
         $importModel = $this->importFactory->create();

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="Tereta\Import\Block\Adminhtml\Button\Listing" type="Tereta\Import\Block\Adminhtml\Button\Click">
+        <arguments>
+            <argument name="label" xsi:type="string" translate="true">Back</argument>
+            <argument name="url" xsi:type="string">advencedimport/listing/index</argument>
+            <argument name="css" xsi:type="string">back</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Tereta\Import\Block\Adminhtml\Button\Delete" type="Tereta\Import\Block\Adminhtml\Button\Click">
+        <arguments>
+            <argument name="label" xsi:type="string" translate="true">Delete</argument>
+            <argument name="url" xsi:type="string">*/*/delete</argument>
+            <argument name="confirmation" xsi:type="string" translate="true">Are you sure you want to do this?</argument>
+            <argument name="css" xsi:type="string">delete</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Tereta\Import\Block\Adminhtml\Button\Duplicate" type="Tereta\Import\Block\Adminhtml\Button\Click">
+        <arguments>
+            <argument name="label" xsi:type="string" translate="true">Duplicate</argument>
+            <argument name="url" xsi:type="string">*/*/duplicate</argument>
+            <argument name="css" xsi:type="string">duplicate</argument>
+        </arguments>
+    </virtualType>
+    <type name="Tereta\Import\Block\Adminhtml\Button\Run">
+        <arguments>
+            <argument name="label" xsi:type="string" translate="true">Run</argument>
+            <argument name="url" xsi:type="string">advencedimport/edit/run</argument>
+            <argument name="class" xsi:type="string">import</argument>
+        </arguments>
+    </type>
+</config>

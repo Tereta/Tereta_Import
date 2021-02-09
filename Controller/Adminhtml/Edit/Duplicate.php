@@ -26,45 +26,104 @@
  * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
  *
  * See COPYING.txt for license details.
- * Copyright © 2020 Tereta Alexander. All rights reserved.
+ * Copyright © 2020-2021 Tereta Alexander. All rights reserved.
  * Contacts:
  *     tereta@mail.ua
  *     www.tereta.dev
  */
 
-namespace Tereta\Import\Block\Adminhtml\Block\Edit;
+namespace Tereta\Import\Controller\Adminhtml\Edit;
 
-use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
+use Exception;
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\AbstractResult;
+use Tereta\Import\Model\ImportFactory as ModelImportFactory;
+use Tereta\Import\Model\ResourceModel\Import as ResourceImport;
 
 /**
- * Tereta\Import\Block\Adminhtml\Block\Edit\BackButton
+ * Tereta\Import\Controller\Adminhtml\Edit\Duplicate
  *
- * Class BackButton
- * @package Tereta\Import\Block\Adminhtml\Block\Edit
+ * Class Duplicate
+ * @package Tereta\Import\Controller\Adminhtml\Edit
  * @author Tereta Alexander <tereta@mail.ua>
  */
-class BackButton extends GenericButton implements ButtonProviderInterface
+class Duplicate extends Action
 {
     /**
-     * @return array
+     * @var ModelImportFactory
      */
-    public function getButtonData(): array
-    {
-        return [
-            'label' => __('Back'),
-            'on_click' => sprintf("location.href = '%s';", $this->getBackUrl()),
-            'class' => 'back',
-            'sort_order' => 10
-        ];
+    protected $modelImportFactory;
+
+    /**
+     * @var ResourceImport
+     */
+    protected $resourceImport;
+
+    /**
+     * Save constructor.
+     * @param ResourceImport $resourceImport
+     * @param ModelImportFactory $modelImportFactory
+     * @param Context $context
+     */
+    public function __construct(
+        ResourceImport $resourceImport,
+        ModelImportFactory $modelImportFactory,
+        Context $context
+    ) {
+        $this->resourceImport = $resourceImport;
+        $this->modelImportFactory = $modelImportFactory;
+        parent::__construct($context);
     }
 
     /**
-     * Get URL for back (reset) button
-     *
-     * @return string
+     * @return bool
      */
-    public function getBackUrl(): string
+    protected function _isAllowed(): bool
     {
-        return $this->getUrl('advencedimport/listing/index/');
+        return $this->_authorization->isAllowed('Tereta_Import::import');
+    }
+
+    /**
+     * @return AbstractResult
+     */
+    public function execute(): AbstractResult
+    {
+        $resultRedirect = $this->resultRedirectFactory->create();
+        $data = $this->getRequest()->getPostValue();
+        if (!isset($data['entity_id']) && $this->getRequest()->getParam('entity_id')) {
+            $data['entity_id'] = $this->getRequest()->getParam('entity_id');
+        }
+
+        $modelImportFrom = $this->modelImportFactory->create();
+        $modelImportTo = $this->modelImportFactory->create();
+
+        unset($data['form_key']);
+
+        try {
+            if (isset($data['entity_id']) && $data['entity_id']) {
+                $this->resourceImport->load($modelImportFrom, $data['entity_id']);
+            } else {
+                throw new Exception(__('Can not duplicate the import'));
+            }
+
+            $data = $modelImportFrom->getData();
+            unset($data['entity_id']);
+            $data['identifier'] = $data['identifier'] . '_dup';
+            if (trim($data['name'])) {
+                $data['name'] = trim($data['name']) . ' (' . __('duplicate') . ')';
+            }
+
+            $modelImportTo->setData($data);
+            $this->resourceImport->save($modelImportTo);
+
+            $this->messageManager->addSuccessMessage(__('You duplicated the configuration.'));
+
+            return $resultRedirect->setPath('advencedimport/edit/index', ['entity_id' => $modelImportTo->getEntityId()]);
+        } catch (Exception $ex) {
+            $this->messageManager->addErrorMessage($ex->getMessage());
+
+            return $resultRedirect->setPath('advencedimport/edit/index', ['entity_id' => $this->getRequest()->getPost('entity_id')]);
+        }
     }
 }

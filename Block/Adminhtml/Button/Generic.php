@@ -26,30 +26,61 @@
  * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
  *
  * See COPYING.txt for license details.
- * Copyright © 2020 Tereta Alexander. All rights reserved.
+ * Copyright © 2020-2021 Tereta Alexander. All rights reserved.
  * Contacts:
  *     tereta@mail.ua
  *     www.tereta.dev
  */
 
-namespace Tereta\Import\Block\Adminhtml\Block\Edit\RunButton;
+namespace Tereta\Import\Block\Adminhtml\Button;
 
-use Magento\Ui\Component\Control\Button;
+use Magento\Backend\Block\Widget\Context;
+use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
 
 /**
- * Tereta\Import\Block\Adminhtml\Block\Edit\RunButton\Template
+ * Tereta\Import\Block\Adminhtml\Button\Generic
  *
- * Class Template
- * @package Tereta\Import\Block\Adminhtml\Block\Edit\RunButton
+ * Class Generic
+ * @package Tereta\Import\Block\Adminhtml\Button
  * @author Tereta Alexander <tereta@mail.ua>
  */
-class Template extends Button
+class Generic
 {
     /**
-     * @return string
+     * @var Context
      */
-    protected function getTemplatePath(): string
+    protected $context;
+
+    /**
+     * GenericButton constructor.
+     *
+     * @param Context $context
+     */
+    public function __construct(
+        Context $context
+    ) {
+        $this->context = $context;
+    }
+
+    public function getEntityId()
     {
-        return 'Tereta_Import::control/button/import.phtml';
+        return $this->context->getRequest()->getParam('entity_id');
+    }
+
+    /**
+     * Generate url by route and parameters
+     *
+     * @param   string $route
+     * @param   array $params
+     * @return  string
+     */
+    public function getUrl($route = '', $params = [])
+    {
+        return $this->context->getUrlBuilder()->getUrl($route, $params);
+    }
+
+    public function getButtonData()
+    {
+
     }
 }

@@ -192,13 +192,17 @@ class Import extends AbstractModel
 
     /**
      * @param string|null $adapterIdentifier
-     * @return ImportProcessorAbstract
+     * @return ImportProcessorAbstract|null
      * @throws Exception
      */
-    public function getProcessorAdapter(string $adapterIdentifier = null): ImportProcessorAbstract
+    public function getProcessorAdapter(string $adapterIdentifier = null): ?ImportProcessorAbstract
     {
         if (!$adapterIdentifier) {
             $adapterIdentifier = $this->getData('type');
+        }
+
+        if (!$adapterIdentifier) {
+            return null;
         }
 
         if (isset($this->processorAdapter[$adapterIdentifier])) {

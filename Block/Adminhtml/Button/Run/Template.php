@@ -32,45 +32,24 @@
  *     www.tereta.dev
  */
 
-namespace Tereta\Import\Block\Adminhtml\Block\Edit;
+namespace Tereta\Import\Block\Adminhtml\Button\Run;
 
-use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
+use Magento\Ui\Component\Control\Button;
 
 /**
- * Tereta\Import\Block\Adminhtml\Block\Edit\DeleteButton
+ * Tereta\Import\Block\Adminhtml\Button\Run\Template
  *
- * Class DeleteButton
- * @package Tereta\Import\Block\Adminhtml\Block\Edit
+ * Class Template
+ * @package Tereta\Import\Block\Adminhtml\Button\Run
  * @author Tereta Alexander <tereta@mail.ua>
  */
-class DeleteButton extends GenericButton implements ButtonProviderInterface
+class Template extends Button
 {
     /**
-     * @return array
-     */
-    public function getButtonData(): array
-    {
-        $data = [];
-        if ($this->getEntityId()) {
-            $data = [
-                'label' => __('Delete'),
-                'class' => 'delete',
-                'on_click' => 'deleteConfirm(\'' . __(
-                    'Are you sure you want to do this?'
-                ) . '\', \'' . $this->getDeleteUrl() . '\', {"data": {}})',
-                'sort_order' => 20,
-            ];
-        }
-        return $data;
-    }
-
-    /**
-     * URL to send delete requests to.
-     *
      * @return string
      */
-    public function getDeleteUrl()
+    protected function getTemplatePath(): string
     {
-        return $this->getUrl('*/*/delete', ['entity_id' => $this->getEntityId()]);
+        return 'Tereta_Import::control/button/import.phtml';
     }
 }

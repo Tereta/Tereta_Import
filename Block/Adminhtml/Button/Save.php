@@ -32,23 +32,23 @@
  *     www.tereta.dev
  */
 
-namespace Tereta\Import\Block\Adminhtml\Block\Edit;
+namespace Tereta\Import\Block\Adminhtml\Button;
 
 use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
 
 /**
- * Tereta\Import\Block\Adminhtml\Block\Edit\SaveButton
+ * Tereta\Import\Block\Adminhtml\Button\Save
  *
- * Class SaveButton
- * @package Tereta\Import\Block\Adminhtml\Block\Edit
+ * Class Save
+ * @package Tereta\Import\Block\Adminhtml\Button
  * @author Tereta Alexander <tereta@mail.ua>
  */
-class SaveButton extends GenericButton implements ButtonProviderInterface
+class Save extends Generic implements ButtonProviderInterface
 {
     /**
      * @return array
      */
-    public function getButtonData(): array
+    public function getButtonData()
     {
         return [
             'label' => __('Save'),

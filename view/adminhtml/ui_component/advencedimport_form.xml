@@ -16,10 +16,11 @@
 
     <settings>
         <buttons>
-            <button name="delete" class="Tereta\Import\Block\Adminhtml\Block\Edit\DeleteButton"/>
-            <button name="back" class="Tereta\Import\Block\Adminhtml\Block\Edit\BackButton"/>
-            <button name="run" class="Tereta\Import\Block\Adminhtml\Block\Edit\RunButton"/>
-            <button name="save" class="Tereta\Import\Block\Adminhtml\Block\Edit\SaveButton"/>
+            <button name="back" class="Tereta\Import\Block\Adminhtml\Button\Listing"/>
+            <button name="delete" class="Tereta\Import\Block\Adminhtml\Button\Delete"/>
+            <button name="run" class="Tereta\Import\Block\Adminhtml\Button\Run"/>
+            <button name="duplicate" class="Tereta\Import\Block\Adminhtml\Button\Duplicate"/>
+            <button name="save" class="Tereta\Import\Block\Adminhtml\Button\Save"/>
         </buttons>
         <namespace>advencedimport_form</namespace>
         <dataScope>data</dataScope>
