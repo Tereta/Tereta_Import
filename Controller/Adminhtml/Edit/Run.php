@@ -38,6 +38,8 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Tereta\Import\Model\ImportFactory;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\Controller\AbstractResult;
+use Exception;
 
 /**
  * Tereta\Import\Controller\Adminhtml\Edit\Run
@@ -76,18 +78,25 @@ class Run extends Action
     /**
      * @return string
      */
-    public function execute(): void
+    public function execute(): AbstractResult
     {
+        $resultRedirect = $this->resultRedirectFactory->create();
         $importId = $this->getRequest()->getParam('import_id');
         $importModel = $this->importFactory->create();
+        $startTime = time();
 
-        echo "<html><body>";
         try {
-            $importModel->setHtmlOutput(true);
             $importModel->importById($importId);
-        } catch (\Exception $e) {
-            echo('<div class="error">Stopping error: ' . $e->getMessage() . '; In: ' . $e->getFile() . ':' . $e->getLine() . '; Trace:' . $e->getTraceAsString() . '</div>');
+            $this->messageManager->addSuccessMessage(
+                __(
+                    'Imported successfully in %1sec.',
+                    (time() - $startTime)
+                )
+            );
+        } catch (Exception $ex) {
+            $this->messageManager->addErrorMessage($ex->getMessage());
         }
-        echo "</body></html>";
+
+        return $resultRedirect->setPath('advencedimport/edit/index', ['entity_id' => $importId]);
     }
 }
