@@ -89,7 +89,7 @@ class Import extends Command
      */
     protected function configure(): void
     {
-        $this->setName('advenced:import')
+        $this->setName('advenced:import:run')
             ->setDescription('Runs advenced import')
             ->addArgument(
                 static::KEY_IMPORT_IDENTIFIER,
@@ -108,10 +108,12 @@ class Import extends Command
             return [$identifier];
         }
 
-        if (substr($identifier, -1) == '*') {
-            $identifier = substr($identifier, 0, -1);
-        } else {
-            throw new Exception('The %1 impoert was not found.', $identifier);
+        if (strpos($identifier, '*') === false) {
+            throw new Exception('The %1 import was not found.', $identifier);
+        }
+
+        while (strpos($identifier, '*') !== false) {
+            $identifier = str_replace('*', '%', $identifier);
         }
 
         $return  = [];
