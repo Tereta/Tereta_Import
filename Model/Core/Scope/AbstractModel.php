@@ -41,6 +41,7 @@ use Magento\Framework\Registry;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Tereta\Import\Model\Logger;
+use Magento\Framework\Model\ResourceModel\Db\AbstractDb as FrameworkAbstractDb;
 
 /**
  * Tereta\Import\Model\Core\Scope\AbstractModel
@@ -60,6 +61,11 @@ abstract class AbstractModel extends AbstractModelSource
      * @var Logger
      */
     protected $logger;
+
+    /**
+     * @var FrameworkAbstractDb
+     */
+    protected $resourceModel;
 
     /**
      * AbstractModel constructor.
@@ -84,6 +90,14 @@ abstract class AbstractModel extends AbstractModelSource
         $this->logger = $logger;
 
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
+    }
+
+    /**
+     * @return FrameworkAbstractDb
+     */
+    public function getResource(): FrameworkAbstractDb
+    {
+        return $this->resourceModel;
     }
 
     /**

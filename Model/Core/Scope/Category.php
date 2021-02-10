@@ -38,8 +38,14 @@ use Magento\Catalog\Model\Indexer\Category\Product as IndexerCategoryProduct;
 use Magento\Catalog\Model\Indexer\Product\Category as IndexerProductCategory;
 use Magento\Catalog\Model\Indexer\Product\Price\Processor as IndexerProductPrice;
 use Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor as IndexerProductProductRule;
+use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\ResourceModel\Core\Scope\Category as CategoryResource;
+use Tereta\Import\Model\ResourceModel\Core\Scope\CategoryFactory as CategoryResourceFactory;
 
 /**
  * Tereta\Import\Model\Core\Scope\Category
@@ -54,6 +60,21 @@ class Category extends AbstractModel
      *
      */
     protected $mappingCategories = [];
+
+    public function __construct(
+        Context $context,
+        Registry $registry,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
+        DataObject $configuration,
+        CategoryResourceFactory $categoryResourceFactory,
+        Logger $logger,
+        array $data = []
+    ) {
+        $this->resourceModel = $categoryResourceFactory->create();
+
+        parent::__construct($context, $registry, $resource, $resourceCollection, $configuration, $logger, $data);
+    }
 
     /**
      *

@@ -433,6 +433,14 @@ class Import extends AbstractModel
     }
 
     /**
+     *
+     */
+    public function flushProductToReindex(): void
+    {
+        $this->reindexProductIds = [];
+    }
+
+    /**
      * @param int $productId
      */
     public function addProductToReindex(int $productId): void

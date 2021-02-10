@@ -34,7 +34,13 @@
 
 namespace Tereta\Import\Model\Core\Scope;
 
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\ResourceModel\Core\Scope\Media as MediaResource;
+use Tereta\Import\Model\ResourceModel\Core\Scope\MediaFactory as MediaResourceFactory;
 use Magento\Framework\DataObject;
 
 /**
@@ -46,6 +52,20 @@ use Magento\Framework\DataObject;
  */
 class Media extends AbstractModel
 {
+    public function __construct(
+        MediaResourceFactory $mediaResourceFactory,
+        Context $context,
+        Registry $registry,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
+        DataObject $configuration,
+        Logger $logger,
+        array $data = []
+    ) {
+        $this->resourceModel = $mediaResourceFactory->create();
+        parent::__construct($context, $registry, $resource, $resourceCollection, $configuration, $logger, $data);
+    }
+
     /**
      *
      */

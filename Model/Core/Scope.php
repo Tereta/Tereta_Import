@@ -59,6 +59,7 @@ use Tereta\Import\Model\Core\Scope\AttributeSetFactory;
 use Tereta\Import\Model\Core\Scope\ExtensionFactory;
 use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\ResourceModel\Core\Scope as ScopeResource;
+use Tereta\Import\Model\ResourceModel\Core\ScopeFactory as ScopeResourceFactory;
 
 /**
  * Tereta\Import\Model\Core\Scope
@@ -196,11 +197,15 @@ class Scope extends AbstractModel
     protected $attributeModelsById = [];
 
     /**
+     * @var ScopeResource
+     */
+    protected $scopeResource;
+
+    /**
      * Scope constructor.
      * @param Context $context
      * @param Registry $registry
-     * @param AbstractResource|null $resource
-     * @param AbstractDb|null $resourceCollection
+     * @param ScopeResourceFactory $scopeResourceFactory
      * @param DataObjectFactory $dataObjectFactory
      * @param AttributeRepository $attributeRepository
      * @param AttributeOptionLabelInterfaceFactory $optionLabelFactory
@@ -212,13 +217,14 @@ class Scope extends AbstractModel
      * @param ExtensionFactory $extensionFactory
      * @param DirectoryList $directoryList
      * @param IoFile $ioFile
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
      * @param array $data
      */
     public function __construct(
         Context $context,
         Registry $registry,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ScopeResourceFactory $scopeResourceFactory,
         DataObjectFactory $dataObjectFactory,
         AttributeRepository $attributeRepository,
         AttributeOptionLabelInterfaceFactory $optionLabelFactory,
@@ -230,6 +236,8 @@ class Scope extends AbstractModel
         ExtensionFactory $extensionFactory,
         DirectoryList $directoryList,
         IoFile $ioFile,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
@@ -259,7 +267,16 @@ class Scope extends AbstractModel
 
         $this->_prepareAttributes($configuration->getData('fields'));
 
-        $this->getResource()->setLogger($logger)->setConfiguration($configuration);
+        $this->scopeResource = $scopeResourceFactory->create();
+        $this->scopeResource->setLogger($logger)->setConfiguration($configuration);
+    }
+
+    /**
+     * @return ScopeResource
+     */
+    public function getResource(): ScopeResource
+    {
+        return $this->scopeResource;
     }
 
     /**
@@ -460,6 +477,7 @@ class Scope extends AbstractModel
             $this->logger->debug(__('DB transaction has beed commited (%1sec).', (time() - $debugTime)));
 
             // Indexation common indexes
+            $this->_configuration->flushProductToReindex();
             foreach ($this->skuEntities->getData() as $item) {
                 $this->_configuration->addProductToReindex($item['entity_id']);
             }

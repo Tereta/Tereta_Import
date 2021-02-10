@@ -34,9 +34,14 @@
 
 namespace Tereta\Import\Model\Core\Scope;
 
+use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
 use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\ResourceModel\Core\Scope\Stock as StockResource;
+use Tereta\Import\Model\ResourceModel\Core\Scope\StockFactory as StockResourceFactory;
 use Magento\InventoryIndexer\Indexer\InventoryIndexer;
 use Magento\CatalogInventory\Model\Indexer\Stock\Processor as StockIndexer;
 
@@ -87,6 +92,20 @@ class Stock extends AbstractModel
     public function getIncludeAttributes(): array
     {
         return ['quantity_and_stock_status'];
+    }
+
+    public function __construct(
+        StockResourceFactory $stockResourceFactory,
+        Context $context,
+        Registry $registry,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
+        DataObject $configuration,
+        Logger $logger,
+        array $data = []
+    ) {
+        $this->resourceModel = $stockResourceFactory->create();
+        parent::__construct($context, $registry, $resource, $resourceCollection, $configuration, $logger, $data);
     }
 
     /**

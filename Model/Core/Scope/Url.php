@@ -34,7 +34,13 @@
 
 namespace Tereta\Import\Model\Core\Scope;
 
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\ResourceModel\Core\Scope\Url as UrlResource;
+use Tereta\Import\Model\ResourceModel\Core\Scope\UrlFactory as UrlResourceFactory;
 use Magento\Framework\DataObject;
 
 /**
@@ -46,6 +52,20 @@ use Magento\Framework\DataObject;
  */
 class Url extends AbstractModel
 {
+    public function __construct(
+        UrlResourceFactory $urlResourceFactory,
+        Context $context,
+        Registry $registry,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
+        DataObject $configuration,
+        Logger $logger,
+        array $data = []
+    ) {
+        $this->resourceModel = $urlResourceFactory->create();
+        parent::__construct($context, $registry, $resource, $resourceCollection, $configuration, $logger, $data);
+    }
+
     /**
      *
      */
