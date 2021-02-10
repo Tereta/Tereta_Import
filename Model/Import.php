@@ -312,6 +312,16 @@ class Import extends AbstractModel
      */
     public function beforeSave(): self
     {
+        $identifier = trim(strtolower($this->getData('identifier')));
+        if (!$identifier) {
+            throw new Exception(__('Identifier should not be empty.'));
+        }
+
+        if (preg_match('/[^a-z0-9_]/', $identifier)) {
+            throw new Exception(__('Identifier should contain only [a-z0-9_] symbols.'));
+        }
+        $this->setData('identifier', $identifier);
+
         if (!$this->getData('type')) {
             return parent::beforeSave();
         }

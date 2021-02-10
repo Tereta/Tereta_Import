@@ -39,6 +39,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Tereta\Import\Model\ImportFactory;
+use Tereta\Import\Model\ResourceModel\Import as ResourceImport;
+use Tereta\Import\Model\ResourceModel\Import\CollectionFactory as ImportCollectionFactory;
 
 /**
  * Tereta\Import\Console\Import
@@ -58,12 +60,26 @@ class Import extends Command
     protected $importFactory;
 
     /**
-     * Import constructor.
-     * @param ImportFactory $importFactory
+     * @var ResourceImport
      */
-    public function __construct(ImportFactory $importFactory)
+    protected $resourceImport;
+
+    /**
+     * @var ImportCollectionFactory
+     */
+    protected $importCollectionFactory;
+
+    /**
+     * Import constructor.
+     * @param ImportCollectionFactory $importCollectionFactory
+     * @param ImportFactory $importFactory
+     * @param ResourceImport $resourceImport
+     */
+    public function __construct(ImportCollectionFactory $importCollectionFactory, ImportFactory $importFactory, ResourceImport $resourceImport)
     {
+        $this->importCollectionFactory = $importCollectionFactory;
         $this->importFactory = $importFactory;
+        $this->resourceImport = $resourceImport;
 
         parent::__construct();
     }
@@ -82,6 +98,29 @@ class Import extends Command
             );
 
         parent::configure();
+    }
+
+    protected function getIdentifier(string $identifier): array
+    {
+        $importModel = $this->importFactory->create();
+        $this->resourceImport->load($importModel, $identifier, 'identifier');
+        if ($importModel->getId()) {
+            return [$identifier];
+        }
+
+        if (substr($identifier, -1) == '*') {
+            $identifier = substr($identifier, 0, -1);
+        } else {
+            throw new Exception('The %1 impoert was not found.', $identifier);
+        }
+
+        $return  = [];
+        $importCollection = $this->importCollectionFactory->create();
+        $importCollection->addFieldToFilter('identifier', ['like' => $identifier . '%']);
+        foreach ($importCollection as $item) {
+            array_push($return, $item->getIdentifier());
+        }
+        return $return;
     }
 
     /**
@@ -106,11 +145,15 @@ class Import extends Command
             $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         }
 
-        $output->write('Starting import for "' . $identifier . '"...', true);
+        $identifier = $this->getIdentifier($identifier);
+
         try {
-            $importModel->setCommandOutput($output);
-            $importModel->import($identifier);
-            $output->write('Finished import for "' . $identifier . '".', true);
+            foreach ($identifier as $identifierItem) {
+                $output->write('Starting import for "' . $identifierItem . '"...', true);
+                $importModel->setCommandOutput($output);
+                $importModel->import($identifierItem);
+                $output->write('Finished import for "' . $identifierItem . '".', true);
+            }
         } catch (\Exception $e) {
             $output->write('<error>Stopping error: ' . $e->getMessage() . '; In: ' . $e->getFile() . ':' . $e->getLine() . '; Trace:' . $e->getTraceAsString() . '</error>', true);
         }
