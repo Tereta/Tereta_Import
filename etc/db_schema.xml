@@ -31,6 +31,7 @@
         <column name="create_url_key" xsi:type="boolean" nullable="false" default="false" comment="Create URL keys" />
         <column name="update_url_rewrites" xsi:type="boolean" nullable="false" default="false" comment="Update URL rewrites" />
         <column name="skip_document_fields" xsi:type="text" nullable="true" comment="Skip Document Fields JSON" />
+        <column name="log_not_existing_records" xsi:type="boolean" nullable="false" default="false" comment="Log records for not existing products" />
 
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="entity_id"/>

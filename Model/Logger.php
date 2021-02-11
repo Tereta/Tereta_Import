@@ -107,7 +107,7 @@ class Logger extends \Monolog\Logger
     public function addRecord($level, $message, array $context = []): bool
     {
         $blockCommandOutput = isset($context['blockCommandOutput']) && $context['blockCommandOutput'] == true;
-        $allLog = (isset($context['allLog']) && $context['allLog'] == true) ? true : false;
+        $allLog = isset($context['allLog']) && $context['allLog'] == true;
 
         if ($this->_commandOutput && !$blockCommandOutput) {
             $commandMessage = $message;
@@ -136,7 +136,7 @@ class Logger extends \Monolog\Logger
             if ($showMessage) {
                 $this->_commandOutput->writeln($commandMessage);
             }
-        } elseif ($this->htmlOutput && !$htmlOutput) {
+        } elseif ($this->htmlOutput) {
             $commandMessage = $message;
 
             switch ($level) {

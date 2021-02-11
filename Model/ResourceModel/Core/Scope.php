@@ -79,16 +79,6 @@ class Scope extends AbstractDb
     protected $attributeRepository;
 
     /**
-     * @var array
-     */
-    protected $statisticFieldSkuSkipped = [];
-
-    /**
-     * @var array
-     */
-    protected $statisticRowFieldSkuSkipped = [];
-
-    /**
      * Scope constructor.
      * @param StoreManagerInterface $storeManagerInterface
      * @param AttributeRepository $attributeRepository
@@ -410,8 +400,6 @@ class Scope extends AbstractDb
     }
 
     /**
-     * Searching for SKUs by CSV field
-     *
      * @param string $attributeCode
      * @param array $object
      * @throws NoSuchEntityException
@@ -419,7 +407,7 @@ class Scope extends AbstractDb
     public function fillSkusByField(string $attributeCode, array &$object): void
     {
         if (!isset($object[$attributeCode])) {
-            throw new Exception('The "' . $attributeCode . '" field in the file document was not found to find sku by the attribute.');
+            throw new Exception(__('The "%1" field in the file document was not found to find sku by the attribute.', $attributeCode));
         }
 
         $fieldValue = $object[$attributeCode];
@@ -437,25 +425,8 @@ class Scope extends AbstractDb
         if (isset($entityData['sku'])) {
             $object['sku'] = $entityData['sku'];
         } else {
-            array_push($this->statisticFieldSkuSkipped, $fieldValue);
-            array_push($this->statisticRowFieldSkuSkipped, $object);
+            throw new Exception(__('The %1 SKU record was skipped.', $fieldValue));
         }
-    }
-
-    /**
-     * @return array
-     */
-    public function getStatisticFieldSkuSkipped(): array
-    {
-        return $this->statisticFieldSkuSkipped;
-    }
-
-    /**
-     * @return array
-     */
-    public function getStatisticRowFieldSkuSkipped(): array
-    {
-        return $this->statisticRowFieldSkuSkipped;
     }
 
     /**

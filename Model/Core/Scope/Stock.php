@@ -91,7 +91,7 @@ class Stock extends AbstractModel
      */
     public function getIncludeAttributes(): array
     {
-        return ['quantity_and_stock_status'];
+        return [];
     }
 
     public function __construct(
@@ -145,10 +145,6 @@ class Stock extends AbstractModel
 
         if (!isset($data['is_in_stock']) && $this->configuration->getData('is_in_stock') == 2) {
             $data['is_in_stock'] = false;
-        }
-
-        if (isset($data['manage_stock'])) {
-            $data['quantity_and_stock_status'] = $data['manage_stock'];
         }
 
         $this->getResource()->collect($data);

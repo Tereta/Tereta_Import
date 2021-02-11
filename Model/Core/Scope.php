@@ -43,12 +43,14 @@ use Magento\Eav\Api\Data\AttributeOptionInterfaceFactory;
 use Magento\Eav\Api\Data\AttributeOptionLabelInterfaceFactory;
 use Magento\Eav\Model\AttributeRepository;
 use Magento\Eav\Model\Entity\Attribute\Source\Table as SourceTable;
+use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem\Io\File as IoFile;
+use Magento\Framework\Filesystem;
+use Magento\Framework\Filesystem\File\Write as FileWrite;
 
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
@@ -57,6 +59,7 @@ use Magento\Framework\Registry;
 
 use Tereta\Import\Model\Core\Scope\AttributeSetFactory;
 use Tereta\Import\Model\Core\Scope\ExtensionFactory;
+use Tereta\Import\Model\Import as ModelImport;
 use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\ResourceModel\Core\Scope as ScopeResource;
 use Tereta\Import\Model\ResourceModel\Core\ScopeFactory as ScopeResourceFactory;
@@ -149,7 +152,7 @@ class Scope extends AbstractModel
     /**
      * @var DataObject|null
      */
-    protected $_configuration = null;
+    protected $configuration = null;
 
     /**
      * @var bool
@@ -202,7 +205,18 @@ class Scope extends AbstractModel
     protected $scopeResource;
 
     /**
+     * @var FileWrite
+     */
+    protected $logSkippedRecordCsv;
+
+    /**
+     * @var Filesystem
+     */
+    protected $filesystem;
+
+    /**
      * Scope constructor.
+     * @param Filesystem $filesystem
      * @param Context $context
      * @param Registry $registry
      * @param ScopeResourceFactory $scopeResourceFactory
@@ -222,6 +236,7 @@ class Scope extends AbstractModel
      * @param array $data
      */
     public function __construct(
+        Filesystem $filesystem,
         Context $context,
         Registry $registry,
         ScopeResourceFactory $scopeResourceFactory,
@@ -241,6 +256,8 @@ class Scope extends AbstractModel
         array $data = []
     ) {
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
+
+        $this->filesystem = $filesystem;
         $this->logger = $logger;
 
         $this->directoryList = $directoryList;
@@ -263,7 +280,7 @@ class Scope extends AbstractModel
 
         $this->skuEntities = $dataObjectFactory->create();
 
-        $this->_configuration = $configuration;
+        $this->configuration = $configuration;
 
         $this->_prepareAttributes($configuration->getData('fields'));
 
@@ -295,26 +312,25 @@ class Scope extends AbstractModel
     {
         // Convert mapped fields
         $data = [];
-        if (!isset($csvData[$this->getRevertedMapAttribute('sku')])) {
+        $searchByField = ($this->configuration->getData('product_search_by_field') && !$this->configuration->getData('product_create_new'));
+        if (!$searchByField && !isset($csvData[$this->getRevertedMapAttribute('sku')])) {
             throw new LocalizedException(__('SKU field in the document can not be found'));
         }
 
-        $sku = $csvData[$this->getRevertedMapAttribute('sku')];
         foreach ($csvData as $key=>$item) {
             if (!trim($key)) {
                 continue;
             }
 
-            if (in_array($key, $this->_configuration->getSkipDocumentFieldsObject()->getData())) {
+            if (in_array($key, $this->configuration->getSkipDocumentFieldsObject()->getData())) {
                 continue;
             }
 
             if (!is_string($item) && !is_null($item) && !is_numeric($item) && !is_bool($item)) {
                 $this->logger->debug(
                     __(
-                        'Warning: field "%1" is not proccessable value for the product #%2 (%3)',
+                        'Warning: field "%1" is not proccessable value for the product (%3)',
                         $key,
-                        $sku,
                         print_r($item, true)
                     )
                 );
@@ -324,18 +340,24 @@ class Scope extends AbstractModel
             $data[$this->getMapAttribute(trim($key))] = trim($item);
         }
 
+        if ($searchByField) {
+            try {
+                $this->getResource()->fillSkusByField($this->configuration->getData('product_search_by_field'), $data);
+            } catch (Exception $e) {
+                $this->logger->warning($e->getMessage());
+                $this->logSkippedRecordCsv($csvData);
+
+                throw $e;
+            }
+        }
+
         // Visibility and Status from configurations
-        if (!isset($data['visibility']) && $this->_configuration->getData('products_visibility')) {
-            $data['visibility'] = $this->_configuration->getData('products_visibility');
+        if (!isset($data['visibility']) && $this->configuration->getData('products_visibility')) {
+            $data['visibility'] = $this->configuration->getData('products_visibility');
         }
 
-        if (!isset($data['status']) && $this->_configuration->getData('products_is_enabled')) {
-            $data['status'] = $this->_configuration->getData('products_is_enabled');
-        }
-
-        // Fill Skus By Field
-        if ($this->_configuration->getData('product_search_by_field') && !$this->_configuration->getData('product_create_new')) {
-            $this->getResource()->fillSkusByField($this->_configuration->getData('product_search_by_field'), $data);
+        if (!isset($data['status']) && $this->configuration->getData('products_is_enabled')) {
+            $data['status'] = $this->configuration->getData('products_is_enabled');
         }
 
         // Collect data
@@ -356,6 +378,22 @@ class Scope extends AbstractModel
         $this->_collectTypeValues(static::ATTRIBUTE_TYPE_DATETIME, $data);
         $this->_collectTypeValues(static::ATTRIBUTE_TYPE_TEXT, $data);
         $this->_collectTypeValues(static::ATTRIBUTE_TYPE_VARCHAR, $data);
+    }
+
+    protected function logSkippedRecordCsv($object): void
+    {
+        if (!$this->configuration->getData('log_not_existing_records')) {
+            return;
+        }
+
+        if (!$this->logSkippedRecordCsv) {
+            $varDir = $this->filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
+            $fileName = $this->configuration->getData('identifier') . '.skipped.csv';
+            $this->logSkippedRecordCsv = $varDir->openFile(ModelImport::LOGGER_DIR . '/' . $fileName, 'w+');
+            $this->logSkippedRecordCsv->writeCsv(array_keys($object));
+        }
+
+        $this->logSkippedRecordCsv->writeCsv($object);
     }
 
     /**
@@ -461,12 +499,6 @@ class Scope extends AbstractModel
             // Save update time on main table and for append value tables
             $this->getResource()->saveUpdateTimes($this->skuEntities, $updateStatisticAttributes);
 
-            if ($this->getResource()->getStatisticFieldSkuSkipped()) {
-                $this->logger->warning(
-                    __('Can not find SKUs for field with value: "%1"', (implode('", "', $this->getResource()->getStatisticFieldSkuSkipped())))
-                );
-            }
-
             $this->logger->debug(__('DB transaction begin...'));
             $this->getResource()->beginTransaction();
 
@@ -477,24 +509,12 @@ class Scope extends AbstractModel
             $this->logger->debug(__('DB transaction has beed commited (%1sec).', (time() - $debugTime)));
 
             // Indexation common indexes
-            $this->_configuration->flushProductToReindex();
+            $this->configuration->flushProductToReindex();
             foreach ($this->skuEntities->getData() as $item) {
-                $this->_configuration->addProductToReindex($item['entity_id']);
+                $this->configuration->addProductToReindex($item['entity_id']);
             }
 
-            $this->_configuration->addIndexToReindex($this->extension->getIndexer());
-
-            // Move to resource and do configuration!! ALEXDEB!!!
-            if ($this->getResource()->getStatisticRowFieldSkuSkipped()) {
-                $logDir = $this->directoryList->getPath('log') . '/tereta';
-                if (!is_dir($logDir)) {
-                    $this->ioFile->mkdir($logDir);
-                }
-                file_put_contents($logDir . '/importSkippedFields.csv', "");
-                foreach ($this->getResource()->getStatisticRowFieldSkuSkipped() as $item) {
-                    file_put_contents($logDir . '/importSkippedFields.csv', '"' . implode('", "', $item) . '"' . "\n", FILE_APPEND);
-                }
-            }
+            $this->configuration->addIndexToReindex($this->extension->getIndexer());
         } catch (\Exception $e) {
             $this->logger->error(
                 __("SKUs: ('%1'); Error message: %2", implode("','", array_keys($this->skuEntities->getData())), $e->getMessage())
@@ -516,7 +536,7 @@ class Scope extends AbstractModel
 
         $attributes = [];
         foreach ($csvFields as $csvField) {
-            if (in_array($csvField, $this->_configuration->getSkipDocumentFieldsObject()->getData())) {
+            if (in_array($csvField, $this->configuration->getSkipDocumentFieldsObject()->getData())) {
                 continue;
             }
 
@@ -589,7 +609,7 @@ class Scope extends AbstractModel
 
             $optionsDataReverce->setData(urlencode((string)$item['label']), $item['value']);
 
-            if ($this->_configuration->getData('not_case_sensitive_options')) {
+            if ($this->configuration->getData('not_case_sensitive_options')) {
                 $optionsDataReverce->setData(urlencode(strtolower((string)$item['label'])), $item['value']);
             }
         }
@@ -684,7 +704,7 @@ class Scope extends AbstractModel
             return;
         }
 
-        $storeId = $this->_configuration->getStoreId();
+        $storeId = $this->configuration->getStoreId();
 
         foreach ($this->attributeTypes[$attributeType] as $attributeCode) {
             if (!isset($data[$attributeCode])) {
@@ -698,7 +718,7 @@ class Scope extends AbstractModel
 
             $value = $this->clearValue($attributeType, $value);
 
-            if (is_null($value) && in_array($attributeCode, $this->_configuration->getClearEmptyAttributesObject()->getData())) {
+            if (is_null($value) && in_array($attributeCode, $this->configuration->getClearEmptyAttributesObject()->getData())) {
                 $remove = [
                     'attribute_id' => $this->attributeModels->getData($attributeCode)->getId(),
                     'store_id' => $storeId,
@@ -718,7 +738,7 @@ class Scope extends AbstractModel
                 continue;
             }
 
-            $skipEmptyAttributesObject = $this->_configuration->getSkipEmptyAttributesObject()->getData();
+            $skipEmptyAttributesObject = $this->configuration->getSkipEmptyAttributesObject()->getData();
 
             if (is_null($value) && in_array($attributeCode, $skipEmptyAttributesObject)) {
                 continue;
@@ -752,10 +772,6 @@ class Scope extends AbstractModel
      */
     protected function _collectTypeValuesProcessOptions(string $attributeCode, &$value): void
     {
-        if (in_array($attributeCode, ['quantity_and_stock_status'])) {
-            return;
-        }
-
         if (!$value || !isset($this->attributeOptions[$attributeCode]) || !isset($this->attributeOptionsReverce[$attributeCode])) {
             return;
         }
@@ -765,7 +781,7 @@ class Scope extends AbstractModel
 
         $getValue = $value;
 
-        if ($getValue && $this->_configuration->getData('not_case_sensitive_options')) {
+        if ($getValue && $this->configuration->getData('not_case_sensitive_options')) {
             $getValue = strtolower($getValue);
         }
 
@@ -785,7 +801,7 @@ class Scope extends AbstractModel
      */
     protected function _collectTypeValuesAddOptions(string $attributeCode, string &$value): void
     {
-        if (!$this->_configuration->getCreateNewOptions()) {
+        if (!$this->configuration->getCreateNewOptions()) {
             return;
         }
 
@@ -795,7 +811,7 @@ class Scope extends AbstractModel
             return;
         }
 
-        $storeId = $this->_configuration->getStoreId();
+        $storeId = $this->configuration->getStoreId();
 
         $optionLabel = $this->_optionLabelFactory->create();
         $optionLabel->setStoreId($storeId);
@@ -823,7 +839,7 @@ class Scope extends AbstractModel
 
         $this->attributeOptions[$attributeCode]->setData((integer)$optionId, $value);
         $this->attributeOptionsReverce[$attributeCode]->setData(urlencode($value), $optionId);
-        if ($this->_configuration->getData('not_case_sensitive_options')) {
+        if ($this->configuration->getData('not_case_sensitive_options')) {
             $this->attributeOptionsReverce[$attributeCode]->setData(urlencode(strtolower($value)), $optionId);
         }
 

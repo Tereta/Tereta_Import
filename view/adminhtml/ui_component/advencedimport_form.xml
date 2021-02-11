@@ -504,6 +504,16 @@
             <block class="Magento\Framework\View\Element\Template" name="mapping_categories" template="Tereta_Import::field/mapping_categories.phtml">
             </block>
         </htmlContent>
+
+        <htmlContent name="description">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="additionalClasses" xsi:type="string">admin__field</item>
+                </item>
+            </argument>
+            <block class="Magento\Framework\View\Element\Template" name="import_categories_desctiption" template="Tereta_Import::field/description/categories.phtml">
+            </block>
+        </htmlContent>
     </fieldset>
 
     <fieldset name="advencedimport_fieldset_stock">
@@ -564,6 +574,44 @@
                         <item name="value" xsi:type="string">2</item>
                         <item name="label" xsi:type="string">No</item>
                     </item>
+                </item>
+            </argument>
+        </field>
+
+        <htmlContent name="description">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="additionalClasses" xsi:type="string">admin__field</item>
+                </item>
+            </argument>
+            <block class="Magento\Framework\View\Element\Template" name="import_stock_desctiption" template="Tereta_Import::field/description/stock.phtml">
+            </block>
+        </htmlContent>
+    </fieldset>
+
+    <fieldset name="advencedimport_fieldset_log">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Log</item>
+                <item name="collapsible" xsi:type="boolean">true</item>
+                <item name="opened" xsi:type="boolean">false</item>
+                <item name="sortOrder" xsi:type="number">600</item>
+            </item>
+        </argument>
+        <field name="log_not_existing_records">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Log records for not existing products (CSV)</item>
+                    <item name="visible" xsi:type="boolean">true</item>
+                    <item name="dataType" xsi:type="string">boolean</item>
+                    <item name="formElement" xsi:type="string">checkbox</item>
+                    <item name="prefer" xsi:type="string">toggle</item>
+                    <item name="source" xsi:type="string">advencedimport</item>
+                    <item name="valueMap" xsi:type="array">
+                        <item name="true" xsi:type="string">1</item>
+                        <item name="false" xsi:type="string">0</item>
+                    </item>
+                    <item name="default" xsi:type="string">0</item>
                 </item>
             </argument>
         </field>
