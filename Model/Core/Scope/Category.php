@@ -115,7 +115,7 @@ class Category extends AbstractModel
             if ($productAssignCategories) {
                 $productAssignCategories = json_decode($productAssignCategories);
             }
-            $data['product_category_ids'] = trim($productAssignCategories) ? implode(",", $productAssignCategories) : null;
+            $data['product_category_ids'] = $productAssignCategories ? implode(",", $productAssignCategories) : null;
         }
 
         if (is_null($data['product_category_ids'])) {
