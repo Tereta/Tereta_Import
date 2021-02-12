@@ -1,0 +1,15 @@
+<?php
+/**
+* @var $skipFileUrl string|null
+ */
+?>
+<div class="admin__field-label">
+    <label>
+        <span><?php echo __('Logged files') ?></span>
+    </label>
+</div>
+<div class="admin__field-control">
+    <?php if ($skipFileUrl) : ?>
+        <a href="<?php echo $skipFileUrl ?>" target="_blank" ><?php echo __('Download Skip CSV File') ?></a>
+    <?php endif ?>
+</div>
