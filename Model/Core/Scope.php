@@ -49,7 +49,6 @@ use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\Io\File as IoFile;
-use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\File\Write as FileWrite;
 
 use Magento\Framework\Model\AbstractModel;
@@ -59,10 +58,11 @@ use Magento\Framework\Registry;
 
 use Tereta\Import\Model\Core\Scope\AttributeSetFactory;
 use Tereta\Import\Model\Core\Scope\ExtensionFactory;
-use Tereta\Import\Model\Import as ModelImport;
 use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\ResourceModel\Core\Scope as ScopeResource;
 use Tereta\Import\Model\ResourceModel\Core\ScopeFactory as ScopeResourceFactory;
+use Tereta\Import\Helper\Data as HelperData;
+
 
 /**
  * Tereta\Import\Model\Core\Scope
@@ -210,33 +210,12 @@ class Scope extends AbstractModel
     protected $logSkippedRecordCsv;
 
     /**
-     * @var Filesystem
+     * @var HelperData
      */
-    protected $filesystem;
+    protected $helperData;
 
-    /**
-     * Scope constructor.
-     * @param Filesystem $filesystem
-     * @param Context $context
-     * @param Registry $registry
-     * @param ScopeResourceFactory $scopeResourceFactory
-     * @param DataObjectFactory $dataObjectFactory
-     * @param AttributeRepository $attributeRepository
-     * @param AttributeOptionLabelInterfaceFactory $optionLabelFactory
-     * @param AttributeOptionInterfaceFactory $optionFactory
-     * @param AttributeOptionManagementInterface $attributeOptionManagement
-     * @param DataObject $configuration
-     * @param Logger $logger
-     * @param AttributeSetFactory $attributeSetFactory
-     * @param ExtensionFactory $extensionFactory
-     * @param DirectoryList $directoryList
-     * @param IoFile $ioFile
-     * @param AbstractResource|null $resource
-     * @param AbstractDb|null $resourceCollection
-     * @param array $data
-     */
     public function __construct(
-        Filesystem $filesystem,
+        HelperData $helperData,
         Context $context,
         Registry $registry,
         ScopeResourceFactory $scopeResourceFactory,
@@ -257,7 +236,8 @@ class Scope extends AbstractModel
     ) {
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
 
-        $this->filesystem = $filesystem;
+        $this->helperData = $helperData;
+
         $this->logger = $logger;
 
         $this->directoryList = $directoryList;
@@ -387,9 +367,7 @@ class Scope extends AbstractModel
         }
 
         if (!$this->logSkippedRecordCsv) {
-            $varDir = $this->filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
-            $fileName = $this->configuration->getData('identifier') . '.skipped.csv';
-            $this->logSkippedRecordCsv = $varDir->openFile(ModelImport::LOGGER_DIR . '/' . $fileName, 'w+');
+            $this->logSkippedRecordCsv = $this->helperData->getSkippedCsvWriteFile($this->configuration->getData('identifier'), true);
             $this->logSkippedRecordCsv->writeCsv(array_keys($object));
         }
 

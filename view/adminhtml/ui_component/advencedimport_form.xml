@@ -615,6 +615,16 @@
                 </item>
             </argument>
         </field>
+
+        <htmlContent name="csv_file_log_records">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="additionalClasses" xsi:type="string">admin__field</item>
+                </item>
+            </argument>
+            <block class="Tereta\Import\Block\Adminhtml\Field\Log" name="csv_file_log_records">
+            </block>
+        </htmlContent>
     </fieldset>
 
     <fieldset name="advencedimport_fieldset_http">
