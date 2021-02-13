@@ -40,7 +40,7 @@ class Log extends Template
             $modelImport = $this->importRepository->getById($entityId);
             $this->helperData->getSkippedCsvReadFile($modelImport->getIdentifier());
 
-            $skipFileUrl = $this->getUrl('advencedimport/edit/log', ['entity_id' => 9, 'type' => 'skip']) . 'skipped.csv';
+            $skipFileUrl = $this->getUrl('advencedimport/edit/log', ['entity_id' => $entityId, 'type' => 'skip']) . 'skipped.csv';
         } catch (Exception $e) {
             return '';
         }

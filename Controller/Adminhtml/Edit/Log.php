@@ -40,6 +40,7 @@ use Magento\Framework\Controller\AbstractResult;
 use Magento\Framework\Controller\ResultFactory;
 use Tereta\Import\Helper\Data as HelperData;
 use Tereta\Import\Model\Import\Repository as ImportRepository;
+use Exception;
 
 /**
  * Class File
@@ -87,6 +88,7 @@ class Log extends Action
             $result = $this->resultFactory->create(ResultFactory::TYPE_RAW);
             return $result->setHeader('Content-Type', $contentType)->setContents($content);
         } catch (Exception $e) {
+            $this->messageManager->addErrorMessage(__('The file can not be downloaded'));
             $resultRedirect = $this->resultRedirectFactory->create();
             return $resultRedirect->setPath('advencedimport/listing/index/');
         }

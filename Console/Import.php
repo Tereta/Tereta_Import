@@ -41,6 +41,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Tereta\Import\Model\ImportFactory;
 use Tereta\Import\Model\ResourceModel\Import as ResourceImport;
 use Tereta\Import\Model\ResourceModel\Import\CollectionFactory as ImportCollectionFactory;
+use Exception;
 
 /**
  * Tereta\Import\Console\Import
@@ -109,7 +110,7 @@ class Import extends Command
         }
 
         if (strpos($identifier, '*') === false) {
-            throw new Exception('The %1 import was not found.', $identifier);
+            throw new Exception(__('The %1 import was not found.', $identifier));
         }
 
         while (strpos($identifier, '*') !== false) {
