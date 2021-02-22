@@ -43,6 +43,7 @@ use Magento\Eav\Api\Data\AttributeOptionInterfaceFactory;
 use Magento\Eav\Api\Data\AttributeOptionLabelInterfaceFactory;
 use Magento\Eav\Model\AttributeRepository;
 use Magento\Eav\Model\Entity\Attribute\Source\Table as SourceTable;
+use Magento\Eav\Model\Entity\Attribute\Source\Boolean as SourceBoolean;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
@@ -50,6 +51,7 @@ use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\Io\File as IoFile;
 use Magento\Framework\Filesystem\File\Write as FileWrite;
+use Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend;
 
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
@@ -309,7 +311,7 @@ class Scope extends AbstractModel
             if (!is_string($item) && !is_null($item) && !is_numeric($item) && !is_bool($item)) {
                 $this->logger->debug(
                     __(
-                        'Warning: field "%1" is not proccessable value for the product (%3)',
+                        'Warning: field "%1" is not proccessable value for the product (%2)',
                         $key,
                         print_r($item, true)
                     )
@@ -568,7 +570,9 @@ class Scope extends AbstractModel
      */
     protected function _prepareAttributesOptions(EavAttribute $attribute): void
     {
-        if (!$attribute->getSourceModel()) {
+        $isSourceModel = ($attribute->getSourceModel() instanceof SourceTable);
+        $isInput = in_array($attribute->getData('frontend_input'), ['select', 'multiselect']);
+        if (!$isSourceModel && !$isInput) {
             return;
         }
 
@@ -586,10 +590,7 @@ class Scope extends AbstractModel
             $optionsData->setData($item['value'], $item['label']);
 
             $optionsDataReverce->setData(urlencode((string)$item['label']), $item['value']);
-
-            if ($this->configuration->getData('not_case_sensitive_options')) {
-                $optionsDataReverce->setData(urlencode(strtolower((string)$item['label'])), $item['value']);
-            }
+            $optionsDataReverce->setData(urlencode(strtolower((string)$item['label'])), $item['value']);
         }
 
         $this->attributeOptionsReverce[$attribute->getAttributeCode()] = $optionsDataReverce;
@@ -608,9 +609,10 @@ class Scope extends AbstractModel
         $optionsData = $this->_dataObjectFactory->create();
         $optionsDataReverce = $this->_dataObjectFactory->create();
 
-        $specialAttributes = ['visibility', 'status'];
+        $isSpecial = in_array($attribute->getAttributeCode(), ['visibility', 'status']);
+        $isBoolean = ($attribute->getSource() instanceof SourceBoolean);
 
-        if (!in_array($attribute->getAttributeCode(), $specialAttributes)) {
+        if (!$isSpecial && !$isBoolean) {
             return false;
         }
 
@@ -623,16 +625,43 @@ class Scope extends AbstractModel
         switch ($attribute->getAttributeCode()) {
             case('status'):
                 $optionsDataReverce->setData([]);
-                $optionsDataReverce->setData('enabled', $attribute->getSource()::STATUS_ENABLED);
-                $optionsDataReverce->setData('on', $attribute->getSource()::STATUS_ENABLED);
-                $optionsDataReverce->setData('true', $attribute->getSource()::STATUS_ENABLED);
-                $optionsDataReverce->setData('yes', $attribute->getSource()::STATUS_ENABLED);
+                $optionsDataReverce->setData('enabled',  $attribute->getSource()::STATUS_ENABLED);
+                $optionsDataReverce->setData('on',       $attribute->getSource()::STATUS_ENABLED);
+                $optionsDataReverce->setData('true',     $attribute->getSource()::STATUS_ENABLED);
+                $optionsDataReverce->setData('yes',      $attribute->getSource()::STATUS_ENABLED);
                 $optionsDataReverce->setData('disabled', $attribute->getSource()::STATUS_DISABLED);
-                $optionsDataReverce->setData('off', $attribute->getSource()::STATUS_DISABLED);
-                $optionsDataReverce->setData('false', $attribute->getSource()::STATUS_DISABLED);
-                $optionsDataReverce->setData('no', $attribute->getSource()::STATUS_DISABLED);
-                $optionsDataReverce->setData(1, $attribute->getSource()::STATUS_ENABLED);
-                $optionsDataReverce->setData(0, $attribute->getSource()::STATUS_DISABLED);
+                $optionsDataReverce->setData('off',      $attribute->getSource()::STATUS_DISABLED);
+                $optionsDataReverce->setData('false',    $attribute->getSource()::STATUS_DISABLED);
+                $optionsDataReverce->setData('no',       $attribute->getSource()::STATUS_DISABLED);
+                $optionsDataReverce->setData($attribute->getSource()::STATUS_ENABLED,  $attribute->getSource()::STATUS_ENABLED);
+                $optionsDataReverce->setData($attribute->getSource()::STATUS_DISABLED, $attribute->getSource()::STATUS_DISABLED);
+                break;
+            case('visibility'):
+                $optionsDataReverce->setData('invisible',   $attribute->getSource()::VISIBILITY_NOT_VISIBLE);
+                $optionsDataReverce->setData('not visible', $attribute->getSource()::VISIBILITY_NOT_VISIBLE);
+                $optionsDataReverce->setData('hide',        $attribute->getSource()::VISIBILITY_NOT_VISIBLE);
+                $optionsDataReverce->setData('hidden',      $attribute->getSource()::VISIBILITY_NOT_VISIBLE);
+                $optionsDataReverce->setData('in catalog',  $attribute->getSource()::VISIBILITY_IN_CATALOG);
+                $optionsDataReverce->setData('in search',   $attribute->getSource()::VISIBILITY_IN_SEARCH);
+                $optionsDataReverce->setData('catalog',     $attribute->getSource()::VISIBILITY_IN_CATALOG);
+                $optionsDataReverce->setData('search',      $attribute->getSource()::VISIBILITY_IN_SEARCH);
+                $optionsDataReverce->setData('both',        $attribute->getSource()::VISIBILITY_BOTH);
+                $optionsDataReverce->setData('all',         $attribute->getSource()::VISIBILITY_BOTH);
+                $optionsDataReverce->setData('everywhere',  $attribute->getSource()::VISIBILITY_BOTH);
+                $optionsDataReverce->setData($attribute->getSource()::VISIBILITY_NOT_VISIBLE, $attribute->getSource()::VISIBILITY_NOT_VISIBLE);
+                $optionsDataReverce->setData($attribute->getSource()::VISIBILITY_IN_CATALOG,  $attribute->getSource()::VISIBILITY_IN_CATALOG);
+                $optionsDataReverce->setData($attribute->getSource()::VISIBILITY_IN_SEARCH,   $attribute->getSource()::VISIBILITY_IN_SEARCH);
+                $optionsDataReverce->setData($attribute->getSource()::VISIBILITY_BOTH,        $attribute->getSource()::VISIBILITY_BOTH);
+                break;
+            default:
+                $optionsDataReverce->setData('yes',   $attribute->getSource()::VALUE_YES);
+                $optionsDataReverce->setData('no',    $attribute->getSource()::VALUE_NO);
+                $optionsDataReverce->setData('on',    $attribute->getSource()::VALUE_YES);
+                $optionsDataReverce->setData('off',   $attribute->getSource()::VALUE_NO);
+                $optionsDataReverce->setData('true',  $attribute->getSource()::VALUE_YES);
+                $optionsDataReverce->setData('false', $attribute->getSource()::VALUE_NO);
+                $optionsDataReverce->setData(1, $attribute->getSource()::VALUE_YES);
+                $optionsDataReverce->setData(0, $attribute->getSource()::VALUE_NO);
                 break;
         }
 
@@ -724,13 +753,6 @@ class Scope extends AbstractModel
 
             $this->_collectTypeValuesProcessOptions($attributeCode, $value);
 
-            $insert = [
-                'attribute_id' => $this->attributeModels->getData($attributeCode)->getId(),
-                'store_id' => $storeId,
-                'entity_id' => null,
-                'value' => $value
-            ];
-
             if (!isset($this->_attributeTypeEntities[$attributeType])) {
                 $this->_attributeTypeEntities[$attributeType] = [];
             }
@@ -739,7 +761,20 @@ class Scope extends AbstractModel
                 $this->_attributeTypeEntities[$attributeType][$productSku] = [];
             }
 
-            array_push($this->_attributeTypeEntities[$attributeType][$productSku], $insert);
+            if (!is_array($value)) {
+                $value = [$value];
+            }
+
+            foreach ($value as $valueItem) {
+                $insert = [
+                    'attribute_id' => $this->attributeModels->getData($attributeCode)->getId(),
+                    'store_id' => $storeId,
+                    'entity_id' => null,
+                    'value' => $valueItem
+                ];
+
+                array_push($this->_attributeTypeEntities[$attributeType][$productSku], $insert);
+            }
         }
     }
 
@@ -757,71 +792,86 @@ class Scope extends AbstractModel
         $this->attributeOptions[$attributeCode];
         $this->attributeOptionsReverce[$attributeCode];
 
-        $getValue = $value;
-
-        if ($getValue && $this->configuration->getData('not_case_sensitive_options')) {
-            $getValue = strtolower($getValue);
-        }
-
-        $getValueEncoded = urlencode($getValue);
-
-        if (isset($this->attributeOptionsReverce[$attributeCode]) && $this->attributeOptionsReverce[$attributeCode]->hasData($getValueEncoded)) {
-            $value = $this->attributeOptionsReverce[$attributeCode]->getData($getValueEncoded);
-        } else {
-            $this->_collectTypeValuesAddOptions($attributeCode, $value);
-        }
+        $this->_collectTypeValuesAddOptions($attributeCode, $value);
     }
+
+    protected $multiSelectSeparator = ';';
 
     /**
      * @param string $attributeCode
      * @param string $value
      * @throws Exception
      */
-    protected function _collectTypeValuesAddOptions(string $attributeCode, string &$value): void
+    protected function _collectTypeValuesAddOptions(string $attributeCode, string &$sourceValue): void
     {
-        if (!$this->configuration->getCreateNewOptions()) {
-            return;
-        }
-
         $attributeModel = $this->attributeModels->getData($attributeCode);
-        if ($attributeModel->getSourceModel() != SourceTable::class) {
-            $value = null;
-            return;
+
+        if ($attributeModel->getFrontendInput() == 'multiselect') {
+            $values = explode($this->multiSelectSeparator, $sourceValue);
+        } else {
+            $values = [$sourceValue];
         }
 
-        $storeId = $this->configuration->getStoreId();
-
-        $optionLabel = $this->_optionLabelFactory->create();
-        $optionLabel->setStoreId($storeId);
-        $optionLabel->setLabel($value);
-
-        $option = $this->_optionFactory->create();
-        $option->setLabel($value);
-        $option->setStoreLabels([$optionLabel]);
-        $option->setSortOrder(0);
-        $option->setIsDefault(false);
-
-        $this->_attributeOptionManagement->add(
-            \Magento\Catalog\Model\Product::ENTITY,
-            $attributeModel->getAttributeId(),
-            $option
-        );
-
-        $attributeModel = $this->attributeRepository->get(ProductModel::ENTITY, $attributeCode);
-        $optionId = null;
-        foreach ($attributeModel->getSource()->getAllOptions() as $item) {
-            if ($item['label'] == $value) {
-                $optionId = $item['value'];
+        $valueResult = [];
+        foreach ($values as $key => $valueItem) {
+            $valueItemEncoded = urlencode(strtolower($valueItem));
+            if (isset($this->attributeOptionsReverce[$attributeCode]) && $this->attributeOptionsReverce[$attributeCode]->hasData($valueItemEncoded)) {
+                $valueResult[$key] = $this->attributeOptionsReverce[$attributeCode]->getData($valueItemEncoded);
+                continue;
             }
+
+            if (!$this->configuration->getCreateNewOptions()) {
+                $valueResult[$key] = null;
+                continue;
+            }
+
+            if (!$attributeModel->getSource() instanceof SourceTable) {
+                $valueResult[$key] = null;
+                continue;
+            }
+
+            $storeId = $this->configuration->getStoreId();
+
+            $optionLabel = $this->_optionLabelFactory->create();
+            $optionLabel->setStoreId($storeId);
+            $optionLabel->setLabel($valueItem);
+
+            $option = $this->_optionFactory->create();
+            $option->setLabel($valueItem);
+            $option->setStoreLabels([$optionLabel]);
+            $option->setSortOrder(0);
+            $option->setIsDefault(false);
+
+            try{
+                $this->_attributeOptionManagement->add(
+                    \Magento\Catalog\Model\Product::ENTITY,
+                    $attributeModel->getAttributeId(),
+                    $option
+                );
+            } catch (Exception $e) {
+                throw $e;
+            }
+
+            $attributeModel = $this->attributeRepository->get(ProductModel::ENTITY, $attributeCode);
+            $optionId = null;
+            foreach ($attributeModel->getSource()->getAllOptions() as $item) {
+                if ($item['label'] == $valueItem) {
+                    $optionId = $item['value'];
+                }
+            }
+
+            $this->attributeOptions[$attributeCode]->setData((integer)$optionId, $valueItem);
+            $this->attributeOptionsReverce[$attributeCode]->setData(urlencode($valueItem), $optionId);
+            $this->attributeOptionsReverce[$attributeCode]->setData(urlencode(strtolower($valueItem)), $optionId);
+
+            array_push($valueResult, $optionId);
         }
 
-        $this->attributeOptions[$attributeCode]->setData((integer)$optionId, $value);
-        $this->attributeOptionsReverce[$attributeCode]->setData(urlencode($value), $optionId);
-        if ($this->configuration->getData('not_case_sensitive_options')) {
-            $this->attributeOptionsReverce[$attributeCode]->setData(urlencode(strtolower($value)), $optionId);
+        if ($attributeModel->getBackendModel() == ArrayBackend::class) {
+            $valueResult = [implode(',', $valueResult)];
         }
 
-        $value = $optionId;
+        $sourceValue = $valueResult;
     }
 
     /**

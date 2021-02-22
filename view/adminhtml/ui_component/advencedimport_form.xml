@@ -392,24 +392,6 @@
             </argument>
         </field>
 
-        <field name="not_case_sensitive_options">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="label" xsi:type="string" translate="true">Is Not Case Sensitive Options</item>
-                    <item name="visible" xsi:type="boolean">true</item>
-                    <item name="dataType" xsi:type="string">boolean</item>
-                    <item name="formElement" xsi:type="string">checkbox</item>
-                    <item name="prefer" xsi:type="string">toggle</item>
-                    <item name="source" xsi:type="string">advencedimport</item>
-                    <item name="valueMap" xsi:type="array">
-                        <item name="true" xsi:type="string">1</item>
-                        <item name="false" xsi:type="string">0</item>
-                    </item>
-                    <item name="default" xsi:type="string">0</item>
-                </item>
-            </argument>
-        </field>
-
         <htmlContent name="skip_document_fields">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
