@@ -56,6 +56,7 @@ use Exception;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Tereta\Import\Model\Import\Processor\AbstractModel as ImportProcessorAbstract;
+
 /**
  * Tereta\Import\Model\Import
  *
@@ -345,7 +346,7 @@ class Import extends AbstractModel
 
         // + Logger
         $this->logger = $this->loggerFactory->create();
-        $logPath = $this->directoryList->getPath(DirectoryList::VAR_DIR) . '/' . static::LOGGER_DIR . '/' . $this->getData('identifier') . '.log';
+        $logPath = $this->directoryList->getPath(DirectoryList::VAR_DIR) . '/' . $this->logger::LOGGER_DIR . '/' . $this->getData('identifier') . '.log';
         $this->logger->pushHandler(
             new \Monolog\Handler\StreamHandler($logPath)
         );
