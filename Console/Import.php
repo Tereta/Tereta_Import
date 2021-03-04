@@ -34,6 +34,7 @@
 
 namespace Tereta\Import\Console;
 
+use Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,7 +42,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Tereta\Import\Model\ImportFactory;
 use Tereta\Import\Model\ResourceModel\Import as ResourceImport;
 use Tereta\Import\Model\ResourceModel\Import\CollectionFactory as ImportCollectionFactory;
-use Exception;
 
 /**
  * Tereta\Import\Console\Import
@@ -152,10 +152,14 @@ class Import extends Command
 
         try {
             foreach ($identifier as $identifierItem) {
-                $output->write('Starting import for "' . $identifierItem . '"...', true);
+                $output->write(__('Starting import for "%1"...', $identifierItem), true);
                 $importModel->setCommandOutput($output);
-                $importModel->import($identifierItem);
-                $output->write('Finished import for "' . $identifierItem . '".', true);
+                try {
+                    $importModel->import($identifierItem);
+                    $output->write(__('Finished import for "%1".', $identifierItem), true);
+                } catch (Exception $e) {
+                    $output->write(__('<error>Error while import for "%1". %2</error>', $identifierItem, $e->getMessage()), true);
+                }
             }
         } catch (\Exception $e) {
             $output->write('<error>Stopping error: ' . $e->getMessage() . '; In: ' . $e->getFile() . ':' . $e->getLine() . '; Trace:' . $e->getTraceAsString() . '</error>', true);
