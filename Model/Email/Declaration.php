@@ -1,5 +1,5 @@
 <?php
-use Tereta\Import\Model\Email;
+namespace Tereta\Import\Model\Email;
 
 /**
  * Tereta\Import\Model\Email\Declaration

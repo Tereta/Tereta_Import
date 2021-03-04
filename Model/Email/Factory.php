@@ -36,7 +36,7 @@ class Factory
 
     /**
      * @param string $instance
-     * @param array $data
+     * @param array $configuration
      * @return Declaration
      * @throws Exception
      */
@@ -51,6 +51,6 @@ class Factory
             throw new Exception(__('The "%1" mail instance is not found.', $instance));
         }
 
-        $this->objectManager->create($instance, $configuration);
+        return $this->objectManager->create($instanceClass, ['configuration' => $configuration]);
     }
 }

@@ -115,16 +115,16 @@ class Email extends AbstractModel
             $this->ioFile->mkdir($dirPath, 0775);
         }
 
-        $this->emailFactory->create('imap', [
+        $mailClient = $this->emailFactory->create('imap', [
             'server'   => $dataModel->getData('email_imap_server'),
-            'port'     => $dataModel->getData('email_imap_server'),
+            'port'     => $dataModel->getData('email_imap_port'),
             'ssl'      => $dataModel->getData('email_imap_ssl'),
             'username' => $dataModel->getData('email_imap_user'),
             'password' => $dataModel->getData('email_imap_password'),
             'box'      => $dataModel->getData('email_imap_box')
         ]);
 
-        $this->emailFactory->getList();
+        $emailList = $mailClient->getList();
 
         exit('-=-');
         $result = $this->ioFile->read($dataModel->getData('http_url'), $filePath);
@@ -148,9 +148,12 @@ class Email extends AbstractModel
     public function encodeData(array &$data): void
     {
         $jsonData = [];
+        $jsonData['email_imap_server'] = $data['email_imap_server'];
+        $jsonData['email_imap_port'] = $data['email_imap_port'];
+        $jsonData['email_imap_ssl'] = $data['email_imap_ssl'];
         $jsonData['email_imap_user'] = $data['email_imap_user'];
         $jsonData['email_imap_password'] = $data['email_imap_password'];
-        $jsonData['email_imap_server'] = $data['email_imap_server'];
+        $jsonData['email_imap_box'] = $data['email_imap_box'];
 
         $data['additional_data'] = json_encode($jsonData);
     }
@@ -166,9 +169,10 @@ class Email extends AbstractModel
 
         $jsonData = (array) json_decode($data['additional_data']);
         $data['email_imap_server'] = isset($jsonData['email_imap_server']) ? $jsonData['email_imap_server'] : null;
-        $data['email_imap_server'] = isset($jsonData['email_imap_port']) ? $jsonData['email_imap_port'] : null;
+        $data['email_imap_port'] = isset($jsonData['email_imap_port']) ? $jsonData['email_imap_port'] : null;
         $data['email_imap_ssl'] = isset($jsonData['email_imap_ssl']) ? $jsonData['email_imap_ssl'] : null;
         $data['email_imap_user'] = isset($jsonData['email_imap_user']) ? $jsonData['email_imap_user'] : null;
         $data['email_imap_password'] = isset($jsonData['email_imap_password']) ? $jsonData['email_imap_password'] : null;
+        $data['email_imap_box'] = isset($jsonData['email_imap_box']) ? $jsonData['email_imap_box'] : null;
     }
 }
