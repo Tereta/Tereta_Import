@@ -43,15 +43,15 @@ use Magento\Framework\DataObjectFactory;
 use Exception;
 
 /**
- * Tereta\Import\Model\Import\Extract\Http
+ * Tereta\Import\Model\Import\Processor\Http
  *
  * Class Http
- * @package Tereta\Import\Model\Import\Extract
+ * @package Tereta\Import\Model\Import\Processor
  * @author Tereta Alexander <tereta@mail.ua>
  */
 class Http extends AbstractModel
 {
-    const DIR_PATH = "import/http_url";
+    const DIR_PATH = "import/http";
 
     /**
      * @var IoFile

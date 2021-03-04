@@ -41,10 +41,10 @@ use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\Core\Scope;
 
 /**
- * Tereta\Import\Model\Import\Extract\AbstractModel
+ * Tereta\Import\Model\Import\Processor\AbstractModel
  *
  * Class AbstractModel
- * @package Tereta\Import\Model\Import\Extract
+ * @package Tereta\Import\Model\Import\Processor
  * @author Tereta Alexander <tereta@mail.ua>
  */
 abstract class AbstractModel
