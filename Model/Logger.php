@@ -35,7 +35,9 @@
 namespace Tereta\Import\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Store\Model\ScopeInterface;
+use Monolog\Handler\StreamHandler;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
@@ -48,6 +50,8 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 class Logger extends \Monolog\Logger
 {
     const XML_PATH_CONFIGURATION_DEBUG = 'tereta_import/configuration/debug';
+
+    const LOGGER_DIR = "log/import";
 
     /**
      * @var null
@@ -65,14 +69,26 @@ class Logger extends \Monolog\Logger
     protected $htmlOutput = false;
 
     /**
+     * @var DirectoryList
+     */
+    protected $directoryList;
+
+    /**
      * Logger constructor.
+     * @param DirectoryList $directoryList
      * @param ScopeConfigInterface $scopeConfig
      * @param string $name
      * @param array $handlers
      * @param array $processors
      */
-    public function __construct(ScopeConfigInterface $scopeConfig, $name, array $handlers = [], array $processors = [])
-    {
+    public function __construct(
+        DirectoryList $directoryList,
+        ScopeConfigInterface $scopeConfig,
+        $name,
+        array $handlers = [],
+        array $processors = []
+    ) {
+        $this->directoryList = $directoryList;
         $this->_scopeConfig = $scopeConfig;
 
         parent::__construct($name, $handlers, $processors);
@@ -106,6 +122,13 @@ class Logger extends \Monolog\Logger
      */
     public function addRecord($level, $message, array $context = []): bool
     {
+        if (!$this->handlers) {
+            $logPath = $this->directoryList->getPath(DirectoryList::VAR_DIR) . '/' . static::LOGGER_DIR . '/logging.log';
+            $this->pushHandler(
+                new StreamHandler($logPath, static::DEBUG)
+            );
+        }
+
         $blockCommandOutput = isset($context['blockCommandOutput']) && $context['blockCommandOutput'] == true;
         $allLog = isset($context['allLog']) && $context['allLog'] == true;
 

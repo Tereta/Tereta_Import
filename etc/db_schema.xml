@@ -26,7 +26,6 @@
         <column name="is_in_stock" xsi:type="smallint" nullable="false" default="0" comment="Is In Stock" />
         <column name="products_is_enabled" xsi:type="smallint" nullable="false" default="0" comment="Products Is Enabled" />
         <column name="products_visibility" xsi:type="smallint" nullable="false" default="0" comment="Products Visibility" />
-        <column name="not_case_sensitive_options" xsi:type="smallint" nullable="false" default="0" comment="Not Case Sensitive Options" />
         <column name="product_assign_categories" xsi:type="text" nullable="true" comment="Assign Product to Categories" />
         <column name="create_url_key" xsi:type="boolean" nullable="false" default="false" comment="Create URL keys" />
         <column name="update_url_rewrites" xsi:type="boolean" nullable="false" default="false" comment="Update URL rewrites" />

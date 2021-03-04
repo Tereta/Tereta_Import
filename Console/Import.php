@@ -42,6 +42,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Tereta\Import\Model\ImportFactory;
 use Tereta\Import\Model\ResourceModel\Import as ResourceImport;
 use Tereta\Import\Model\ResourceModel\Import\CollectionFactory as ImportCollectionFactory;
+use Magento\Framework\App\State as AppState;
+use Magento\Framework\App\Area as AppArea;
 
 /**
  * Tereta\Import\Console\Import
@@ -71,13 +73,24 @@ class Import extends Command
     protected $importCollectionFactory;
 
     /**
+     * @var AppState
+     */
+    protected $appState;
+
+    /**
      * Import constructor.
+     * @param AppState $appState
      * @param ImportCollectionFactory $importCollectionFactory
      * @param ImportFactory $importFactory
      * @param ResourceImport $resourceImport
      */
-    public function __construct(ImportCollectionFactory $importCollectionFactory, ImportFactory $importFactory, ResourceImport $resourceImport)
-    {
+    public function __construct(
+        AppState $appState,
+        ImportCollectionFactory $importCollectionFactory,
+        ImportFactory $importFactory,
+        ResourceImport $resourceImport
+    ) {
+        $this->appState = $appState;
         $this->importCollectionFactory = $importCollectionFactory;
         $this->importFactory = $importFactory;
         $this->resourceImport = $resourceImport;
@@ -133,6 +146,8 @@ class Import extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
+        $this->appState->setAreaCode(AppArea::AREA_ADMINHTML);
+
         $identifier = $input->getArgument(static::KEY_IMPORT_IDENTIFIER);
         $importModel = $this->importFactory->create();
 
