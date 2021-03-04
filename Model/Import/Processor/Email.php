@@ -42,6 +42,9 @@ use Tereta\Import\Model\Core\ScopeFactory;
 use Tereta\Import\Model\Email\Factory as EmailFactory;
 use Tereta\Import\Model\Import\ProcessorFactory as ImportProcessorFactory;
 use Tereta\Import\Model\Logger;
+use Magento\Framework\Exception\FileSystemException;
+use Tereta\Import\Model\Import;
+use Tereta\Billing\Model\Exception as BillingException;
 
 /**
  * Tereta\Import\Model\Import\Processor\Email
@@ -97,9 +100,9 @@ class Email extends AbstractModel
     }
 
     /**
-     * @param $dataModel
-     * @throws \Magento\Framework\Exception\FileSystemException
-     * @throws Exception
+     * @param Import $dataModel
+     * @throws FileSystemException
+     * @throws BillingException
      */
     public function import($dataModel): void
     {

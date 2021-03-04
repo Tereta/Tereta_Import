@@ -1,7 +1,7 @@
 <?php
 namespace Tereta\Import\Model\Email;
 
-use Magento\Framework\App\ObjectManager;
+use Magento\Framework\ObjectManagerInterface;
 use Tereta\Billing\Model\Exception;
 use Tereta\Import\Model\Email\Declaration as EmailInterface;
 
@@ -13,16 +13,22 @@ use Tereta\Import\Model\Email\Declaration as EmailInterface;
  */
 class Factory
 {
+    /**
+     * @var ObjectManagerInterface
+     */
     protected $objectManager;
 
+    /**
+     * @var array
+     */
     protected $instances;
 
     /**
      * Factory constructor.
-     * @param ObjectManager $objectManager
+     * @param ObjectManagerInterface $objectManager
      * @param array $instances
      */
-    public function __construct(ObjectManager $objectManager, array $instances = [])
+    public function __construct(ObjectManagerInterface $objectManager, array $instances = [])
     {
         $this->instances = $instances;
         $this->objectManager = $objectManager;
