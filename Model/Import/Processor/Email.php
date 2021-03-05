@@ -37,14 +37,15 @@ namespace Tereta\Import\Model\Import\Processor;
 use Exception;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\Io\File as IoFile;
+use Tereta\Billing\Model\Exception as BillingException;
 use Tereta\Import\Model\Core\ScopeFactory;
 use Tereta\Import\Model\Email\Factory as EmailFactory;
+use Tereta\Import\Model\Email\Filter\ListingFactory as EmailListingFilterFactory;
+use Tereta\Import\Model\Import;
 use Tereta\Import\Model\Import\ProcessorFactory as ImportProcessorFactory;
 use Tereta\Import\Model\Logger;
-use Magento\Framework\Exception\FileSystemException;
-use Tereta\Import\Model\Import;
-use Tereta\Billing\Model\Exception as BillingException;
 
 /**
  * Tereta\Import\Model\Import\Processor\Email
@@ -73,7 +74,13 @@ class Email extends AbstractModel
     protected $dataObjectFactory;
 
     /**
+     * @var EmailListingFilterFactory
+     */
+    protected $emailListingFilterFactory;
+
+    /**
      * Email constructor.
+     * @param EmailListingFilterFactory $emailListingFilterFactory
      * @param EmailFactory $emailFactory
      * @param DataObjectFactory $dataObjectFactory
      * @param ImportProcessorFactory $importProcessorFactory
@@ -83,6 +90,7 @@ class Email extends AbstractModel
      * @param IoFile $ioFile
      */
     public function __construct(
+        EmailListingFilterFactory $emailListingFilterFactory,
         EmailFactory $emailFactory,
         DataObjectFactory $dataObjectFactory,
         ImportProcessorFactory $importProcessorFactory,
@@ -91,6 +99,7 @@ class Email extends AbstractModel
         Logger $logger,
         IoFile $ioFile
     ) {
+        $this->emailListingFilterFactory = $emailListingFilterFactory;
         $this->emailFactory = $emailFactory;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->importProcessorFactory = $importProcessorFactory;
@@ -108,13 +117,6 @@ class Email extends AbstractModel
     {
         $dataModel->start();
 
-        $dirPath = $this->directoryList->getPath('var') . '/' . static::DIR_PATH;
-        $filePath = $dirPath . '/' . $dataModel->getData('entity_id') . '.csv';
-
-        if (!is_dir($dirPath)) {
-            $this->ioFile->mkdir($dirPath, 0775);
-        }
-
         $mailClient = $this->emailFactory->create('imap', [
             'server'   => $dataModel->getData('email_imap_server'),
             'port'     => $dataModel->getData('email_imap_port'),
@@ -124,15 +126,43 @@ class Email extends AbstractModel
             'box'      => $dataModel->getData('email_imap_box')
         ]);
 
-        $emailList = $mailClient->getList();
+        $searchCriteria = $this->emailListingFilterFactory->create(['criteria' => [
+            'from' => 'majboroda.tv@tot.biz.ua',
+            'body' => 'Технооптторг-Трейд',
+            'subject' => 'Прайс'
+        ]]);
 
-        exit('-=-');
-        $result = $this->ioFile->read($dataModel->getData('http_url'), $filePath);
+        $attachment = null;
+        $emailList = $mailClient->getList($searchCriteria);
+        foreach ($emailList as $key => $item) {
+            $attachments = $mailClient->getAttachments($item->getNumber());
+            if (!$attachments) {
+                continue;
+            }
 
-        if (!$result) {
-            throw new Exception(__('Remote file "%1" was not downloaded.', $dataModel->getData('http_url')));
+            list($attachment) = $attachments;
+            break;
         }
 
+        $dirPath = $this->directoryList->getPath('var') . '/' . static::DIR_PATH;
+        $fileNameInfo = pathinfo($attachment->getName());
+        if (isset($fileNameInfo['extension'])) {
+            $fileName = $dataModel->getData('entity_id') . '.' . $fileNameInfo['extension'];
+        } else {
+            throw new Exception(__('The "%1" attachment file should contain extansion', $attachment->getName()));
+        }
+        $filePath = $dirPath . '/' . $fileName;
+
+        if (!is_dir($dirPath)) {
+            $this->ioFile->mkdir($dirPath, 0775);
+        }
+
+        $this->ioFile->open(['path' => $dirPath]);
+        $result = $this->ioFile->write($fileName, $attachment->getBody());
+        if (!$result) {
+            throw new Exception(__('The "%1" attachment was not downloaded.', $attachment->getName()));
+        }
+exit('-=-');
         $processAdaptor = $this->importProcessorFactory->create()->getAdapter('csv');
         $processAdaptor->setLogger($this->logger);
         $dataModel->setData('csv_file', $filePath);

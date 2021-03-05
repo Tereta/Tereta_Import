@@ -7,6 +7,7 @@ use Magento\Framework\DataObjectFactory;
 use Tereta\Import\Model\Email\Declaration as EmailInterface;
 use Tereta\Import\Model\Email\Filter\Listing as FilterListing;
 use Tereta\Import\Model\Email\Filter\ListingFactory as FilterListingFactory;
+use Tereta\Import\Model\Email\Part\AttachmentFactory;
 
 /**
  * Tereta\Import\Model\Email\Imap
@@ -37,16 +38,24 @@ class Imap implements EmailInterface
     protected $resource;
 
     /**
+     * @var AttachmentFactory
+     */
+    protected $attachmentFactory;
+
+    /**
      * Imap constructor.
+     * @param AttachmentFactory $attachmentFactory
      * @param DataObjectFactory $dataObjectFactory
      * @param FilterListingFactory $filterListingFactory
      * @param array $configuration
      */
     public function __construct(
+        AttachmentFactory $attachmentFactory,
         DataObjectFactory $dataObjectFactory,
         FilterListingFactory $filterListingFactory,
         array $configuration = []
     ) {
+        $this->attachmentFactory = $attachmentFactory;
         $this->filterListingFactory = $filterListingFactory;
         $this->dataObjectFactory = $dataObjectFactory;
 
@@ -132,21 +141,93 @@ class Imap implements EmailInterface
 
     /**
      * @param FilterListing|null $filterListing
+     * @param bool $orderDesc
      * @return array
+     * @throws Exception
      */
-    public function getList(?FilterListing $filterListing = null): array
+    public function getList(?FilterListing $filterListing = null, bool $orderDesc = false): array
     {
         $connection = $this->getConnection();
 
+        $list = [];
         $criteria = [];
+        if ($filterListing) {
+            $criteria = $this->buildCriteria($filterListing);
+        }
 
         $messages = imap_search($connection, implode(" ", $criteria));
-        $number = array_pop($messages);
+        if (!$messages) {
+            $messages = [];
+        }
+        if ($orderDesc) {
+            $messages = array_reverse($messages);
+        }
+        foreach ($messages as $number) {
+            $overview = $this->getMessageOverview($number);
+            array_push($list, $overview);
+        }
 
-        $overview = $this->getMessageOverview($number);
-        $this->getMessageBody($number);
+        return $list;
+    }
 
-        exit('-=-');
+    public function getAttachments(int $number)
+    {
+        $connection = $this->getConnection();
+        $attachments = [];
+
+        $structure = imap_fetchstructure($connection, $number);
+        foreach ($structure->parts as $partNumber=>$part) {
+            $part = (array) $part;
+            if (!isset($part['disposition']) || $part['disposition'] != 'ATTACHMENT') {
+                continue;
+            }
+
+            $data = [];
+
+            if (isset($part['parameters'])) {
+                foreach ($part['parameters'] as $param) {
+                    $data[strtolower($param->attribute)] = $param->value;
+                }
+            }
+
+            $body = imap_fetchbody($connection, $number, $partNumber + 1);
+            $body = base64_decode($body);
+
+            $data['body'] = $body;
+
+            array_push($attachments, $this->attachmentFactory->create(['data' => $data]));
+        }
+
+        return $attachments;
+    }
+
+    protected function buildCriteria(?FilterListing $filterListing): array
+    {
+        $criteria = [];
+        if ($filterListing->getAnswered() == true) {
+            array_push($criteria, 'ANSWERED');
+        }
+        if ($filterListing->getAnswered() === false) {
+            array_push($criteria, 'UNANSWERED');
+        }
+        if ($filterListing->getTime()) {
+            array_push($criteria, "BEFORE {$this->valueQuote($filterListing->getTime())}");
+        }
+        if ($filterListing->getFrom()) {
+            array_push($criteria, "FROM {$this->valueQuote($filterListing->getFrom())}");
+        }
+        if ($filterListing->getSubject()) {
+            array_push($criteria, "SUBJECT {$this->valueQuote($filterListing->getSubject())}");
+        }
+        if ($filterListing->getBody()) {
+            array_push($criteria, "BODY {$this->valueQuote($filterListing->getBody())}");
+        }
+        return $criteria;
+    }
+
+    protected function valueQuote(string $value): string
+    {
+        return '"' . str_replace('"', '&quote;', $value) . '"';
     }
 
     public function getMessageBody(int $number): DataObject
@@ -162,12 +243,36 @@ class Imap implements EmailInterface
         $connection = $this->getConnection();
         list($overview) = imap_fetch_overview($connection, $number, 0);
         $result = $this->dataObjectFactory->create();
-        $result->setData('subject', iconv_mime_decode($overview->subject));
-        $result->setData('from', $overview->from);
-        $result->setData('to', $overview->to);
-        $result->setData('message_id', $overview->message_id);
-        $result->setData('uid', $overview->uid);
-        $result->setData('time', $overview->udate);
+
+        $result->setData('number', $number);
+
+        if (isset($overview->subject)) {
+            $result->setData('subject', iconv_mime_decode($overview->subject));
+        }
+
+        if (isset($overview->from)) {
+            $result->setData('from', iconv_mime_decode($overview->from));
+        }
+
+        if (isset($overview->to)) {
+            $result->setData('to', iconv_mime_decode($overview->to));
+        }
+
+        if (isset($overview->message_id)) {
+            $result->setData('message_id', $overview->message_id);
+        }
+
+        if (isset($overview->uid)) {
+            $result->setData('uid', $overview->uid);
+        }
+
+        if (isset($overview->udate)) {
+            $result->setData('time', $overview->udate);
+        }
+
+        if ($result->getTime()) {
+            $result->setData('date_time', date('m.d.y G:i:s', $result->getTime()));
+        }
 
         return $result;
     }
