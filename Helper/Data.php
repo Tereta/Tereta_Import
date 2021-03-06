@@ -42,6 +42,8 @@ use Magento\Framework\App\Filesystem\DirectoryList;
 use Tereta\Import\Model\Import as ModelImport;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\File\Write as FileWrite;
+use Magento\Framework\Filesystem\File\Read as FileRead;
+
 
 /**
  * Tereta\Import\Helper\Data
@@ -144,7 +146,7 @@ class Data extends AbstractHelper
      * @return FileWrite
      * @throws FileSystemException
      */
-    public function getSkippedCsvReadFile(string $identifier): FileWrite
+    public function getSkippedCsvReadFile(string $identifier): FileRead
     {
         $varDir = $this->filesystem->getDirectoryRead(DirectoryList::VAR_DIR);
         $fileName = $identifier . '.skipped.csv';
