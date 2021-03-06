@@ -141,10 +141,10 @@ class Data extends AbstractHelper
 
     /**
      * @param string $identifier
-     * @return string
+     * @return FileWrite
      * @throws FileSystemException
      */
-    public function getSkippedCsvReadFile(string $identifier): string
+    public function getSkippedCsvReadFile(string $identifier): FileWrite
     {
         $varDir = $this->filesystem->getDirectoryRead(DirectoryList::VAR_DIR);
         $fileName = $identifier . '.skipped.csv';
