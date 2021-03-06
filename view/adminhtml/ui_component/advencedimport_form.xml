@@ -619,7 +619,6 @@
             </item>
         </argument>
 
-
         <field name="http_url">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -760,6 +759,29 @@
         </argument>
 
         <field name="csv_file">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string">Document Local Source</item>
+                    <item name="visible" xsi:type="boolean">true</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="formElement" xsi:type="string">input</item>
+                    <item name="source" xsi:type="string">advencedimport</item>
+                </item>
+            </argument>
+        </field>
+    </fieldset>
+
+    <fieldset name="advencedimport_fieldset_xls">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string">XLS</item>
+                <item name="collapsible" xsi:type="boolean">true</item>
+                <item name="additionalClasses" xsi:type="string">advencedimport_fieldset_extract_type advencedimport_fieldset_extract_type_xls</item>
+                <item name="sortOrder" xsi:type="number">200</item>
+            </item>
+        </argument>
+
+        <field name="xls_file">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string">Document Local Source</item>

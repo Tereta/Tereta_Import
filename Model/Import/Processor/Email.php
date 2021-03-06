@@ -40,6 +40,7 @@ use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\Io\File as IoFile;
 use Tereta\Billing\Model\Exception as BillingException;
+use Tereta\Import\Helper\Data as Helper;
 use Tereta\Import\Model\Core\ScopeFactory;
 use Tereta\Import\Model\Email\Factory as EmailFactory;
 use Tereta\Import\Model\Email\Filter\ListingFactory as EmailListingFilterFactory;
@@ -79,7 +80,13 @@ class Email extends AbstractModel
     protected $emailListingFilterFactory;
 
     /**
+     * @var Helper
+     */
+    protected $helper;
+
+    /**
      * Email constructor.
+     * @param Helper $helper
      * @param EmailListingFilterFactory $emailListingFilterFactory
      * @param EmailFactory $emailFactory
      * @param DataObjectFactory $dataObjectFactory
@@ -90,6 +97,7 @@ class Email extends AbstractModel
      * @param IoFile $ioFile
      */
     public function __construct(
+        Helper $helper,
         EmailListingFilterFactory $emailListingFilterFactory,
         EmailFactory $emailFactory,
         DataObjectFactory $dataObjectFactory,
@@ -99,6 +107,7 @@ class Email extends AbstractModel
         Logger $logger,
         IoFile $ioFile
     ) {
+        $this->helper = $helper;
         $this->emailListingFilterFactory = $emailListingFilterFactory;
         $this->emailFactory = $emailFactory;
         $this->dataObjectFactory = $dataObjectFactory;
@@ -113,7 +122,7 @@ class Email extends AbstractModel
      * @throws FileSystemException
      * @throws BillingException
      */
-    public function import($dataModel): void
+    public function import(Import $dataModel): void
     {
         $dataModel->start();
 
@@ -162,10 +171,20 @@ class Email extends AbstractModel
         if (!$result) {
             throw new Exception(__('The "%1" attachment was not downloaded.', $attachment->getName()));
         }
-exit('-=-');
-        $processAdaptor = $this->importProcessorFactory->create()->getAdapter('csv');
+
+        $extension = $this->helper->getFileExtension($filePath);
+
+        try {
+            $processAdaptor = $this->importProcessorFactory->create()->getAdapter($extension);
+            if (!$processAdaptor::IS_FILE) {
+                throw new Exception();
+            }
+        } catch (Exception $e) {
+            throw new Exception(__('The "%1" extenstion is not allowed', $extension));
+        }
+
         $processAdaptor->setLogger($this->logger);
-        $dataModel->setData('csv_file', $filePath);
+        $dataModel->setData('import_file', $filePath);
         $processAdaptor->import($dataModel);
         $dataModel->finish();
 

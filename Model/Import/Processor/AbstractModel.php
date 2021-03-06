@@ -49,6 +49,8 @@ use Tereta\Import\Model\Core\Scope;
  */
 abstract class AbstractModel
 {
+    const IS_FILE = false;
+
     /**
      * @var ScopeFactory
      */

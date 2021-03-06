@@ -40,6 +40,7 @@ use Magento\Framework\Filesystem\Directory\ReadFactory as DirectoryReadFactory;
 use Magento\ImportExport\Model\Import\Source\CsvFactory;
 
 use Tereta\Import\Model\Core\ScopeFactory as ScopeFactory;
+use Tereta\Import\Model\Import;
 use Tereta\Import\Model\Logger;
 
 /**
@@ -90,13 +91,16 @@ class Csv extends AbstractModel
         parent::__construct($directoryList, $scopeFactory, $logger);
     }
 
-    /**
+    /**extends AbstractModel
      * @param $dataModel
      * @return mixed|void
      */
-    public function import($dataModel): void
+    public function import(Import $dataModel): void
     {
         $file = $dataModel->getData('csv_file');
+        if (!$file) {
+            $file = $dataModel->getData('import_file');
+        }
 
         $this->logger->info(__('Import starting...'));
 
