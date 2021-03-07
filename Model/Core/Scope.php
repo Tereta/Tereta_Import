@@ -42,29 +42,28 @@ use Magento\Eav\Api\AttributeOptionManagementInterface;
 use Magento\Eav\Api\Data\AttributeOptionInterfaceFactory;
 use Magento\Eav\Api\Data\AttributeOptionLabelInterfaceFactory;
 use Magento\Eav\Model\AttributeRepository;
-use Magento\Eav\Model\Entity\Attribute\Source\Table as SourceTable;
+use Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend;
 use Magento\Eav\Model\Entity\Attribute\Source\Boolean as SourceBoolean;
+use Magento\Eav\Model\Entity\Attribute\Source\Table as SourceTable;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Filesystem\Io\File as IoFile;
 use Magento\Framework\Filesystem\File\Write as FileWrite;
-use Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend;
+use Magento\Framework\Filesystem\Io\File as IoFile;
 
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
 
+use Tereta\Import\Helper\Data as HelperData;
 use Tereta\Import\Model\Core\Scope\AttributeSetFactory;
 use Tereta\Import\Model\Core\Scope\ExtensionFactory;
 use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\ResourceModel\Core\Scope as ScopeResource;
 use Tereta\Import\Model\ResourceModel\Core\ScopeFactory as ScopeResourceFactory;
-use Tereta\Import\Helper\Data as HelperData;
-
 
 /**
  * Tereta\Import\Model\Core\Scope
@@ -625,40 +624,40 @@ class Scope extends AbstractModel
         switch ($attribute->getAttributeCode()) {
             case('status'):
                 $optionsDataReverce->setData([]);
-                $optionsDataReverce->setData('enabled',  $attribute->getSource()::STATUS_ENABLED);
-                $optionsDataReverce->setData('on',       $attribute->getSource()::STATUS_ENABLED);
-                $optionsDataReverce->setData('true',     $attribute->getSource()::STATUS_ENABLED);
-                $optionsDataReverce->setData('yes',      $attribute->getSource()::STATUS_ENABLED);
+                $optionsDataReverce->setData('enabled', $attribute->getSource()::STATUS_ENABLED);
+                $optionsDataReverce->setData('on', $attribute->getSource()::STATUS_ENABLED);
+                $optionsDataReverce->setData('true', $attribute->getSource()::STATUS_ENABLED);
+                $optionsDataReverce->setData('yes', $attribute->getSource()::STATUS_ENABLED);
                 $optionsDataReverce->setData('disabled', $attribute->getSource()::STATUS_DISABLED);
-                $optionsDataReverce->setData('off',      $attribute->getSource()::STATUS_DISABLED);
-                $optionsDataReverce->setData('false',    $attribute->getSource()::STATUS_DISABLED);
-                $optionsDataReverce->setData('no',       $attribute->getSource()::STATUS_DISABLED);
-                $optionsDataReverce->setData($attribute->getSource()::STATUS_ENABLED,  $attribute->getSource()::STATUS_ENABLED);
+                $optionsDataReverce->setData('off', $attribute->getSource()::STATUS_DISABLED);
+                $optionsDataReverce->setData('false', $attribute->getSource()::STATUS_DISABLED);
+                $optionsDataReverce->setData('no', $attribute->getSource()::STATUS_DISABLED);
+                $optionsDataReverce->setData($attribute->getSource()::STATUS_ENABLED, $attribute->getSource()::STATUS_ENABLED);
                 $optionsDataReverce->setData($attribute->getSource()::STATUS_DISABLED, $attribute->getSource()::STATUS_DISABLED);
                 break;
             case('visibility'):
-                $optionsDataReverce->setData('invisible',   $attribute->getSource()::VISIBILITY_NOT_VISIBLE);
+                $optionsDataReverce->setData('invisible', $attribute->getSource()::VISIBILITY_NOT_VISIBLE);
                 $optionsDataReverce->setData('not visible', $attribute->getSource()::VISIBILITY_NOT_VISIBLE);
-                $optionsDataReverce->setData('hide',        $attribute->getSource()::VISIBILITY_NOT_VISIBLE);
-                $optionsDataReverce->setData('hidden',      $attribute->getSource()::VISIBILITY_NOT_VISIBLE);
-                $optionsDataReverce->setData('in catalog',  $attribute->getSource()::VISIBILITY_IN_CATALOG);
-                $optionsDataReverce->setData('in search',   $attribute->getSource()::VISIBILITY_IN_SEARCH);
-                $optionsDataReverce->setData('catalog',     $attribute->getSource()::VISIBILITY_IN_CATALOG);
-                $optionsDataReverce->setData('search',      $attribute->getSource()::VISIBILITY_IN_SEARCH);
-                $optionsDataReverce->setData('both',        $attribute->getSource()::VISIBILITY_BOTH);
-                $optionsDataReverce->setData('all',         $attribute->getSource()::VISIBILITY_BOTH);
-                $optionsDataReverce->setData('everywhere',  $attribute->getSource()::VISIBILITY_BOTH);
+                $optionsDataReverce->setData('hide', $attribute->getSource()::VISIBILITY_NOT_VISIBLE);
+                $optionsDataReverce->setData('hidden', $attribute->getSource()::VISIBILITY_NOT_VISIBLE);
+                $optionsDataReverce->setData('in catalog', $attribute->getSource()::VISIBILITY_IN_CATALOG);
+                $optionsDataReverce->setData('in search', $attribute->getSource()::VISIBILITY_IN_SEARCH);
+                $optionsDataReverce->setData('catalog', $attribute->getSource()::VISIBILITY_IN_CATALOG);
+                $optionsDataReverce->setData('search', $attribute->getSource()::VISIBILITY_IN_SEARCH);
+                $optionsDataReverce->setData('both', $attribute->getSource()::VISIBILITY_BOTH);
+                $optionsDataReverce->setData('all', $attribute->getSource()::VISIBILITY_BOTH);
+                $optionsDataReverce->setData('everywhere', $attribute->getSource()::VISIBILITY_BOTH);
                 $optionsDataReverce->setData($attribute->getSource()::VISIBILITY_NOT_VISIBLE, $attribute->getSource()::VISIBILITY_NOT_VISIBLE);
-                $optionsDataReverce->setData($attribute->getSource()::VISIBILITY_IN_CATALOG,  $attribute->getSource()::VISIBILITY_IN_CATALOG);
-                $optionsDataReverce->setData($attribute->getSource()::VISIBILITY_IN_SEARCH,   $attribute->getSource()::VISIBILITY_IN_SEARCH);
-                $optionsDataReverce->setData($attribute->getSource()::VISIBILITY_BOTH,        $attribute->getSource()::VISIBILITY_BOTH);
+                $optionsDataReverce->setData($attribute->getSource()::VISIBILITY_IN_CATALOG, $attribute->getSource()::VISIBILITY_IN_CATALOG);
+                $optionsDataReverce->setData($attribute->getSource()::VISIBILITY_IN_SEARCH, $attribute->getSource()::VISIBILITY_IN_SEARCH);
+                $optionsDataReverce->setData($attribute->getSource()::VISIBILITY_BOTH, $attribute->getSource()::VISIBILITY_BOTH);
                 break;
             default:
-                $optionsDataReverce->setData('yes',   $attribute->getSource()::VALUE_YES);
-                $optionsDataReverce->setData('no',    $attribute->getSource()::VALUE_NO);
-                $optionsDataReverce->setData('on',    $attribute->getSource()::VALUE_YES);
-                $optionsDataReverce->setData('off',   $attribute->getSource()::VALUE_NO);
-                $optionsDataReverce->setData('true',  $attribute->getSource()::VALUE_YES);
+                $optionsDataReverce->setData('yes', $attribute->getSource()::VALUE_YES);
+                $optionsDataReverce->setData('no', $attribute->getSource()::VALUE_NO);
+                $optionsDataReverce->setData('on', $attribute->getSource()::VALUE_YES);
+                $optionsDataReverce->setData('off', $attribute->getSource()::VALUE_NO);
+                $optionsDataReverce->setData('true', $attribute->getSource()::VALUE_YES);
                 $optionsDataReverce->setData('false', $attribute->getSource()::VALUE_NO);
                 $optionsDataReverce->setData(1, $attribute->getSource()::VALUE_YES);
                 $optionsDataReverce->setData(0, $attribute->getSource()::VALUE_NO);
@@ -842,7 +841,7 @@ class Scope extends AbstractModel
             $option->setSortOrder(0);
             $option->setIsDefault(false);
 
-            try{
+            try {
                 $this->_attributeOptionManagement->add(
                     \Magento\Catalog\Model\Product::ENTITY,
                     $attributeModel->getAttributeId(),

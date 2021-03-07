@@ -52,6 +52,8 @@ use Tereta\Import\Model\Logger;
  */
 class Csv extends AbstractModel
 {
+    const IS_FILE = true;
+
     /**
      * @var CsvFactory
      */
