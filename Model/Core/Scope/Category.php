@@ -34,12 +34,15 @@
 
 namespace Tereta\Import\Model\Core\Scope;
 
+use Exception;
+use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Model\Indexer\Category\Product as IndexerCategoryProduct;
 use Magento\Catalog\Model\Indexer\Product\Category as IndexerProductCategory;
 use Magento\Catalog\Model\Indexer\Product\Price\Processor as IndexerProductPrice;
 use Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor as IndexerProductProductRule;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
@@ -61,6 +64,28 @@ class Category extends AbstractModel
      */
     protected $mappingCategories = [];
 
+    /**
+     * @var CategoryRepositoryInterface
+     */
+    protected $categoryRepository;
+
+    /**
+     * @var array
+     */
+    protected $isCategoryExists = [];
+
+    /**
+     * Category constructor.
+     * @param Context $context
+     * @param Registry $registry
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param DataObject $configuration
+     * @param CategoryResourceFactory $categoryResourceFactory
+     * @param CategoryRepositoryInterface $categoryRepository
+     * @param Logger $logger
+     * @param array $data
+     */
     public function __construct(
         Context $context,
         Registry $registry,
@@ -68,9 +93,11 @@ class Category extends AbstractModel
         AbstractDb $resourceCollection = null,
         DataObject $configuration,
         CategoryResourceFactory $categoryResourceFactory,
+        CategoryRepositoryInterface $categoryRepository,
         Logger $logger,
         array $data = []
     ) {
+        $this->categoryRepository = $categoryRepository;
         $this->resourceModel = $categoryResourceFactory->create();
 
         parent::__construct($context, $registry, $resource, $resourceCollection, $configuration, $logger, $data);
@@ -126,7 +153,38 @@ class Category extends AbstractModel
 
         $data['product_category_ids'] = $this->getMappedCategories($categoryIds);
 
+        foreach ($data['product_category_ids'] as $key => $categoryId) {
+            if (!$this->isCategoryExists($categoryId)) {
+                unset($data['product_category_ids'][$key]);
+            }
+        }
+
+        if (!count($data['product_category_ids'])) {
+            return;
+        }
+
         $this->getResource()->collect($data);
+    }
+
+    /**
+     * @param string $categoryId
+     * @return bool
+     * @throws NoSuchEntityException
+     */
+    protected function isCategoryExists(string $categoryId): bool
+    {
+        if (isset($this->isCategoryExists[$categoryId])) {
+            return $this->isCategoryExists[$categoryId];
+        }
+
+        try {
+            $this->categoryRepository->get($categoryId);
+            $this->isCategoryExists[$categoryId] = true;
+        } catch (Exception $e) {
+            $this->isCategoryExists[$categoryId] = false;
+        }
+
+        return $this->isCategoryExists[$categoryId];
     }
 
     /**

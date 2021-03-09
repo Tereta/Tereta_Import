@@ -230,7 +230,11 @@ class Extension extends AbstractModel
     {
         foreach ($this->registeredClasses as $key=>$item) {
             $debugTime = time();
-            $this->get($key)->save();
+            try {
+                $this->get($key)->save();
+            } catch (Exception $e) {
+                throw $e;
+            }
             $this->logger->debug(__("Save '%1' (%2sec).", $key, (time() - $debugTime)));
         }
     }

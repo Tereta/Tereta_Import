@@ -42,7 +42,7 @@ use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Indexer\IndexerRegistry;
-
+use Tereta\Import\Model\ResourceModel\Import as ResourceImport;
 use Magento\Framework\Model\AbstractModel;
 
 use Magento\Framework\Model\Context;
@@ -66,6 +66,11 @@ use Tereta\Import\Model\Import\Processor\AbstractModel as ImportProcessorAbstrac
  */
 class Import extends AbstractModel
 {
+    /**
+     *
+     */
+    const LOGGER_DIR = "log/import";
+
     /**
      * @var ImportExtract
      */
@@ -142,15 +147,16 @@ class Import extends AbstractModel
     ];
 
     /**
-     *
+     * @var ResourceImport
      */
-    const LOGGER_DIR = "log/import";
+    protected $resourceImport;
 
     /**
      * Import constructor.
+     * @param ResourceImport $resourceImport
      * @param IndexerRegistry $indexerRegistry
      * @param DirectoryList $directoryList
-     * @param \Tereta\Import\Model\LoggerFactory $loggerFactory
+     * @param LoggerFactory $loggerFactory
      * @param ImportProcessor $importProcessor
      * @param Context $context
      * @param Registry $registry
@@ -161,6 +167,7 @@ class Import extends AbstractModel
      * @param array $data
      */
     public function __construct(
+        ResourceImport $resourceImport,
         IndexerRegistry $indexerRegistry,
         DirectoryList $directoryList,
         LoggerFactory $loggerFactory,
@@ -173,6 +180,7 @@ class Import extends AbstractModel
         AbstractDb $resourceCollection = null,
         array $data = []
     ) {
+        $this->resourceImport = $resourceImport;
         $this->indexerRegistry = $indexerRegistry;
         $this->directoryList = $directoryList;
         $this->loggerFactory = $loggerFactory;
@@ -188,7 +196,7 @@ class Import extends AbstractModel
      */
     protected function _construct(): void
     {
-        $this->_init('Tereta\Import\Model\ResourceModel\Import');
+        $this->_init(ResourceImport::class);
     }
 
     /**
@@ -249,7 +257,7 @@ class Import extends AbstractModel
      */
     public function importById(int $id): void
     {
-        $this->load($id, 'entity_id');
+        $this->resourceImport->load($this, $id);
 
         if (!$this->getData('entity_id')) {
             throw new Exception('The configuration by the "' . $id . '" id was not found.');
@@ -257,6 +265,8 @@ class Import extends AbstractModel
 
         $adapterModel = $this->getProcessorAdapter();
         $adapterModel->import($this);
+
+        $ee=0;
     }
 
     /**
@@ -421,12 +431,12 @@ class Import extends AbstractModel
     {
         $this->reindex();
 
-        $this->setData('generated_at', time());
+        $this->setData('generated_at', (string) date('Y-m-d G:i:s', time()));
         if ($this->startTime) {
             $this->setData('generation_time', time() - $this->startTime);
         }
 
-        $this->save();
+        $this->resourceImport->save($this);
 
         if ($this->startTime) {
             $this->logger->debug(__('Full import finished during %1sec.', (time() - $this->startTime)));
