@@ -354,11 +354,11 @@ class Scope extends AbstractModel
         // Appennd classes collected
         $this->extension->collect($data);
 
-        $this->_collectTypeValues(static::ATTRIBUTE_TYPE_INT, $data);
-        $this->_collectTypeValues(static::ATTRIBUTE_TYPE_DECIMAL, $data);
-        $this->_collectTypeValues(static::ATTRIBUTE_TYPE_DATETIME, $data);
-        $this->_collectTypeValues(static::ATTRIBUTE_TYPE_TEXT, $data);
-        $this->_collectTypeValues(static::ATTRIBUTE_TYPE_VARCHAR, $data);
+        $this->collectTypeValues(static::ATTRIBUTE_TYPE_INT, $data);
+        $this->collectTypeValues(static::ATTRIBUTE_TYPE_DECIMAL, $data);
+        $this->collectTypeValues(static::ATTRIBUTE_TYPE_DATETIME, $data);
+        $this->collectTypeValues(static::ATTRIBUTE_TYPE_TEXT, $data);
+        $this->collectTypeValues(static::ATTRIBUTE_TYPE_VARCHAR, $data);
     }
 
     protected function logSkippedRecordCsv($object): void
@@ -488,7 +488,7 @@ class Scope extends AbstractModel
             $this->logger->debug(__('DB transaction has beed commited (%1sec).', (time() - $debugTime)));
 
             // Indexation common indexes
-            $this->configuration->flushProductToReindex();
+            $this->configuration->flushProductsToReindex();
             foreach ($this->skuEntities->getData() as $item) {
                 $this->configuration->addProductToReindex($item['entity_id']);
             }
@@ -697,7 +697,7 @@ class Scope extends AbstractModel
      * @param string $attributeType
      * @param array $data
      */
-    protected function _collectTypeValues(string $attributeType, array $data): void
+    protected function collectTypeValues(string $attributeType, array $data): void
     {
         if (!$this->getValue('sku', $data)) {
             $this->logger->debug('Tying to find ID for SKU: SKU not found');
@@ -750,7 +750,7 @@ class Scope extends AbstractModel
                 continue;
             }
 
-            $this->_collectTypeValuesProcessOptions($attributeCode, $value);
+            $this->collectTypeValuesProcessOptions($attributeCode, $value);
 
             if (!isset($this->_attributeTypeEntities[$attributeType])) {
                 $this->_attributeTypeEntities[$attributeType] = [];
@@ -782,7 +782,7 @@ class Scope extends AbstractModel
      * @param $value
      * @throws Exception
      */
-    protected function _collectTypeValuesProcessOptions(string $attributeCode, &$value): void
+    protected function collectTypeValuesProcessOptions(string $attributeCode, &$value): void
     {
         if (!$value || !isset($this->attributeOptions[$attributeCode]) || !isset($this->attributeOptionsReverce[$attributeCode])) {
             return;
@@ -791,7 +791,7 @@ class Scope extends AbstractModel
         $this->attributeOptions[$attributeCode];
         $this->attributeOptionsReverce[$attributeCode];
 
-        $this->_collectTypeValuesAddOptions($attributeCode, $value);
+        $this->collectTypeValuesAddOptions($attributeCode, $value);
     }
 
     protected $multiSelectSeparator = ';';
@@ -801,7 +801,7 @@ class Scope extends AbstractModel
      * @param string $value
      * @throws Exception
      */
-    protected function _collectTypeValuesAddOptions(string $attributeCode, string &$sourceValue): void
+    protected function collectTypeValuesAddOptions(string $attributeCode, string &$sourceValue): void
     {
         $attributeModel = $this->attributeModels->getData($attributeCode);
 

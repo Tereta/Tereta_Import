@@ -34,6 +34,7 @@
 
 namespace Tereta\Import\Model;
 
+use Exception;
 use Magento\Catalog\Model\Indexer\Product\Eav\Processor as IndexerEav;
 use Magento\Catalog\Model\Indexer\Product\Flat\Processor as IndexerFlat;
 use Magento\Catalog\Model\Indexer\Product\Price\Processor as IndexerPrice;
@@ -41,21 +42,21 @@ use Magento\CatalogSearch\Model\Indexer\Fulltext\Processor as IndexerFulltext;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObjectFactory;
-use Magento\Framework\Indexer\IndexerRegistry;
-use Tereta\Import\Model\ResourceModel\Import as ResourceImport;
+use Magento\Framework\Exception\FileSystemException;
+
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\AbstractModel;
 
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
-
 use Magento\Framework\Registry;
+use Magento\Indexer\Model\IndexerFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Tereta\Import\Model\Import\Processor as ImportProcessor;
-use Exception;
-use Magento\Framework\Exception\FileSystemException;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Tereta\Import\Model\Import\Processor\AbstractModel as ImportProcessorAbstract;
+use Tereta\Import\Model\Import\Processor as ImportProcessor;
+
+use Tereta\Import\Model\ResourceModel\Import as ResourceImport;
 
 /**
  * Tereta\Import\Model\Import
@@ -117,11 +118,6 @@ class Import extends AbstractModel
     protected $directoryList;
 
     /**
-     * @var IndexerRegistry
-     */
-    protected $indexerRegistry;
-
-    /**
      * @var array
      */
     protected $processorAdapter = [];
@@ -151,10 +147,11 @@ class Import extends AbstractModel
      */
     protected $resourceImport;
 
+    protected $indexerFactory;
+
     /**
      * Import constructor.
      * @param ResourceImport $resourceImport
-     * @param IndexerRegistry $indexerRegistry
      * @param DirectoryList $directoryList
      * @param LoggerFactory $loggerFactory
      * @param ImportProcessor $importProcessor
@@ -168,7 +165,7 @@ class Import extends AbstractModel
      */
     public function __construct(
         ResourceImport $resourceImport,
-        IndexerRegistry $indexerRegistry,
+        IndexerFactory $indexerFactory,
         DirectoryList $directoryList,
         LoggerFactory $loggerFactory,
         ImportProcessor $importProcessor,
@@ -181,7 +178,7 @@ class Import extends AbstractModel
         array $data = []
     ) {
         $this->resourceImport = $resourceImport;
-        $this->indexerRegistry = $indexerRegistry;
+        $this->indexerFactory = $indexerFactory;
         $this->directoryList = $directoryList;
         $this->loggerFactory = $loggerFactory;
         $this->_storeManager = $storeManager;
@@ -446,7 +443,7 @@ class Import extends AbstractModel
     /**
      *
      */
-    public function flushProductToReindex(): void
+    public function flushProductsToReindex(): void
     {
         $this->reindexProductIds = [];
     }
@@ -483,7 +480,10 @@ class Import extends AbstractModel
         foreach ($this->indexes as $index) {
             try {
                 $time = time();
-                $this->indexerRegistry->get($index)->reindexList($productIds);
+                $indexer = $this->indexerFactory->create();
+                $indexer->load($index);
+                $indexer->reindexList($productIds);
+
                 $this->logger->debug('The ' . $index . ' index with ' . count($productIds) . ' products was processed in: ' . (time() - $time) . 'sec.');
             } catch (\Exception $e) {
                 $this->logger->debug('The ' . $index . ' index with ' . count($productIds) . ' products is not avaliable.');
