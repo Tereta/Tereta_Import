@@ -390,7 +390,7 @@ class Scope extends AbstractModel
         $attributeCode = $this->mapAttributes->getData($fieldLabel);
 
         if (!$attributeCode) {
-            $attributeCode = $fieldLabel;
+            $attributeCode = [$fieldLabel];
         }
 
         return $attributeCode;
