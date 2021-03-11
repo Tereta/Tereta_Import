@@ -292,11 +292,7 @@ class Scope extends AbstractModel
     public function collectItem(array $csvData): void
     {
         // Convert mapped fields
-        $data = [];
-        $searchByField = ($this->configuration->getData('product_search_by_field') && !$this->configuration->getData('product_create_new'));
-        if (!$searchByField && !isset($csvData[$this->getRevertedMapAttribute('sku')])) {
-            throw new LocalizedException(__('SKU field in the document can not be found'));
-        }
+        $dataObject = $this->_dataObjectFactory->create();
 
         foreach ($csvData as $key=>$item) {
             if (!trim($key)) {
@@ -319,8 +315,31 @@ class Scope extends AbstractModel
             }
 
             foreach ($this->getMapAttribute(trim($key)) as $mappedAttribute) {
-                $data[$mappedAttribute] = trim($item);
+                $dataObject->setData($mappedAttribute, trim($item));
             }
+        }
+
+        // Visibility and Status from configurations
+        if (!$dataObject->hasData('visibility') && $this->configuration->getData('products_visibility')) {
+            $dataObject->setData('visibility', $this->configuration->getData('products_visibility'));
+        }
+
+        if ($dataObject->hasData('status') && $this->configuration->getData('products_is_enabled')) {
+            $dataObject->setData('status', $this->configuration->getData('products_is_enabled'));
+        }
+
+        $this->_eventManager->dispatch('tereta_import_scope_modify_data', [
+            'data_object' => $dataObject,
+            'model_import' => $this->configuration
+        ]);
+
+        $data = $dataObject->getData();
+
+        // Collect data
+        // Search by field
+        $searchByField = ($this->configuration->getData('product_search_by_field') && !$this->configuration->getData('product_create_new'));
+        if (!$searchByField && !isset($csvData[$this->getRevertedMapAttribute('sku')])) {
+            throw new LocalizedException(__('SKU field in the document can not be found'));
         }
 
         if ($searchByField) {
@@ -334,21 +353,7 @@ class Scope extends AbstractModel
             }
         }
 
-        // Visibility and Status from configurations
-        if (!isset($data['visibility']) && $this->configuration->getData('products_visibility')) {
-            $data['visibility'] = $this->configuration->getData('products_visibility');
-        }
-
-        if (!isset($data['status']) && $this->configuration->getData('products_is_enabled')) {
-            $data['status'] = $this->configuration->getData('products_is_enabled');
-        }
-
-        $this->_eventManager->dispatch('tereta_import_scope_modify_data', [
-            'data' => &$data,
-            'model_import' => $this->configuration
-        ]);
-
-        // Collect data
+        // Collect
         $this->_collected = true;
         $sku = trim($this->getValue('sku', $data));
 
