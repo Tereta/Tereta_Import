@@ -577,7 +577,7 @@ class Scope extends AbstractModel
     protected function _prepareAttributesOptions(EavAttribute $attribute): void
     {
         $isSourceModel = ($attribute->getSourceModel() instanceof SourceTable);
-        $isInput = in_array($attribute->getData('frontend_input'), ['select', 'multiselect']);
+        $isInput = in_array($attribute->getData('frontend_input'), ['select', 'multiselect', 'boolean']);
         if (!$isSourceModel && !$isInput) {
             return;
         }
