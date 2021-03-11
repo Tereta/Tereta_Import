@@ -137,17 +137,22 @@ class DataProvider extends DataProviderExtend
         if (!$importModel->getCategoryId()) {
             $importModel->setData('category_id', null);
         }
-        $data = $importModel->getData();
-        if ($data['type']) {
-            $this->importModel->getProcessorAdapter($data['type'])->decodeData($data);
+
+        if ($type = $importModel->getData('type')) {
+            $this->importModel->getProcessorAdapter($type)->decodeData($importModel);
         }
 
-        $data['product_assign_categories'] = $data['product_assign_categories'] ? json_decode($data['product_assign_categories']) : [];
-        if (!$data['product_attribute_set']) {
-            $data['product_attribute_set'] = null;
+        if ($productAssignCategories = $importModel->getData('product_assign_categories')) {
+            $importModel->setData('product_assign_categories', json_decode($productAssignCategories));
+        } else {
+            $importModel->setData('product_assign_categories', []);
         }
 
-        $this->loadedData[$importModel->getEntityId()] = $data;
+        if (!$importModel->getData('product_attribute_set')) {
+            $importModel->setData('product_attribute_set', null);
+        }
+
+        $this->loadedData[$importModel->getEntityId()] = $importModel->getData();
 
         return $this->loadedData;
     }

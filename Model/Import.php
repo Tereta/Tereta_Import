@@ -225,9 +225,18 @@ class Import extends AbstractModel
     /**
      * @return array
      */
-    public function getProcessorAdapters(): array
+    public function getProcessorAdapters(bool $fullDescription = false): array
     {
-        return $this->processor->getData();
+        if ($fullDescription) {
+            return $this->processor->getData();
+        }
+
+        $result = [];
+        foreach ($this->processor->getData() as $key => $item) {
+            $result[$key] = $item['class'];
+        }
+
+        return $result;
     }
 
     /**
@@ -292,26 +301,47 @@ class Import extends AbstractModel
      * @param array $data
      * @throws Exception
      */
-    public function encodeData(array &$data): void
+    public function encodeData(): void
     {
         if (!$this->getProcessorAdapter()) {
             return;
         }
 
-        $this->getProcessorAdapter()->encodeData($data);
+        if (!$this->getData('additional_data')) {
+            $this->setData('additional_data', $this->_dataObjectFactory->create());
+        } elseif (is_string($this->getData('additional_data'))) {
+            $this->decodeData();
+        }
+
+        foreach ($this->getProcessorAdapters() as $adapter) {
+            $adapter->encodeData($this);
+        }
+
+        $this->setData(
+            'additional_data',
+            json_encode($this->getData('additional_data')->getData())
+        );
     }
 
     /**
      * @param array $data
      * @throws Exception
      */
-    public function decodeData(array &$data): void
+    public function decodeData(): void
     {
         if (!$this->getProcessorAdapter()) {
             return;
         }
 
-        $this->getProcessorAdapter()->decodeData($data);
+        if (is_string($this->getData('additional_data'))) {
+            $this->setData('additional_data', $this->_dataObjectFactory->create([
+                'data' => (array) json_decode($this->getData('additional_data'))
+            ]));
+        }
+
+        foreach ($this->getProcessorAdapters() as $adapter) {
+            $adapter->decodeData($this);
+        }
     }
 
     /**
@@ -333,9 +363,7 @@ class Import extends AbstractModel
         if (!$this->getData('type')) {
             return parent::beforeSave();
         }
-        $data = $this->getData();
-        $this->encodeData($data);
-        $this->setData($data);
+        $this->encodeData();
 
         return parent::beforeSave();
     }
@@ -362,9 +390,7 @@ class Import extends AbstractModel
         }
         // - Logger
 
-        $data = $this->getData();
-        $this->decodeData($data);
-        $this->setData($data);
+        $this->decodeData($this);
 
         if ($skipDocumentFields = $this->getData('skip_document_fields')) {
             $this->setData('skip_document_fields_object', $this->_dataObjectFactory->create(['data' => (array) json_decode($skipDocumentFields)]));

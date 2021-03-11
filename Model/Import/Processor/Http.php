@@ -39,6 +39,7 @@ use Magento\Framework\Filesystem\Io\File as IoFile;
 use Tereta\Import\Model\Core\ScopeFactory;
 use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\Import\ProcessorFactory as ImportProcessorFactory;
+use Tereta\Import\Model\Import as ImportModel;
 use Magento\Framework\DataObjectFactory;
 use Exception;
 
@@ -128,26 +129,20 @@ class Http extends AbstractModel
     }
 
     /**
-     * @param $data
+     * @param ImportModel $importModel
      */
-    public function encodeData(array &$data): void
+    public function encodeData(ImportModel $importModel): void
     {
-        $jsonData = [];
-        $jsonData['http_url'] = $data['http_url'];
-
-        $data['additional_data'] = json_encode($jsonData);
+        $additionalData = $importModel->getData('additional_data');
+        $additionalData->setData('http_url', $importModel->getData('http_url'));
     }
 
     /**
-     * @param $data
+     * @param ImportModel $importModel
      */
-    public function decodeData(array &$data): void
+    public function decodeData(ImportModel $importModel): void
     {
-        if (!$data['additional_data']) {
-            return;
-        }
-
-        $jsonData = (array) json_decode($data['additional_data']);
-        $data['http_url'] = isset($jsonData['http_url']) ? $jsonData['http_url'] : null;
+        $additionalData = $importModel->getData('additional_data');
+        $importModel->setData('http_url', $additionalData->getData('http_url'));
     }
 }

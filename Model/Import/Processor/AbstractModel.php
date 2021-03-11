@@ -90,10 +90,11 @@ abstract class AbstractModel
     }
 
     /**
-     * @param $dataModel
-     * @return mixed
+     * @param ImportModel $dataModel
      */
-    abstract public function import(ImportModel $dataModel): void;
+    public function import(ImportModel $dataModel): void
+    {
+    }
 
     /**
      * @param ImportModel $importModel
@@ -108,16 +109,16 @@ abstract class AbstractModel
     }
 
     /**
-     * @param $data
+     * @param ImportModel $data
      */
-    public function encodeData(array &$data): void
+    public function encodeData(ImportModel $data): void
     {
     }
 
     /**
-     * @param $data
+     * @param Import $importModel
      */
-    public function decodeData(array &$data): void
+    public function decodeData(ImportModel $importModel): void
     {
     }
 

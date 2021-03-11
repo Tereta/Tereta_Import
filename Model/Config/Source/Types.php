@@ -71,7 +71,7 @@ class Types implements ArrayInterface
             ['value' => '', 'label' => __('Select Type')]
         ];
 
-        $adapters = $this->_importModel->getProcessorAdapters();
+        $adapters = $this->_importModel->getProcessorAdapters(true);
 
         foreach ($adapters as $key=>$item) {
             array_push($return, ['value' => $key, 'label' => __($item['label'])]);

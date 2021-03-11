@@ -40,7 +40,7 @@ use Magento\Framework\Filesystem\Directory\ReadFactory as DirectoryReadFactory;
 use Magento\ImportExport\Model\Import\Source\CsvFactory;
 
 use Tereta\Import\Model\Core\ScopeFactory as ScopeFactory;
-use Tereta\Import\Model\Import;
+use Tereta\Import\Model\Import as ImportModel;
 use Tereta\Import\Model\Logger;
 
 /**
@@ -97,7 +97,7 @@ class Csv extends AbstractModel
      * @param $dataModel
      * @return mixed|void
      */
-    public function import(Import $dataModel): void
+    public function import(ImportModel $dataModel): void
     {
         $file = $dataModel->getData('csv_file');
         if (!$file) {
@@ -153,26 +153,20 @@ class Csv extends AbstractModel
     }
 
     /**
-     * @param array $data
+     * @param ImportModel $importModel
      */
-    public function encodeData(array &$data): void
+    public function encodeData(ImportModel $importModel): void
     {
-        $jsonData = [];
-        $jsonData['csv_file'] = $data['csv_file'];
-
-        $data['additional_data'] = json_encode($jsonData);
+        $additionalData = $importModel->getData('additional_data');
+        $additionalData->setData('csv_file', $importModel->getData('csv_file'));
     }
 
     /**
-     * @param array $data
+     * @param ImportModel $importModel
      */
-    public function decodeData(array &$data): void
+    public function decodeData(ImportModel $importModel): void
     {
-        if (!$data['additional_data']) {
-            return;
-        }
-
-        $jsonData = (array) json_decode($data['additional_data']);
-        $data['csv_file'] = isset($jsonData['csv_file']) ? $jsonData['csv_file'] : null;
+        $additionalData = $importModel->getData('additional_data');
+        $importModel->setData('csv_file', $additionalData->getData('csv_file'));
     }
 }

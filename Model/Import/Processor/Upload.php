@@ -39,6 +39,7 @@ use Magento\Framework\Filesystem\Io\File as IoFile;
 use Tereta\Import\Model\Core\ScopeFactory;
 use Tereta\Import\Model\Import\ProcessorFactory as ImportProcessorFactory;
 use Tereta\Import\Model\Logger;
+use Tereta\Import\Model\Import as ImportModel;
 
 /**
  * Tereta\Import\Model\Import\Processor\Upload
@@ -138,30 +139,28 @@ class Upload extends AbstractModel
     }
 
     /**
-     * @param array $data
+     * @param ImportModel $importModel
      */
-    public function encodeData(array &$data): void
+    public function encodeData(ImportModel $importModel): void
     {
         $dataUploadFile = null;
-        $data['additional_data'] = '';
-        if (isset($data['upload_file']) && $data['upload_file']) {
-            $dataUploadFile = reset($data['upload_file']);
-            $data['additional_data'] = json_encode($dataUploadFile);
+        $additionalData = $importModel->getData('additional_data');
+        if ($uploadFile = $importModel->getData('upload_file')) {
+            $dataUploadFile = reset($uploadFile);
+            $additionalData->setData('upload_file', json_encode($dataUploadFile));
         }
+
+        $e=0;
     }
 
     /**
-     * @param array $data
+     * @param ImportModel $importModel
      */
-    public function decodeData(array &$data): void
+    public function decodeData(ImportModel $importModel): void
     {
-        if (!$data['additional_data']) {
-            return;
-        }
-
-        $jsonData = (array) json_decode($data['additional_data']);
-        if ($jsonData) {
-            $data['upload_file'] = [$jsonData];
+        $additionalData = $importModel->getData('additional_data');
+        if ($additionalData->getData('upload_file')) {
+            $importModel->setData('upload_file', [json_decode($additionalData->getData('upload_file'))]);
         }
     }
 }
