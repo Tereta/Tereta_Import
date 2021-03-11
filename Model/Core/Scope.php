@@ -391,6 +391,8 @@ class Scope extends AbstractModel
 
         if (!$attributeCode) {
             $attributeCode = [$fieldLabel];
+        } elseif (is_string($attributeCode)) {
+            $attributeCode = [$attributeCode];
         }
 
         return $attributeCode;
