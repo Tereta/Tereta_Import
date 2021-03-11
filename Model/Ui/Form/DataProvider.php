@@ -40,6 +40,7 @@ use Magento\Framework\Api\Search\SearchCriteriaBuilder;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider as DataProviderExtend;
 use Tereta\Import\Model\Import as ImportModel;
+use Tereta\Import\Model\Import\Repository as ImportRepository;
 use Tereta\Import\Model\ResourceModel\Import\CollectionFactory as ImportCollectionFactory;
 
 /**
@@ -54,17 +55,22 @@ class DataProvider extends DataProviderExtend
     /**
      * @var
      */
-    protected $_importCollection;
+    protected $importCollection;
 
     /**
      * @var array
      */
-    protected $_loadedData = [];
+    protected $loadedData = [];
 
     /**
      * @var ImportModel
      */
-    protected $_importModel;
+    protected $importModel;
+
+    /**
+     * @var ImportRepository
+     */
+    protected $importRepository;
 
     /**
      * DataProvider constructor.
@@ -90,11 +96,13 @@ class DataProvider extends DataProviderExtend
         RequestInterface $request,
         FilterBuilder $filterBuilder,
         ImportModel $importModel,
+        ImportRepository $importRepository,
         array $meta = [],
         array $data = []
     ) {
-        $this->_importCollection = $importCollectionFactory->create();
-        $this->_importModel = $importModel;
+        $this->importRepository = $importRepository;
+        $this->importCollection = $importCollectionFactory->create();
+        $this->importModel = $importModel;
 
         parent::__construct(
             $name,
@@ -114,26 +122,33 @@ class DataProvider extends DataProviderExtend
      */
     public function getData(): array
     {
-        $items = $this->_importCollection->getItems();
+        $actionId = $this->request->getParam('entity_id');
 
-        if ($this->_loadedData) {
-            return $this->_loadedData;
+        if (!$actionId) {
+            return $this->loadedData;
         }
 
-        foreach ($items as $item) {
-            if (!$item->getCategoryId()) {
-                $item->setData('category_id', null);
-            }
-            $data = $item->getData();
-            if ($data['type']) {
-                $this->_importModel->getProcessorAdapter($data['type'])->decodeData($data);
-            }
+        $importModel = $this->importRepository->getById($actionId);
 
-            $data['product_assign_categories'] = $data['product_assign_categories'] ? json_decode($data['product_assign_categories']) : [];
-
-            $this->_loadedData[$item->getId()] = $data;
+        if ($this->loadedData || !$importModel) {
+            return $this->loadedData;
         }
 
-        return $this->_loadedData;
+        if (!$importModel->getCategoryId()) {
+            $importModel->setData('category_id', null);
+        }
+        $data = $importModel->getData();
+        if ($data['type']) {
+            $this->importModel->getProcessorAdapter($data['type'])->decodeData($data);
+        }
+
+        $data['product_assign_categories'] = $data['product_assign_categories'] ? json_decode($data['product_assign_categories']) : [];
+        if (!$data['product_attribute_set']) {
+            $data['product_attribute_set'] = null;
+        }
+
+        $this->loadedData[$importModel->getEntityId()] = $data;
+
+        return $this->loadedData;
     }
 }

@@ -106,6 +106,8 @@ class Save extends Action
 
             if (isset($data['product_assign_categories'])) {
                 $data['product_assign_categories'] = json_encode($data['product_assign_categories']);
+            } else {
+                $data['product_assign_categories'] = null;
             }
 
             $data['updated_at'] = time();

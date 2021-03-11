@@ -209,7 +209,8 @@ class Stock extends AbstractDb
         $record = [
             'product_id' => null,
             'website_id' => (string)$websiteId,
-            'stock_id' => (string)$stockId
+            'stock_id'   => (string)$stockId,
+            'qty'        => 0
         ];
 
         if (!isset($data['manage_stock']) && !is_null($this->getManageStockConfig())) {
