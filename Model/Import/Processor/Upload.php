@@ -40,6 +40,7 @@ use Tereta\Import\Model\Core\ScopeFactory;
 use Tereta\Import\Model\Import\ProcessorFactory as ImportProcessorFactory;
 use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\Import as ImportModel;
+use Magento\Framework\Exception\FileSystemException;
 
 /**
  * Tereta\Import\Model\Import\Processor\Upload
@@ -98,8 +99,8 @@ class Upload extends AbstractModel
             $uploadFile = reset($uploadFile);
         }
 
-        if ($uploadFile && isset($uploadFile['file'])) {
-            $uploadFile = $uploadFile['file'];
+        if ($uploadFile && isset($uploadFile->file)) {
+            $uploadFile = $uploadFile->file;
         } else {
             return;
         }
@@ -111,30 +112,31 @@ class Upload extends AbstractModel
     }
 
     /**
-     * @param $object
+     * @param ImportModel $modelImport
      * @throws FileSystemException
      */
-    public function afterSave($object): void
+    public function afterSave(ImportModel $modelImport): void
     {
-        $data = $object->getData();
         $importDir = $this->directoryList->getPath('media') . '/' . static::DIR_PATH;
         $isChanged = false;
-        if (isset($data['upload_file']) && $data['upload_file']) {
-            foreach ($data['upload_file'] as $key=>$item) {
+        if ($modelImport->getData('upload_file')) {
+            $uploadFile = [];
+            foreach ($modelImport->getData('upload_file') as $key=>$item) {
                 $tempPrefix = 'temp_';
                 if (substr($item['file'], 0, strlen($tempPrefix)) == $tempPrefix) {
                     $currentFileName = $item['file'];
-                    $item['file'] = $object->getId() . '.' . pathinfo($currentFileName, PATHINFO_EXTENSION);
+                    $item['file'] = $modelImport->getId() . '.' . pathinfo($currentFileName, PATHINFO_EXTENSION);
                     $this->ioFile->mv($importDir . '/' . $currentFileName, $importDir . '/' . $item['file']);
-                    $data['upload_file'][$key] = $item;
+                    $uploadFile[$key] = $item;
                     $isChanged = true;
                 }
             }
+
+            $modelImport->setData('upload_file', $uploadFile);
         }
 
         if ($isChanged) {
-            $object->setData($data);
-            $object->save();
+            $modelImport->save();
         }
     }
 
@@ -149,8 +151,6 @@ class Upload extends AbstractModel
             $dataUploadFile = reset($uploadFile);
             $additionalData->setData('upload_file', json_encode($dataUploadFile));
         }
-
-        $e=0;
     }
 
     /**

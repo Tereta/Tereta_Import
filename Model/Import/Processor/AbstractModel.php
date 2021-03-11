@@ -83,9 +83,9 @@ abstract class AbstractModel
     }
 
     /**
-     * @param $object
+     * @param ImportModel $modelImport
      */
-    public function afterSave($object): void
+    public function afterSave(ImportModel $modelImport): void
     {
     }
 

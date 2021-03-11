@@ -307,10 +307,8 @@ class Import extends AbstractModel
             return;
         }
 
-        if (!$this->getData('additional_data')) {
+        if (!$this->getData('additional_data') || is_string($this->getData('additional_data'))) {
             $this->setData('additional_data', $this->_dataObjectFactory->create());
-        } elseif (is_string($this->getData('additional_data'))) {
-            $this->decodeData();
         }
 
         foreach ($this->getProcessorAdapters() as $adapter) {
