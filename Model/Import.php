@@ -387,9 +387,15 @@ class Import extends AbstractModel
         if ($mappingAttribute = $this->getData('mapping_attribute')) {
             $data = json_decode($mappingAttribute);
             $dataObject = $this->_dataObjectFactory->create();
+            $mapData = [];
             foreach ($data as $item) {
-                $dataObject->setData($item->key, $item->value);
+                if (!isset($mapData[$item->key])) {
+                    $mapData[$item->key] = [];
+                }
+
+                array_push($mapData[$item->key], $item->value);
             }
+            $dataObject->setData($mapData);
             $this->setData('mapping_attribute_object', $dataObject);
         } else {
             $this->setData('mapping_attribute_object', $this->_dataObjectFactory->create());

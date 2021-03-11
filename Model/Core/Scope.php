@@ -318,7 +318,9 @@ class Scope extends AbstractModel
                 $item = '';
             }
 
-            $data[$this->getMapAttribute(trim($key))] = trim($item);
+            foreach ($this->getMapAttribute(trim($key)) as $mappedAttribute) {
+                $data[$mappedAttribute] = trim($item);
+            }
         }
 
         if ($searchByField) {
@@ -377,9 +379,9 @@ class Scope extends AbstractModel
 
     /**
      * @param string $fieldLabel
-     * @return string
+     * @return array|null
      */
-    protected function getMapAttribute(string $fieldLabel): ?string
+    protected function getMapAttribute(string $fieldLabel): ?array
     {
         $fieldLabel = trim($fieldLabel);
         if (!$fieldLabel) {
@@ -519,11 +521,14 @@ class Scope extends AbstractModel
                 continue;
             }
 
-            $mappedAttribute = $this->getMapAttribute($csvField);
-            if (!$mappedAttribute) {
+            $mappedAttributes = $this->getMapAttribute($csvField);
+            if (!$mappedAttributes) {
                 continue;
             }
-            array_push($attributes, $mappedAttribute);
+
+            foreach ($mappedAttributes as $mappedAttribute) {
+                array_push($attributes, $mappedAttribute);
+            }
         }
 
         $attributes = array_merge($attributes, $this->extension->getIncludeAttributes());
