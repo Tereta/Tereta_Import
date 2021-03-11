@@ -343,6 +343,11 @@ class Scope extends AbstractModel
             $data['status'] = $this->configuration->getData('products_is_enabled');
         }
 
+        $this->_eventManager->dispatch('tereta_import_scope_modify_data', [
+            'data' => &$data,
+            'model_import' => $this->configuration
+        ]);
+
         // Collect data
         $this->_collected = true;
         $sku = trim($this->getValue('sku', $data));
