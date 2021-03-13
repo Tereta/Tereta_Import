@@ -152,4 +152,16 @@ class Data extends AbstractHelper
         $fileName = $identifier . '.skipped.csv';
         return $varDir->openFile(ModelImport::LOGGER_DIR . '/' . $fileName, 'r');
     }
+
+    /**
+     * @param string $identifier
+     * @return string|null
+     */
+    public function getSkippedCsvPath(string $identifier): ?string
+    {
+        $varDir = $this->filesystem->getDirectoryRead(DirectoryList::VAR_DIR);
+        $fileName = $identifier . '.skipped.csv';
+
+        return $varDir->getAbsolutePath() . ModelImport::LOGGER_DIR . '/' . $fileName;
+    }
 }

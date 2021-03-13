@@ -103,7 +103,7 @@ class Import extends AbstractModel
     protected $_adapter = [];
 
     /**
-     * @var \Tereta\Import\Model\LoggerFactory
+     * @var LoggerFactory
      */
     protected $loggerFactory;
 
@@ -147,6 +147,9 @@ class Import extends AbstractModel
      */
     protected $resourceImport;
 
+    /**
+     * @var IndexerFactory
+     */
     protected $indexerFactory;
 
     /**
@@ -438,6 +441,9 @@ class Import extends AbstractModel
         $this->htmlOutput = $boolean;
     }
 
+    /**
+     * @return mixed
+     */
     public function getHtmlOutput()
     {
         return $this->htmlOutput;

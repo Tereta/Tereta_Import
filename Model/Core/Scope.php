@@ -380,7 +380,7 @@ class Scope extends AbstractModel
         }
 
         if (!$this->logSkippedRecordCsv) {
-            $this->logSkippedRecordCsv = $this->helperData->getSkippedCsvWriteFile($this->configuration->getData('identifier'), true);
+            $this->logSkippedRecordCsv = $this->helperData->getSkippedCsvWriteFile($this->configuration->getData('identifier'));
             $this->logSkippedRecordCsv->writeCsv(array_keys($object));
         }
 

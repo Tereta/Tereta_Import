@@ -13,16 +13,41 @@ use Tereta\Import\Model\ResourceModel\Import as ResourceImport;
  */
 class Repository
 {
+    /**
+     * @var ModelImportFactory
+     */
     protected $modelImportFactory;
+
+    /**
+     * @var ResourceImport
+     */
     protected $resourceImport;
+
+    /**
+     * @var array
+     */
     protected $getById = [];
 
+    /**
+     * @var array
+     */
+    protected $getByIdentifier = [];
+
+    /**
+     * Repository constructor.
+     * @param ModelImportFactory $modelImportFactory
+     * @param ResourceImport $resourceImport
+     */
     public function __construct(ModelImportFactory $modelImportFactory, ResourceImport $resourceImport)
     {
         $this->modelImportFactory = $modelImportFactory;
         $this->resourceImport = $resourceImport;
     }
 
+    /**
+     * @param int $id
+     * @return ModelImport
+     */
     public function getById(int $id): ModelImport
     {
         if (isset($this->getById[$id])) {
@@ -31,10 +56,40 @@ class Repository
         $modelImport = $this->modelImportFactory->create();
         $this->resourceImport->load($modelImport, $id);
         if (!$modelImport->getId()) {
-            throw new Exception(__('The #%1 import model was not found', $id));
+            throw new Exception(__('The "#%1" import model was not found', $id));
         }
 
-        $this->getById[$id] = $modelImport;
+        $this->cacheModel($modelImport);
+
         return $this->getById[$id];
+    }
+
+    /**
+     * @param string $identifier
+     * @return ModelImport
+     */
+    public function getByIdentifier(string $identifier): ModelImport
+    {
+        if (isset($this->getByIdentifier[$identifier])) {
+            return $this->getByIdentifier[$identifier];
+        }
+        $modelImport = $this->modelImportFactory->create();
+        $this->resourceImport->load($modelImport, $identifier, 'identifier');
+        if (!$modelImport->getId()) {
+            throw new Exception(__('The "#%1" import model was not found', $identifier));
+        }
+
+        $this->cacheModel($modelImport);
+
+        return $this->getByIdentifier[$identifier];
+    }
+
+    /**
+     * @param ModelImport $modelImport
+     */
+    protected function cacheModel(ModelImport $modelImport): void
+    {
+        $this->getById[$modelImport->getEntityId()] = $modelImport;
+        $this->getByIdentifier[$modelImport->getIdentifier()] = $modelImport;
     }
 }
