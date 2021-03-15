@@ -130,19 +130,19 @@ class Http extends AbstractModel
 
     /**
      * @param ImportModel $importModel
+     * @param array $variables
      */
-    public function encodeData(ImportModel $importModel): void
+    public function encodeData(ImportModel $importModel, array $variables = []): void
     {
-        $additionalData = $importModel->getData('additional_data');
-        $additionalData->setData('http_url', $importModel->getData('http_url'));
+        parent::encodeData($importModel, ['http_url']);
     }
 
     /**
      * @param ImportModel $importModel
+     * @param array $variables
      */
-    public function decodeData(ImportModel $importModel): void
+    public function decodeData(ImportModel $importModel, array $variables = []): void
     {
-        $additionalData = $importModel->getData('additional_data');
-        $importModel->setData('http_url', $additionalData->getData('http_url'));
+        parent::decodeData($importModel, ['http_url']);
     }
 }

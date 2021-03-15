@@ -154,19 +154,19 @@ class Csv extends AbstractModel
 
     /**
      * @param ImportModel $importModel
+     * @param array $variables
      */
-    public function encodeData(ImportModel $importModel): void
+    public function encodeData(ImportModel $importModel, array $variables = []): void
     {
-        $additionalData = $importModel->getData('additional_data');
-        $additionalData->setData('csv_file', $importModel->getData('csv_file'));
+        parent::encodeData($importModel, ['csv_file']);
     }
 
     /**
      * @param ImportModel $importModel
+     * @param array $variables
      */
-    public function decodeData(ImportModel $importModel): void
+    public function decodeData(ImportModel $importModel, array $variables = []): void
     {
-        $additionalData = $importModel->getData('additional_data');
-        $importModel->setData('csv_file', $additionalData->getData('csv_file'));
+        parent::decodeData($importModel, ['csv_file']);
     }
 }

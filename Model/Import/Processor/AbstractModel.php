@@ -110,16 +110,35 @@ abstract class AbstractModel
 
     /**
      * @param ImportModel $data
+     * @param array $variables
      */
-    public function encodeData(ImportModel $data): void
+    public function encodeData(ImportModel $importModel, array $variables = []): void
     {
+        $additionalData = $importModel->getData('additional_data');
+        foreach ($variables as $key => $value) {
+            if (is_numeric($key)) {
+                $key = $value;
+            }
+
+            $additionalData->setData($value, $importModel->getData($key));
+        }
     }
 
     /**
-     * @param Import $importModel
+     * @param ImportModel $importModel
+     * @param array $variables
      */
-    public function decodeData(ImportModel $importModel): void
+    public function decodeData(ImportModel $importModel, array $variables = []): void
     {
+        $additionalData = $importModel->getData('additional_data');
+
+        foreach ($variables as $key => $value) {
+            if (is_numeric($key)) {
+                $key = $value;
+            }
+
+            $importModel->setData($value, $additionalData->getData($key));
+        }
     }
 
     /**

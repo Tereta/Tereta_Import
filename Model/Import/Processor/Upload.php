@@ -142,8 +142,9 @@ class Upload extends AbstractModel
 
     /**
      * @param ImportModel $importModel
+     * @param array $variables
      */
-    public function encodeData(ImportModel $importModel): void
+    public function encodeData(ImportModel $importModel, array $variables = []): void
     {
         $dataUploadFile = null;
         $additionalData = $importModel->getData('additional_data');
@@ -155,8 +156,9 @@ class Upload extends AbstractModel
 
     /**
      * @param ImportModel $importModel
+     * @param array $variables
      */
-    public function decodeData(ImportModel $importModel): void
+    public function decodeData(ImportModel $importModel, array $variables = []): void
     {
         $additionalData = $importModel->getData('additional_data');
         if ($additionalData->getData('upload_file')) {
