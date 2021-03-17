@@ -35,6 +35,8 @@
 namespace Tereta\Import\Model\Import\Processor;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Event\ManagerInterface as EventManager;
 use Magento\Framework\Filesystem\Io\File as IoFile;
 use Tereta\Import\Model\Core\ScopeFactory;
 use Tereta\Import\Model\Import\ProcessorFactory as ImportProcessorFactory;
@@ -70,6 +72,8 @@ class Upload extends AbstractModel
      * Upload constructor.
      * @param ImportProcessorFactory $importProcessorFactory
      * @param IoFile $ioFile
+     * @param DataObjectFactory $dataObjectFactory
+     * @param EventManager $eventManager
      * @param DirectoryList $directoryList
      * @param ScopeFactory $scopeFactory
      * @param Logger $logger
@@ -77,6 +81,8 @@ class Upload extends AbstractModel
     public function __construct(
         ImportProcessorFactory $importProcessorFactory,
         IoFile $ioFile,
+        DataObjectFactory $dataObjectFactory,
+        EventManager $eventManager,
         DirectoryList $directoryList,
         ScopeFactory $scopeFactory,
         Logger $logger
@@ -84,7 +90,7 @@ class Upload extends AbstractModel
         $this->ioFile = $ioFile;
         $this->importProcessorFactory = $importProcessorFactory;
 
-        parent::__construct($directoryList, $scopeFactory, $logger);
+        parent::__construct($dataObjectFactory, $eventManager, $directoryList, $scopeFactory, $logger);
     }
 
     /**

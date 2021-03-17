@@ -35,6 +35,7 @@
 namespace Tereta\Import\Model\Import\Processor;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Event\ManagerInterface as EventManager;
 use Magento\Framework\Filesystem\Io\File as IoFile;
 use Tereta\Import\Model\Core\ScopeFactory;
 use Tereta\Import\Model\Logger;
@@ -71,26 +72,26 @@ class Http extends AbstractModel
 
     /**
      * Http constructor.
-     * @param DataObjectFactory $dataObjectFactory
      * @param ImportProcessorFactory $importProcessorFactory
-     * @param DirectoryList $dirList
+     * @param IoFile $ioFile
+     * @param DataObjectFactory $dataObjectFactory
+     * @param EventManager $eventManager
+     * @param DirectoryList $directoryList
      * @param ScopeFactory $scopeFactory
      * @param Logger $logger
-     * @param IoFile $ioFile
      */
     public function __construct(
-        DataObjectFactory $dataObjectFactory,
         ImportProcessorFactory $importProcessorFactory,
-        DirectoryList $dirList,
+        IoFile $ioFile,
+        DataObjectFactory $dataObjectFactory,
+        EventManager $eventManager,
+        DirectoryList $directoryList,
         ScopeFactory $scopeFactory,
-        Logger $logger,
-        IoFile $ioFile
+        Logger $logger
     ) {
-        $this->dataObjectFactory = $dataObjectFactory;
         $this->importProcessorFactory = $importProcessorFactory;
         $this->ioFile = $ioFile;
-
-        parent::__construct($dirList, $scopeFactory, $logger);
+        parent::__construct($dataObjectFactory, $eventManager, $directoryList, $scopeFactory, $logger);
     }
 
     /**

@@ -39,6 +39,8 @@ use Tereta\Import\Model\Core\ScopeFactory as ScopeFactory;
 use Tereta\Import\Model\Import as ImportModel;
 use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\Core\Scope;
+use Magento\Framework\Event\ManagerInterface as EventManager;
+use Magento\Framework\DataObjectFactory;
 
 /**
  * Tereta\Import\Model\Import\Processor\AbstractModel
@@ -67,16 +69,32 @@ abstract class AbstractModel
     protected $logger;
 
     /**
+     * @var EventManager
+     */
+    protected $eventManager;
+
+    /**
+     * @var DataObjectFactory
+     */
+    protected $dataObjectFactory;
+
+    /**
      * AbstractModel constructor.
+     * @param DataObjectFactory $dataObjectFactory
+     * @param EventManager $eventManager
      * @param DirectoryList $directoryList
      * @param ScopeFactory $scopeFactory
      * @param Logger $logger
      */
     public function __construct(
+        DataObjectFactory $dataObjectFactory,
+        EventManager $eventManager,
         DirectoryList $directoryList,
         ScopeFactory $scopeFactory,
         Logger $logger
     ) {
+        $this->dataObjectFactory = $dataObjectFactory;
+        $this->eventManager = $eventManager;
         $this->directoryList = $directoryList;
         $this->logger = $logger;
         $this->scopeFactory = $scopeFactory;

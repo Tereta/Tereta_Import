@@ -397,7 +397,13 @@ class Scope extends AbstractModel
         if (!$fieldLabel) {
             return null;
         }
-        $attributeCode = $this->mapAttributes->getData($fieldLabel);
+
+        $mapData = $this->mapAttributes->getData();
+        if (isset($mapData[$fieldLabel])) {
+            $attributeCode = $mapData[$fieldLabel];
+        } else {
+            $attributeCode = null;
+        }
 
         if (!$attributeCode) {
             $attributeCode = [$fieldLabel];

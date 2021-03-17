@@ -35,6 +35,8 @@
 namespace Tereta\Import\Model\Import\Processor;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Event\ManagerInterface as EventManager;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\Directory\ReadFactory as DirectoryReadFactory;
 use Magento\ImportExport\Model\Import\Source\CsvFactory;
@@ -73,24 +75,28 @@ class Csv extends AbstractModel
      * Csv constructor.
      * @param Filesystem $fileSystem
      * @param CsvFactory $csvFactory
+     * @param DirectoryReadFactory $directoryReadFactory
+     * @param DataObjectFactory $dataObjectFactory
+     * @param EventManager $eventManager
      * @param DirectoryList $directoryList
      * @param ScopeFactory $scopeFactory
      * @param Logger $logger
-     * @param DirectoryReadFactory $directoryReadFactory
      */
     public function __construct(
         Filesystem $fileSystem,
         CsvFactory $csvFactory,
+        DirectoryReadFactory $directoryReadFactory,
+        DataObjectFactory $dataObjectFactory,
+        EventManager $eventManager,
         DirectoryList $directoryList,
         ScopeFactory $scopeFactory,
-        Logger $logger,
-        DirectoryReadFactory $directoryReadFactory
+        Logger $logger
     ) {
         $this->fileSystem = $fileSystem;
         $this->csvFactory = $csvFactory;
         $this->directoryReadFactory = $directoryReadFactory;
 
-        parent::__construct($directoryList, $scopeFactory, $logger);
+        parent::__construct($dataObjectFactory, $eventManager, $directoryList, $scopeFactory, $logger);
     }
 
     /**extends AbstractModel
