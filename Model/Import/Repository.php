@@ -4,6 +4,7 @@ namespace Tereta\Import\Model\Import;
 use Tereta\Import\Model\Import as ModelImport;
 use Tereta\Import\Model\ImportFactory as ModelImportFactory;
 use Tereta\Import\Model\ResourceModel\Import as ResourceImport;
+use Exception;
 
 /**
  * Tereta\Import\Model\Import\Repository
