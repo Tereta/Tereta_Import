@@ -273,9 +273,11 @@ class Import extends AbstractModel
         }
 
         $adapterModel = $this->getProcessorAdapter();
-        $adapterModel->import($this);
+        if (!$adapterModel) {
+            throw new Exception('The import type is not selected.');
+        }
 
-        $ee=0;
+        $adapterModel->import($this);
     }
 
     /**
