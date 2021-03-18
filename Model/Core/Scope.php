@@ -324,7 +324,7 @@ class Scope extends AbstractModel
             $dataObject->setData('visibility', $this->configuration->getData('products_visibility'));
         }
 
-        if ($dataObject->hasData('status') && $this->configuration->getData('products_is_enabled')) {
+        if (!$dataObject->hasData('status') && $this->configuration->getData('products_is_enabled')) {
             $dataObject->setData('status', $this->configuration->getData('products_is_enabled'));
         }
 
