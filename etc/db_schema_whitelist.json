@@ -1,0 +1,70 @@
+{
+    "tereta_import": {
+        "column": {
+            "entity_id": true,
+            "is_active": true,
+            "identifier": true,
+            "name": true,
+            "type": true,
+            "cron_expression": true,
+            "updated_at": true,
+            "generated_at": true,
+            "generation_time": true,
+            "additional_data": true,
+            "scope_limit": true,
+            "product_create_new": true,
+            "product_attribute_set": true,
+            "product_search_by_field": true,
+            "create_new_options": true,
+            "store_id": true,
+            "mapping_attribute": true,
+            "mapping_categories": true,
+            "skip_empty_attributes": true,
+            "clear_empty_attributes": true,
+            "manage_stock": true,
+            "is_in_stock": true,
+            "products_is_enabled": true,
+            "products_visibility": true,
+            "product_assign_categories": true,
+            "create_url_key": true,
+            "update_url_rewrites": true,
+            "skip_document_fields": true,
+            "log_not_existing_records": true
+        },
+        "index": {
+            "TERETA_IMPORT_IS_ACTIVE": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "tereta_import_media": {
+        "column": {
+            "value_id": true,
+            "url": true
+        },
+        "index": {
+            "TERETA_IMPORT_MEDIA_URL": true
+        },
+        "constraint": {
+            "TERETA_IMPORT_MDA_VAL_ID_CAT_PRD_ENTT_MDA_GLR_VAL_ID": true,
+            "PRIMARY": true
+        }
+    },
+    "tereta_import_values_update": {
+        "column": {
+            "time_id": true,
+            "attribute_id": true,
+            "store_id": true,
+            "entity_id": true,
+            "last_update": true
+        },
+        "constraint": {
+            "TERETA_IMPORT_VALUES_UPDATE_ENTITY_ID_ATTRIBUTE_ID_STORE_ID": true,
+            "TERETA_IMPORT_VALS_UPDATE_ATTR_ID_EAV_ATTR_ATTR_ID": true,
+            "TERETA_IMPORT_VALS_UPDATE_ENTT_ID_CAT_PRD_ENTT_ENTT_ID": true,
+            "TERETA_IMPORT_VALUES_UPDATE_STORE_ID_STORE_STORE_ID": true,
+            "PRIMARY": true
+        }
+    }
+}
