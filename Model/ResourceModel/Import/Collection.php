@@ -35,6 +35,8 @@
 namespace Tereta\Import\Model\ResourceModel\Import;
 
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
+use Tereta\Import\Model\Import as ModelImport;
+use Tereta\Import\Model\ResourceModel\Import as ResourceImport;
 
 /**
  * Tereta\Import\Model\ResourceModel\Import\Collection
@@ -52,7 +54,7 @@ class Collection extends AbstractCollection
      */
     public function _construct(): void
     {
-        $this->_init('Tereta\Import\Model\Import', 'Tereta\Import\Model\ResourceModel\Import');
+        $this->_init(ModelImport::class, ResourceImport::class);
     }
 
 }
