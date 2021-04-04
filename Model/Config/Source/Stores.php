@@ -34,7 +34,7 @@
 
 namespace Tereta\Import\Model\Config\Source;
 
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -44,12 +44,12 @@ use Magento\Store\Model\StoreManagerInterface;
  * @package Tereta\SeoFilters\Model\Config\Source
  * @author Tereta Alexander <tereta@mail.ua>
  */
-class Stores implements ArrayInterface
+class Stores implements OptionSourceInterface
 {
     /**
      * @var StoreManagerInterface
      */
-    protected $_storeManager;
+    protected $storeManager;
 
     /**
      * Stores constructor.
@@ -57,7 +57,7 @@ class Stores implements ArrayInterface
      */
     public function __construct(StoreManagerInterface $storeManager)
     {
-        $this->_storeManager = $storeManager;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -68,7 +68,7 @@ class Stores implements ArrayInterface
         $return = [];
 
         array_push($return, ['value' => 0, 'label' => __('All Store Views')]);
-        foreach ($this->_storeManager->getStores() as $storeModel) {
+        foreach ($this->storeManager->getStores() as $storeModel) {
             array_push($return, ['value' => $storeModel->getStoreId(), 'label' => $storeModel->getName()]);
         }
 
