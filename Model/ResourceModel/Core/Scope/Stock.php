@@ -199,7 +199,7 @@ class Stock extends AbstractDb
             $record['qty'] = $data['qty'];
         }
 
-        if (!isset($record['stock_status']) && !isset($record['qty'])) {
+        if (false && !isset($record['stock_status']) && !isset($record['qty'])) { // Create empty stocks
             return;
         }
 
@@ -209,8 +209,7 @@ class Stock extends AbstractDb
         $record = [
             'product_id' => null,
             'website_id' => (string)$websiteId,
-            'stock_id'   => (string)$stockId,
-            'qty'        => 0
+            'stock_id'   => (string)$stockId
         ];
 
         if (!isset($data['manage_stock']) && !is_null($this->getManageStockConfig())) {
