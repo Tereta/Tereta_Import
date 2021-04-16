@@ -44,6 +44,7 @@ use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\FileSystemException;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\AbstractModel;
 
@@ -527,5 +528,103 @@ class Import extends AbstractModel
                 $this->logger->debug('The ' . $index . ' index with ' . count($productIds) . ' products is not avaliable.');
             }
         }
+    }
+
+    /**
+     * @param array $row
+     * @return array
+     */
+    public function prepareRow(array $rowData): array
+    {
+        // Convert mapped fields
+        $dataObject = $this->_dataObjectFactory->create();
+
+        foreach ($rowData as $key=>$item) {
+            if (!trim($key)) {
+                continue;
+            }
+
+            if (in_array($key, $this->getSkipDocumentFieldsObject()->getData())) {
+                continue;
+            }
+
+            if (!is_string($item) && !is_null($item) && !is_numeric($item) && !is_bool($item)) {
+                $this->logger->debug(
+                    __(
+                        'Warning: field "%1" is not proccessable value for the product (%2)',
+                        $key,
+                        print_r($item, true)
+                    )
+                );
+                $item = '';
+            }
+
+            foreach ($this->getMapAttribute(trim($key)) as $mappedAttribute) {
+                $dataObject->setData($mappedAttribute, trim($item));
+            }
+        }
+
+        // Visibility and Status from configurations
+        if (!$dataObject->hasData('visibility') && $this->getData('products_visibility')) {
+            $dataObject->setData('visibility', $this->getData('products_visibility'));
+        }
+
+        if (!$dataObject->hasData('status') && $this->getData('products_is_enabled')) {
+            $dataObject->setData('status', $this->getData('products_is_enabled'));
+        }
+
+        $this->_eventManager->dispatch('tereta_import_modify_row', [
+            'data_object' => $dataObject,
+            'model_import' => $this
+        ]);
+
+        // Search by field
+        $searchByField = ($this->getData('product_search_by_field') && !$this->getData('product_create_new'));
+        if (!$searchByField && !$dataObject->getData($this->getRevertedMapAttribute('sku'))) {
+            throw new LocalizedException(__('SKU field in the document can not be found'));
+        }
+
+        return $dataObject->getData();
+    }
+
+    /**
+     * @param string $attributeCode
+     * @return string
+     */
+    protected function getRevertedMapAttribute(string $attributeCode): string
+    {
+        $mapping = array_flip($this->getMappingAttributeObject()->getData());
+        if (isset($mapping[$attributeCode])) {
+            return $mapping[$attributeCode];
+        }
+
+        return $attributeCode;
+    }
+
+    /**
+     * @param string $fieldLabel
+     * @return array|string[]|null
+     */
+    public function getMapAttribute(string $fieldLabel): ?array
+    {
+        $fieldLabel = trim($fieldLabel);
+        if (!$fieldLabel) {
+            return null;
+        }
+
+        $mapData = $this->getMappingAttributeObject()->getData();
+        if (isset($mapData[$fieldLabel])) {
+            $attributeCode = $mapData[$fieldLabel];
+        } else {
+            $attributeCode = null;
+        }
+
+        if (!$attributeCode) {
+            $attributeCode = [$fieldLabel];
+        } elseif (is_string($attributeCode)) {
+            $attributeCode = [$attributeCode];
+        }
+
+        return $attributeCode;
     }
 }

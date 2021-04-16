@@ -133,7 +133,9 @@ class Csv extends AbstractModel
             $counter++;
 
             try {
-                $scopeModel->collectItem($csv->current());
+                $scopeModel->collectItem(
+                    $dataModel->prepareRow($csv->current())
+                );
 
                 if (($counter % $dataModel->getScopeLimit()) == 0) {
                     $this->logger->info(__("Collected %1 records (%2sec).", $counter, time() - $collectTime));

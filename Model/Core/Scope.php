@@ -291,57 +291,12 @@ class Scope extends AbstractModel
      */
     public function collectItem(array $csvData): void
     {
-        // Convert mapped fields
-        $dataObject = $this->_dataObjectFactory->create();
-
-        foreach ($csvData as $key=>$item) {
-            if (!trim($key)) {
-                continue;
-            }
-
-            if (in_array($key, $this->configuration->getSkipDocumentFieldsObject()->getData())) {
-                continue;
-            }
-
-            if (!is_string($item) && !is_null($item) && !is_numeric($item) && !is_bool($item)) {
-                $this->logger->debug(
-                    __(
-                        'Warning: field "%1" is not proccessable value for the product (%2)',
-                        $key,
-                        print_r($item, true)
-                    )
-                );
-                $item = '';
-            }
-
-            foreach ($this->getMapAttribute(trim($key)) as $mappedAttribute) {
-                $dataObject->setData($mappedAttribute, trim($item));
-            }
-        }
-
-        // Visibility and Status from configurations
-        if (!$dataObject->hasData('visibility') && $this->configuration->getData('products_visibility')) {
-            $dataObject->setData('visibility', $this->configuration->getData('products_visibility'));
-        }
-
-        if (!$dataObject->hasData('status') && $this->configuration->getData('products_is_enabled')) {
-            $dataObject->setData('status', $this->configuration->getData('products_is_enabled'));
-        }
-
-        $this->_eventManager->dispatch('tereta_import_scope_modify_data', [
-            'data_object' => $dataObject,
-            'model_import' => $this->configuration
-        ]);
-
-        $data = $dataObject->getData();
+        $data = $csvData;
 
         // Collect data
         // Search by field
-        $searchByField = ($this->configuration->getData('product_search_by_field') && !$this->configuration->getData('product_create_new'));
-        if (!$searchByField && !isset($csvData[$this->getRevertedMapAttribute('sku')])) {
-            throw new LocalizedException(__('SKU field in the document can not be found'));
-        }
 
+        $searchByField = ($this->configuration->getData('product_search_by_field') && !$this->configuration->getData('product_create_new'));
         if ($searchByField) {
             try {
                 $this->getResource()->fillSkusByField($this->configuration->getData('product_search_by_field'), $data);
@@ -385,47 +340,6 @@ class Scope extends AbstractModel
         }
 
         $this->logSkippedRecordCsv->writeCsv($object);
-    }
-
-    /**
-     * @param string $fieldLabel
-     * @return array|null
-     */
-    protected function getMapAttribute(string $fieldLabel): ?array
-    {
-        $fieldLabel = trim($fieldLabel);
-        if (!$fieldLabel) {
-            return null;
-        }
-
-        $mapData = $this->mapAttributes->getData();
-        if (isset($mapData[$fieldLabel])) {
-            $attributeCode = $mapData[$fieldLabel];
-        } else {
-            $attributeCode = null;
-        }
-
-        if (!$attributeCode) {
-            $attributeCode = [$fieldLabel];
-        } elseif (is_string($attributeCode)) {
-            $attributeCode = [$attributeCode];
-        }
-
-        return $attributeCode;
-    }
-
-    /**
-     * @param string $attributeCode
-     * @return string
-     */
-    protected function getRevertedMapAttribute(string $attributeCode): string
-    {
-        $mapping = array_flip($this->mapAttributes->getData());
-        if (isset($mapping[$attributeCode])) {
-            return $mapping[$attributeCode];
-        }
-
-        return $attributeCode;
     }
 
     /**
@@ -539,7 +453,7 @@ class Scope extends AbstractModel
                 continue;
             }
 
-            $mappedAttributes = $this->getMapAttribute($csvField);
+            $mappedAttributes = $this->configuration->getMapAttribute($csvField);
             if (!$mappedAttributes) {
                 continue;
             }
