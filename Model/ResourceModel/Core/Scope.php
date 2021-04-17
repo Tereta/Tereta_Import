@@ -400,36 +400,6 @@ class Scope extends AbstractDb
     }
 
     /**
-     * @param string $attributeCode
-     * @param array $object
-     * @throws NoSuchEntityException
-     */
-    public function fillSkusByField(string $attributeCode, array &$object): void
-    {
-        if (!isset($object[$attributeCode])) {
-            throw new Exception(__('The "%1" field in the file document was not found to find sku by the attribute.', $attributeCode));
-        }
-
-        $fieldValue = $object[$attributeCode];
-
-        $attributeModel = $this->attributeRepository->get(ProductModel::ENTITY, $attributeCode);
-
-        $connection = $this->getConnection();
-        $select = $connection->select('entity_id')->from(['source'=>$this->getTable('catalog_product_entity_' . $attributeModel->getBackendType())])
-            ->where('attribute_id = ?', $attributeModel->getAttributeId())->where('value = ?', $fieldValue)
-            ->where('store_id IN (?)', [0, $this->configuration->getData('store_id')])->order('store_id DESC');
-
-        $select->join(['base'=>$this->getTable('catalog_product_entity')], 'base.entity_id = source.entity_id', ['sku']);
-
-        $entityData = $connection->fetchRow($select);
-        if (isset($entityData['sku'])) {
-            $object['sku'] = $entityData['sku'];
-        } else {
-            throw new Exception(__('The %1 SKU record was skipped.', $fieldValue));
-        }
-    }
-
-    /**
      * @param DataObject $object
      */
     public function fillSkuEntities(DataObject $object): void

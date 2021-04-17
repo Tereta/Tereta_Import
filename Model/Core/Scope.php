@@ -81,11 +81,6 @@ class Scope extends AbstractModel
     const ATTRIBUTE_TYPE_VARCHAR  = 'varchar';
 
     /**
-     * @var DataObject
-     */
-    protected $mapAttributes;
-
-    /**
      * @var AttributeRepository
      */
     protected $attributeRepository;
@@ -206,11 +201,6 @@ class Scope extends AbstractModel
     protected $scopeResource;
 
     /**
-     * @var FileWrite
-     */
-    protected $logSkippedRecordCsv;
-
-    /**
      * @var HelperData
      */
     protected $helperData;
@@ -256,17 +246,15 @@ class Scope extends AbstractModel
 
         $this->attributeRepository = $attributeRepository;
 
-        $this->mapAttributes = $dataObjectFactory->create();
-        $this->mapAttributes->addData($configuration->getMappingAttributeObject()->getData());
-
         $this->skuEntities = $dataObjectFactory->create();
 
         $this->configuration = $configuration;
 
-        $this->_prepareAttributes($configuration->getData('fields'));
-
         $this->scopeResource = $scopeResourceFactory->create();
         $this->scopeResource->setLogger($logger)->setConfiguration($configuration);
+
+        $this->attributeModels = $this->_dataObjectFactory->create();
+        $this->attributeModelsById = $this->_dataObjectFactory->create();
     }
 
     /**
@@ -294,19 +282,6 @@ class Scope extends AbstractModel
         $data = $csvData;
 
         // Collect data
-        // Search by field
-
-        $searchByField = ($this->configuration->getData('product_search_by_field') && !$this->configuration->getData('product_create_new'));
-        if ($searchByField) {
-            try {
-                $this->getResource()->fillSkusByField($this->configuration->getData('product_search_by_field'), $data);
-            } catch (Exception $e) {
-                $this->logger->warning($e->getMessage());
-                $this->logSkippedRecordCsv($csvData);
-
-                throw $e;
-            }
-        }
 
         // Collect
         $this->_collected = true;
@@ -321,25 +296,15 @@ class Scope extends AbstractModel
         // Appennd classes collected
         $this->extension->collect($data);
 
+        foreach ($data as $key => $value) {
+            $this->loadAttribute($key);
+        }
+
         $this->collectTypeValues(static::ATTRIBUTE_TYPE_INT, $data);
         $this->collectTypeValues(static::ATTRIBUTE_TYPE_DECIMAL, $data);
         $this->collectTypeValues(static::ATTRIBUTE_TYPE_DATETIME, $data);
         $this->collectTypeValues(static::ATTRIBUTE_TYPE_TEXT, $data);
         $this->collectTypeValues(static::ATTRIBUTE_TYPE_VARCHAR, $data);
-    }
-
-    protected function logSkippedRecordCsv($object): void
-    {
-        if (!$this->configuration->getData('log_not_existing_records')) {
-            return;
-        }
-
-        if (!$this->logSkippedRecordCsv) {
-            $this->logSkippedRecordCsv = $this->helperData->getSkippedCsvWriteFile($this->configuration->getData('identifier'));
-            $this->logSkippedRecordCsv->writeCsv(array_keys($object));
-        }
-
-        $this->logSkippedRecordCsv->writeCsv($object);
     }
 
     /**
@@ -439,63 +404,34 @@ class Scope extends AbstractModel
         }
     }
 
-    /**
-     * @param array $csvFields
-     * @return $this
-     */
-    protected function _prepareAttributes(array $csvFields): self
+    protected function loadAttribute(string $attributeCode): void
     {
-        $skipAttributes = $this->extension->getSkipAttributes();
-
-        $attributes = [];
-        foreach ($csvFields as $csvField) {
-            if (in_array($csvField, $this->configuration->getSkipDocumentFieldsObject()->getData())) {
-                continue;
-            }
-
-            $mappedAttributes = $this->configuration->getMapAttribute($csvField);
-            if (!$mappedAttributes) {
-                continue;
-            }
-
-            foreach ($mappedAttributes as $mappedAttribute) {
-                array_push($attributes, $mappedAttribute);
-            }
+        if ($this->attributeModels->hasData($attributeCode)) {
+            return;
         }
 
-        $attributes = array_merge($attributes, $this->extension->getIncludeAttributes());
-
-        // NEED TO USE CONFIGURATION FOR THIS
-        $attributes = array_merge($attributes, ['visibility', 'status']);
-
-        $attributesLoaded = [];
-        $attributesLoadedById = [];
-        foreach ($attributes as $attributeCode) {
-            if (in_array($attributeCode, $skipAttributes)) {
-                continue;
-            }
-
-            try {
-                $attributesLoaded[$attributeCode] = $this->attributeRepository->get(ProductModel::ENTITY, $attributeCode);
-                $attributesLoaded[$attributeCode]->setStoreId(0);
-                $attributesLoadedById[$attributesLoaded[$attributeCode]->getAttributeId()] = &$attributesLoaded[$attributeCode];
-
-                $attributeType = $attributesLoaded[$attributeCode]->getBackendType();
-                if (!isset($this->attributeTypes[$attributeType])) {
-                    $this->attributeTypes[$attributeType] = [];
-                }
-                array_push($this->attributeTypes[$attributeType], $attributeCode);
-
-                $this->_prepareAttributesOptions($attributesLoaded[$attributeCode]);
-            } catch (\Exception $e) {
-                $this->logger->warning($e->getMessage());
-            }
+        if (in_array($attributeCode, $this->extension->getSkipAttributes())) {
+            return;
         }
 
-        $this->attributeModels = $this->_dataObjectFactory->create()->setData($attributesLoaded);
-        $this->attributeModelsById = $this->_dataObjectFactory->create()->setData($attributesLoadedById);
+        try {
+            $attributeModel = $this->attributeRepository->get(ProductModel::ENTITY, $attributeCode);
+            $attributeModel->setStoreId(0);
 
-        return $this;
+            $attributeType = $attributeModel->getBackendType();
+            if (!isset($this->attributeTypes[$attributeType])) {
+                $this->attributeTypes[$attributeType] = [];
+            }
+            array_push($this->attributeTypes[$attributeType], $attributeCode);
+
+            $this->_prepareAttributesOptions($attributeModel);
+
+            $this->attributeModelsById->setData($attributeModel->getAttributeId(), $attributeModel);
+            $this->attributeModels->setData($attributeCode, $attributeModel);
+        } catch (\Exception $e) {
+            $this->attributeModels->setData($attributeCode, null);
+            $this->logger->warning($e->getMessage());
+        }
     }
 
     /**

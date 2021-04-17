@@ -46,6 +46,7 @@ use Magento\Framework\Exception\FileSystemException;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Filesystem\File\Write as FileWrite;
 use Magento\Framework\Model\AbstractModel;
 
 use Magento\Framework\Model\Context;
@@ -132,6 +133,11 @@ class Import extends AbstractModel
      * @var array
      */
     protected $reindexProductIds = [];
+
+    /**
+     * @var FileWrite
+     */
+    protected $logSkippedRecordCsv;
 
     /**
      * @var array
@@ -580,11 +586,36 @@ class Import extends AbstractModel
 
         // Search by field
         $searchByField = ($this->getData('product_search_by_field') && !$this->getData('product_create_new'));
-        if (!$searchByField && !$dataObject->getData($this->getRevertedMapAttribute('sku'))) {
+        if ($searchByField) {
+            try {
+                $this->resourceImport->fillSkusByField($this->getData('product_search_by_field'), $data);
+            } catch (Exception $e) {
+                $this->logger->warning($e->getMessage());
+                $this->logSkippedRecordCsv($rowData);
+
+                throw $e;
+            }
+        }
+
+        if (!$dataObject->getData($this->getRevertedMapAttribute('sku'))) {
             throw new LocalizedException(__('SKU field in the document can not be found'));
         }
 
         return $dataObject->getData();
+    }
+
+    protected function logSkippedRecordCsv($object): void
+    {
+        if (!$this->getData('log_not_existing_records')) {
+            return;
+        }
+
+        if (!$this->logSkippedRecordCsv) {
+            $this->logSkippedRecordCsv = $this->helperData->getSkippedCsvWriteFile($this->getData('identifier'));
+            $this->logSkippedRecordCsv->writeCsv(array_keys($object));
+        }
+
+        $this->logSkippedRecordCsv->writeCsv($object);
     }
 
     /**
