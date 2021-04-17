@@ -41,29 +41,23 @@ use Magento\Catalog\Model\ResourceModel\Eav\Attribute as EavAttribute;
 use Magento\Eav\Api\AttributeOptionManagementInterface;
 use Magento\Eav\Api\Data\AttributeOptionInterfaceFactory;
 use Magento\Eav\Api\Data\AttributeOptionLabelInterfaceFactory;
-use Magento\Eav\Model\AttributeRepository;
 use Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend;
 use Magento\Eav\Model\Entity\Attribute\Source\Boolean as SourceBoolean;
 use Magento\Eav\Model\Entity\Attribute\Source\Table as SourceTable;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
-use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Filesystem\File\Write as FileWrite;
 use Magento\Framework\Filesystem\Io\File as IoFile;
 
 use Magento\Framework\Model\AbstractModel;
-use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
-use Magento\Framework\Registry;
 
-use Tereta\Import\Helper\Data as HelperData;
 use Tereta\Import\Model\Core\Scope\AttributeSetFactory;
 use Tereta\Import\Model\Core\Scope\ExtensionFactory;
-use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\ResourceModel\Core\Scope as ScopeResource;
-use Tereta\Import\Model\ResourceModel\Core\ScopeFactory as ScopeResourceFactory;
+
+use Tereta\Import\Model\Core\Scope\Context as ImportContext;
 
 /**
  * Tereta\Import\Model\Core\Scope
@@ -79,11 +73,6 @@ class Scope extends AbstractModel
     const ATTRIBUTE_TYPE_DATETIME = 'datetime';
     const ATTRIBUTE_TYPE_TEXT     = 'text';
     const ATTRIBUTE_TYPE_VARCHAR  = 'varchar';
-
-    /**
-     * @var AttributeRepository
-     */
-    protected $attributeRepository;
 
     /**
      * @var array
@@ -106,11 +95,6 @@ class Scope extends AbstractModel
     protected $attributeOptionsReverce = [];
 
     /**
-     * @var
-     */
-    protected $logger;
-
-    /**
      * @var DataObject
      */
     protected $skuEntities;
@@ -126,24 +110,19 @@ class Scope extends AbstractModel
     protected $_attributeTypeEntitiesRemove = [];
 
     /**
-     * @var DataObjectFactory
-     */
-    protected $_dataObjectFactory;
-
-    /**
      * @var AttributeOptionLabelInterfaceFactory
      */
-    protected $_optionLabelFactory;
+    protected $optionLabelFactory;
 
     /**
      * @var AttributeOptionInterfaceFactory
      */
-    protected $_optionFactory;
+    protected $optionFactory;
 
     /**
      * @var AttributeOptionManagementInterface
      */
-    protected $_attributeOptionManagement;
+    protected $attributeOptionManagement;
 
     /**
      * @var DataObject|null
@@ -200,61 +179,53 @@ class Scope extends AbstractModel
      */
     protected $scopeResource;
 
-    /**
-     * @var HelperData
-     */
-    protected $helperData;
-
     public function __construct(
-        HelperData $helperData,
-        Context $context,
-        Registry $registry,
-        ScopeResourceFactory $scopeResourceFactory,
-        DataObjectFactory $dataObjectFactory,
-        AttributeRepository $attributeRepository,
+        ImportContext $importContext,
+
         AttributeOptionLabelInterfaceFactory $optionLabelFactory,
         AttributeOptionInterfaceFactory $optionFactory,
         AttributeOptionManagementInterface $attributeOptionManagement,
         DataObject $configuration,
-        Logger $logger,
         AttributeSetFactory $attributeSetFactory,
         ExtensionFactory $extensionFactory,
         DirectoryList $directoryList,
         IoFile $ioFile,
+
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-        parent::__construct($context, $registry, $resource, $resourceCollection, $data);
+        $this->importContext = $importContext;
 
-        $this->helperData = $helperData;
-
-        $this->logger = $logger;
+        parent::__construct(
+            $importContext->getContext(),
+            $importContext->getRegistry(),
+            $resource,
+            $resourceCollection,
+            $data
+        );
 
         $this->directoryList = $directoryList;
         $this->ioFile = $ioFile;
 
         $this->attributeSet = $attributeSetFactory->create(['configuration'=>$configuration]);
 
-        $this->extension = $extensionFactory->create(['configuration'=>$configuration, 'logger'=>$logger]);
+        $this->extension = $extensionFactory->create(['configuration'=>$configuration, 'logger'=>$importContext->getLogger()]);
 
-        $this->_dataObjectFactory = $dataObjectFactory;
-        $this->_optionLabelFactory = $optionLabelFactory;
-        $this->_optionFactory = $optionFactory;
+        $this->optionLabelFactory = $optionLabelFactory;
+        $this->optionFactory = $optionFactory;
 
-        $this->_attributeOptionManagement = $attributeOptionManagement;
+        $this->attributeOptionManagement = $attributeOptionManagement;
 
-        $this->attributeRepository = $attributeRepository;
-
-        $this->skuEntities = $dataObjectFactory->create();
+        $this->skuEntities = $importContext->getDataObjectFactory()->create();
 
         $this->configuration = $configuration;
 
-        $this->scopeResource = $scopeResourceFactory->create();
-        $this->scopeResource->setLogger($logger)->setConfiguration($configuration);
+        $this->scopeResource = $importContext->getScopeResourceFactory()->create()
+            ->setLogger($importContext->getLogger())->setConfiguration($configuration);
 
-        $this->attributeModels = $this->_dataObjectFactory->create();
-        $this->attributeModelsById = $this->_dataObjectFactory->create();
+        $this->attributeModels = $importContext->getDataObjectFactory()->create();
+        $this->attributeModelsById = $importContext->getDataObjectFactory()->create();
     }
 
     /**
@@ -324,67 +295,68 @@ class Scope extends AbstractModel
             return;
         }
 
+        $logger = $this->importContext->getLogger();
         try {
-            $this->logger->debug('Save starting...');
+            $logger->debug('Save starting...');
 
             $updateStatisticAttributes = $this->extension->getUpdateStatisticAttributes();
 
             $debugTime = time();
             $this->getResource()->fillSkuEntities($this->skuEntities);
-            $this->logger->debug(__('Fill IDS for entities (%1sec).', (time() - $debugTime)));
+            $logger->debug(__('Fill IDS for entities (%1sec).', (time() - $debugTime)));
 
             $this->extension->fillEntityIds($this->skuEntities);
 
             $debugTime = time();
             $this->_fillAttributeTypeEntityIds(static::ATTRIBUTE_TYPE_INT);
-            $this->logger->debug(__('Fill IDS for the INT type (%1sec).', (time() - $debugTime)));
+            $logger->debug(__('Fill IDS for the INT type (%1sec).', (time() - $debugTime)));
 
             $debugTime = time();
             $this->_fillAttributeTypeEntityIds(static::ATTRIBUTE_TYPE_DECIMAL);
-            $this->logger->debug(__('Fill IDS for the DECIMAL type (%1sec).', (time() - $debugTime)));
+            $logger->debug(__('Fill IDS for the DECIMAL type (%1sec).', (time() - $debugTime)));
             $debugTime = time();
             $this->_fillAttributeTypeEntityIds(static::ATTRIBUTE_TYPE_DATETIME);
-            $this->logger->debug(__('Fill IDS for the DATETIME type (%1sec)', (time() - $debugTime)));
+            $logger->debug(__('Fill IDS for the DATETIME type (%1sec)', (time() - $debugTime)));
             $debugTime = time();
             $this->_fillAttributeTypeEntityIds(static::ATTRIBUTE_TYPE_TEXT);
-            $this->logger->debug(__('Fill IDS for the TEXT type (%1sec).', (time() - $debugTime)));
+            $logger->debug(__('Fill IDS for the TEXT type (%1sec).', (time() - $debugTime)));
             $debugTime = time();
             $this->_fillAttributeTypeEntityIds(static::ATTRIBUTE_TYPE_VARCHAR);
-            $this->logger->debug(__('Fill IDS for the VARCHAR type (%1sec).', (time() - $debugTime)));
+            $logger->debug(__('Fill IDS for the VARCHAR type (%1sec).', (time() - $debugTime)));
 
-            $this->logger->debug('DB transaction begin...');
+            $logger->debug('DB transaction begin...');
             $this->getResource()->beginTransaction();
 
             $debugTime = time();
             $this->getResource()->saveTypeValues($this->skuEntities, $this->_attributeTypeEntities);
-            $this->logger->debug(__('Save values (%1sec).', (time() - $debugTime)));
+            $logger->debug(__('Save values (%1sec).', (time() - $debugTime)));
 
             $debugTime = time();
             $this->getResource()->removeTypeValues($this->skuEntities, $this->_attributeTypeEntitiesRemove);
-            $this->logger->debug(__('Remove values (%1sec).', (time() - $debugTime)));
+            $logger->debug(__('Remove values (%1sec).', (time() - $debugTime)));
 
             $debugTime = time();
             $this->getResource()->saveEntityWebsite($this->skuEntities);
-            $this->logger->debug(__('Remove values (%1sec).', (time() - $debugTime)));
+            $logger->debug(__('Remove values (%1sec).', (time() - $debugTime)));
 
             $this->extension->save();
 
             $debugTime = time();
-            $this->logger->debug(__('DB transaction commit...'));
+            $logger->debug(__('DB transaction commit...'));
             $this->getResource()->commitTransaction();
-            $this->logger->debug(__('DB transaction has beed commited (%1sec).', (time() - $debugTime)));
+            $logger->debug(__('DB transaction has beed commited (%1sec).', (time() - $debugTime)));
 
             // Save update time on main table and for append value tables
             $this->getResource()->saveUpdateTimes($this->skuEntities, $updateStatisticAttributes);
 
-            $this->logger->debug(__('DB transaction begin...'));
+            $logger->debug(__('DB transaction begin...'));
             $this->getResource()->beginTransaction();
 
             $this->extension->saveAfter();
 
-            $this->logger->debug(__('DB transaction commit...'));
+            $logger->debug(__('DB transaction commit...'));
             $this->getResource()->commitTransaction();
-            $this->logger->debug(__('DB transaction has beed commited (%1sec).', (time() - $debugTime)));
+            $logger->debug(__('DB transaction has beed commited (%1sec).', (time() - $debugTime)));
 
             // Indexation common indexes
             $this->configuration->flushProductsToReindex();
@@ -394,16 +366,20 @@ class Scope extends AbstractModel
 
             $this->configuration->addIndexToReindex($this->extension->getIndexer());
         } catch (\Exception $e) {
-            $this->logger->error(
+            $logger->error(
                 __("SKUs: ('%1'); Error message: %2", implode("','", array_keys($this->skuEntities->getData())), $e->getMessage())
             );
-            $this->logger->debug(
+            $logger->debug(
                 __('Exception Throw: %1:%2', $e->getFile(), $e->getLine())
             );
-            $this->logger->debug(__('Exception Trace: %1', $e->getTraceAsString()));
+            $logger->debug(__('Exception Trace: %1', $e->getTraceAsString()));
         }
     }
 
+    /**
+     * @param string $attributeCode
+     * @throws Exception
+     */
     protected function loadAttribute(string $attributeCode): void
     {
         if ($this->attributeModels->hasData($attributeCode)) {
@@ -415,7 +391,7 @@ class Scope extends AbstractModel
         }
 
         try {
-            $attributeModel = $this->attributeRepository->get(ProductModel::ENTITY, $attributeCode);
+            $attributeModel = $this->importContext->getAttributeRepository()->get(ProductModel::ENTITY, $attributeCode);
             $attributeModel->setStoreId(0);
 
             $attributeType = $attributeModel->getBackendType();
@@ -430,7 +406,7 @@ class Scope extends AbstractModel
             $this->attributeModels->setData($attributeCode, $attributeModel);
         } catch (\Exception $e) {
             $this->attributeModels->setData($attributeCode, null);
-            $this->logger->warning($e->getMessage());
+            $this->importContext->getLogger()->warning($e->getMessage());
         }
     }
 
@@ -452,8 +428,9 @@ class Scope extends AbstractModel
             return;
         }
 
-        $optionsData = $this->_dataObjectFactory->create();
-        $optionsDataReverce = $this->_dataObjectFactory->create();
+        $dataObjectFactory = $this->importContext->getDataObjectFactory();
+        $optionsData = $dataObjectFactory->create();
+        $optionsDataReverce = $dataObjectFactory->create();
 
         foreach ($attribute->getSource()->getAllOptions() as $item) {
             if (!$item['value'] && $item['value'] !== 0) {
@@ -478,8 +455,9 @@ class Scope extends AbstractModel
      */
     protected function prepareSpecificAttributesOptions(EavAttribute $attribute): bool
     {
-        $optionsData = $this->_dataObjectFactory->create();
-        $optionsDataReverce = $this->_dataObjectFactory->create();
+        $dataObjectFactory = $this->importContext->getDataObjectFactory();
+        $optionsData = $dataObjectFactory->create();
+        $optionsDataReverce = $dataObjectFactory->create();
 
         $isSpecial = in_array($attribute->getAttributeCode(), ['visibility', 'status']);
         $isBoolean = ($attribute->getSource() instanceof SourceBoolean);
@@ -573,7 +551,7 @@ class Scope extends AbstractModel
     protected function collectTypeValues(string $attributeType, array $data): void
     {
         if (!$this->getValue('sku', $data)) {
-            $this->logger->debug('Tying to find ID for SKU: SKU not found');
+            $this->importContext->getLogger()->debug('Tying to find ID for SKU: SKU not found');
             return;
         }
 
@@ -704,18 +682,18 @@ class Scope extends AbstractModel
 
             $storeId = $this->configuration->getStoreId();
 
-            $optionLabel = $this->_optionLabelFactory->create();
+            $optionLabel = $this->optionLabelFactory->create();
             $optionLabel->setStoreId($storeId);
             $optionLabel->setLabel($valueItem);
 
-            $option = $this->_optionFactory->create();
+            $option = $this->optionFactory->create();
             $option->setLabel($valueItem);
             $option->setStoreLabels([$optionLabel]);
             $option->setSortOrder(0);
             $option->setIsDefault(false);
 
             try {
-                $this->_attributeOptionManagement->add(
+                $this->attributeOptionManagement->add(
                     \Magento\Catalog\Model\Product::ENTITY,
                     $attributeModel->getAttributeId(),
                     $option
@@ -724,7 +702,7 @@ class Scope extends AbstractModel
                 throw $e;
             }
 
-            $attributeModel = $this->attributeRepository->get(ProductModel::ENTITY, $attributeCode);
+            $attributeModel = $this->importContext->getAttributeRepository()->get(ProductModel::ENTITY, $attributeCode);
             $optionId = null;
             foreach ($attributeModel->getSource()->getAllOptions() as $item) {
                 if ($item['label'] == $valueItem) {
@@ -766,7 +744,7 @@ class Scope extends AbstractModel
                 }
                 foreach ($skuArray[$sku] as $key => $item) {
                     if (!$this->attributeSet->isAllowedAttribute($skuData['attribute_set_id'], $item['attribute_id'])) {
-                        $this->logger->warning('The "' . $this->attributeModelsById->getData($item['attribute_id'])->getAttributeCode() . '" attribute is not present in the #' . $skuData['attribute_set_id'] . '# attribute set');
+                        $this->importContext->getLogger()->warning('The "' . $this->attributeModelsById->getData($item['attribute_id'])->getAttributeCode() . '" attribute is not present in the #' . $skuData['attribute_set_id'] . '# attribute set');
                         unset($skuArray[$sku][$key]);
                         continue;
                     }
