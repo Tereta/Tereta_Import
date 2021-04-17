@@ -38,23 +38,16 @@ use Exception;
 
 use Magento\Catalog\Model\Product as ProductModel;
 use Magento\Catalog\Model\ResourceModel\Eav\Attribute as EavAttribute;
-use Magento\Eav\Api\AttributeOptionManagementInterface;
-use Magento\Eav\Api\Data\AttributeOptionInterfaceFactory;
-use Magento\Eav\Api\Data\AttributeOptionLabelInterfaceFactory;
 use Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend;
 use Magento\Eav\Model\Entity\Attribute\Source\Boolean as SourceBoolean;
 use Magento\Eav\Model\Entity\Attribute\Source\Table as SourceTable;
-use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Filesystem\Io\File as IoFile;
 
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 
-use Tereta\Import\Model\Core\Scope\AttributeSetFactory;
-use Tereta\Import\Model\Core\Scope\ExtensionFactory;
 use Tereta\Import\Model\ResourceModel\Core\Scope as ScopeResource;
 
 use Tereta\Import\Model\Core\Scope\Context as ImportContext;
@@ -110,21 +103,6 @@ class Scope extends AbstractModel
     protected $_attributeTypeEntitiesRemove = [];
 
     /**
-     * @var AttributeOptionLabelInterfaceFactory
-     */
-    protected $optionLabelFactory;
-
-    /**
-     * @var AttributeOptionInterfaceFactory
-     */
-    protected $optionFactory;
-
-    /**
-     * @var AttributeOptionManagementInterface
-     */
-    protected $attributeOptionManagement;
-
-    /**
      * @var DataObject|null
      */
     protected $configuration = null;
@@ -133,11 +111,6 @@ class Scope extends AbstractModel
      * @var bool
      */
     protected $_collected = false;
-
-    /**
-     * @var AttributeSetFactory
-     */
-    protected $attributeSet;
 
     /**
      * @var
@@ -160,16 +133,6 @@ class Scope extends AbstractModel
     protected $category;
 
     /**
-     * @var DirectoryList
-     */
-    protected $directoryList;
-
-    /**
-     * @var IoFile
-     */
-    protected $ioFile;
-
-    /**
      * @var array
      */
     protected $attributeModelsById = [];
@@ -179,18 +142,22 @@ class Scope extends AbstractModel
      */
     protected $scopeResource;
 
+    /**
+     * @var string
+     */
+    protected $multiSelectSeparator = ';';
+
+    /**
+     * Scope constructor.
+     * @param ImportContext $importContext
+     * @param DataObject $configuration
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param array $data
+     */
     public function __construct(
         ImportContext $importContext,
-
-        AttributeOptionLabelInterfaceFactory $optionLabelFactory,
-        AttributeOptionInterfaceFactory $optionFactory,
-        AttributeOptionManagementInterface $attributeOptionManagement,
         DataObject $configuration,
-        AttributeSetFactory $attributeSetFactory,
-        ExtensionFactory $extensionFactory,
-        DirectoryList $directoryList,
-        IoFile $ioFile,
-
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = []
@@ -205,17 +172,9 @@ class Scope extends AbstractModel
             $data
         );
 
-        $this->directoryList = $directoryList;
-        $this->ioFile = $ioFile;
+        $this->attributeSet = $importContext->getAttributeSetFactory()->create(['configuration'=>$configuration]);
 
-        $this->attributeSet = $attributeSetFactory->create(['configuration'=>$configuration]);
-
-        $this->extension = $extensionFactory->create(['configuration'=>$configuration, 'logger'=>$importContext->getLogger()]);
-
-        $this->optionLabelFactory = $optionLabelFactory;
-        $this->optionFactory = $optionFactory;
-
-        $this->attributeOptionManagement = $attributeOptionManagement;
+        $this->extension = $importContext->getExtensionFactory()->create(['configuration'=>$configuration, 'logger'=>$importContext->getLogger()]);
 
         $this->skuEntities = $importContext->getDataObjectFactory()->create();
 
@@ -645,8 +604,6 @@ class Scope extends AbstractModel
         $this->collectTypeValuesAddOptions($attributeCode, $value);
     }
 
-    protected $multiSelectSeparator = ';';
-
     /**
      * @param string $attributeCode
      * @param string $value
@@ -682,18 +639,18 @@ class Scope extends AbstractModel
 
             $storeId = $this->configuration->getStoreId();
 
-            $optionLabel = $this->optionLabelFactory->create();
+            $optionLabel = $this->importContext->getOptionLabelFactory()->create();
             $optionLabel->setStoreId($storeId);
             $optionLabel->setLabel($valueItem);
 
-            $option = $this->optionFactory->create();
+            $option = $this->importContext->getOptionFactory()->create();
             $option->setLabel($valueItem);
             $option->setStoreLabels([$optionLabel]);
             $option->setSortOrder(0);
             $option->setIsDefault(false);
 
             try {
-                $this->attributeOptionManagement->add(
+                $this->importContext->getAttributeOptionManagement()->add(
                     \Magento\Catalog\Model\Product::ENTITY,
                     $attributeModel->getAttributeId(),
                     $option
