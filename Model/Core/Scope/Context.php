@@ -1,15 +1,15 @@
 <?php
 namespace Tereta\Import\Model\Core\Scope;
 
+use Magento\Eav\Api\AttributeOptionManagementInterface;
+use Magento\Eav\Api\Data\AttributeOptionInterfaceFactory;
 use Magento\Eav\Api\Data\AttributeOptionLabelInterfaceFactory;
-use Tereta\Import\Model\Logger;
+use Magento\Eav\Model\AttributeRepository;
+use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Model\Context as ModelContext;
 use Magento\Framework\Registry;
+use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\ResourceModel\Core\ScopeFactory as ScopeResourceFactory;
-use Magento\Framework\DataObjectFactory;
-use Magento\Eav\Model\AttributeRepository;
-use Magento\Eav\Api\Data\AttributeOptionInterfaceFactory;
-use Magento\Eav\Api\AttributeOptionManagementInterface;
 
 /**
  * Tereta\Import\Model\Core\Scope\Context
@@ -54,10 +54,8 @@ class Context
         AttributeOptionManagementInterface $attributeOptionManagement,
         AttributeSetFactory $attributeSetFactory,
         ExtensionFactory $extensionFactory,
-
         Registry $registry
-    )
-    {
+    ) {
         $this->extensionFactory = $extensionFactory;
         $this->attributeSetFactory = $attributeSetFactory;
         $this->attributeOptionManagement = $attributeOptionManagement;
