@@ -19,32 +19,70 @@ use Tereta\Import\Model\ResourceModel\Core\ScopeFactory as ScopeResourceFactory;
  */
 class Context
 {
-    protected $logger;
-
+    /**
+     * @var ModelContext
+     */
     protected $context;
 
+    /**
+     * @var Registry
+     */
     protected $registry;
 
+    /**
+     * @var ScopeResourceFactory
+     */
     protected $scopeResourceFactory;
 
+    /**
+     * @var DataObjectFactory
+     */
     protected $dataObjectFactory;
 
+    /**
+     * @var AttributeRepository
+     */
     protected $attributeRepository;
 
+    /**
+     * @var AttributeOptionLabelInterfaceFactory
+     */
     protected $optionLabelFactory;
 
+    /**
+     * @var AttributeOptionInterfaceFactory
+     */
     protected $optionFactory;
 
+    /**
+     * @var AttributeOptionManagementInterface
+     */
     protected $attributeOptionManagement;
 
+    /**
+     * @var AttributeSetFactory
+     */
     protected $attributeSetFactory;
 
+    /**
+     * @var ExtensionFactory
+     */
     protected $extensionFactory;
 
-    protected $directoryList;
-
+    /**
+     * Context constructor.
+     * @param ModelContext $context
+     * @param ScopeResourceFactory $scopeResourceFactory
+     * @param DataObjectFactory $dataObjectFactory
+     * @param AttributeRepository $attributeRepository
+     * @param AttributeOptionLabelInterfaceFactory $optionLabelFactory
+     * @param AttributeOptionInterfaceFactory $optionFactory
+     * @param AttributeOptionManagementInterface $attributeOptionManagement
+     * @param AttributeSetFactory $attributeSetFactory
+     * @param ExtensionFactory $extensionFactory
+     * @param Registry $registry
+     */
     public function __construct(
-        Logger $logger,
         ModelContext $context,
         ScopeResourceFactory $scopeResourceFactory,
         DataObjectFactory $dataObjectFactory,
@@ -65,61 +103,85 @@ class Context
         $this->dataObjectFactory = $dataObjectFactory;
         $this->scopeResourceFactory = $scopeResourceFactory;
         $this->registry = $registry;
-        $this->logger = $logger;
         $this->context = $context;
     }
 
-    public function getExtensionFactory()
+    /**
+     * @return ExtensionFactory
+     */
+    public function getExtensionFactory(): ExtensionFactory
     {
         return $this->extensionFactory;
     }
 
-    public function getAttributeSetFactory()
+    /**
+     * @return AttributeSetFactory
+     */
+    public function getAttributeSetFactory(): AttributeSetFactory
     {
         return $this->attributeSetFactory;
     }
 
-    public function getAttributeOptionManagement()
+    /**
+     * @return AttributeOptionManagementInterface
+     */
+    public function getAttributeOptionManagement(): AttributeOptionManagementInterface
     {
         return $this->attributeOptionManagement;
     }
 
-    public function getOptionFactory()
+    /**
+     * @return AttributeOptionInterfaceFactory
+     */
+    public function getOptionFactory(): AttributeOptionInterfaceFactory
     {
         return $this->optionFactory;
     }
 
-    public function getOptionLabelFactory()
+    /**
+     * @return AttributeOptionLabelInterfaceFactory
+     */
+    public function getOptionLabelFactory(): AttributeOptionLabelInterfaceFactory
     {
         return $this->optionLabelFactory;
     }
 
-    public function getAttributeRepository()
+    /**
+     * @return AttributeRepository
+     */
+    public function getAttributeRepository(): AttributeRepository
     {
         return $this->attributeRepository;
     }
 
-    public function getDataObjectFactory()
+    /**
+     * @return DataObjectFactory
+     */
+    public function getDataObjectFactory(): DataObjectFactory
     {
         return $this->dataObjectFactory;
     }
 
-    public function getScopeResourceFactory()
+    /**
+     * @return ScopeResourceFactory
+     */
+    public function getScopeResourceFactory(): ScopeResourceFactory
     {
         return $this->scopeResourceFactory;
     }
 
-    public function getLogger()
-    {
-        return $this->logger;
-    }
-
-    public function getContext()
+    /**
+     * @return ModelContext
+     */
+    public function getContext(): ModelContext
     {
         return $this->context;
     }
 
-    public function getRegistry()
+    /**
+     * @return Registry
+     */
+    public function getRegistry(): Registry
     {
         return $this->registry;
     }

@@ -99,6 +99,7 @@ class Media extends AbstractModel
         if (!isset($data[$this->getMediaImageField()]) || !$data[$this->getMediaImageField()]) {
             return;
         }
+
         $this->getResource()->collect($data['sku'], $data, $data[$this->getMediaImageField()]);
     }
 

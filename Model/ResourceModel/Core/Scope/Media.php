@@ -278,6 +278,18 @@ class Media extends AbstractDb
      */
     protected function downloadRemoteImage(string $url): string
     {
+        // Get from base
+        $connection = $this->getConnection();
+        $select = $connection->select(['value_id', 'url'])->from(['url' => $this->getTable('tereta_import_media')])->where('url = ?', $url);
+        $select->joinInner(['gallery' => 'catalog_product_entity_media_gallery'], 'gallery.value_id = url.value_id', ['path' => 'value']);
+
+        $filePathDbData = $connection->fetchRow($select);
+        if ($filePathDbData) {
+            return $filePathDbData['path'];
+        }
+
+
+        // Download
         list($fullPath, $filePath) = $this->dataHelper->getLocalFilePath($url);
         $pathInfo = pathinfo($fullPath);
         $dirPath = $pathInfo['dirname'];

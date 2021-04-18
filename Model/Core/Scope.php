@@ -44,13 +44,12 @@ use Magento\Eav\Model\Entity\Attribute\Source\Table as SourceTable;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
-
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 
 use Tereta\Import\Model\ResourceModel\Core\Scope as ScopeResource;
-
 use Tereta\Import\Model\Core\Scope\Context as ImportContext;
+use Tereta\Import\Model\Logger;
 
 /**
  * Tereta\Import\Model\Core\Scope
@@ -147,8 +146,11 @@ class Scope extends AbstractModel
      */
     protected $multiSelectSeparator = ';';
 
+    protected $logger;
+
     /**
      * Scope constructor.
+     * @param Logger $logger
      * @param ImportContext $importContext
      * @param DataObject $configuration
      * @param AbstractResource|null $resource
@@ -156,6 +158,7 @@ class Scope extends AbstractModel
      * @param array $data
      */
     public function __construct(
+        Logger $logger,
         ImportContext $importContext,
         DataObject $configuration,
         AbstractResource $resource = null,
@@ -163,6 +166,7 @@ class Scope extends AbstractModel
         array $data = []
     ) {
         $this->importContext = $importContext;
+        $this->logger = $logger;
 
         parent::__construct(
             $importContext->getContext(),
@@ -174,14 +178,14 @@ class Scope extends AbstractModel
 
         $this->attributeSet = $importContext->getAttributeSetFactory()->create(['configuration'=>$configuration]);
 
-        $this->extension = $importContext->getExtensionFactory()->create(['configuration'=>$configuration, 'logger'=>$importContext->getLogger()]);
+        $this->extension = $importContext->getExtensionFactory()->create(['configuration'=>$configuration, 'logger'=>$this->logger]);
 
         $this->skuEntities = $importContext->getDataObjectFactory()->create();
 
         $this->configuration = $configuration;
 
         $this->scopeResource = $importContext->getScopeResourceFactory()->create()
-            ->setLogger($importContext->getLogger())->setConfiguration($configuration);
+            ->setLogger($this->logger)->setConfiguration($configuration);
 
         $this->attributeModels = $importContext->getDataObjectFactory()->create();
         $this->attributeModelsById = $importContext->getDataObjectFactory()->create();
@@ -254,7 +258,7 @@ class Scope extends AbstractModel
             return;
         }
 
-        $logger = $this->importContext->getLogger();
+        $logger = $this->logger;
         try {
             $logger->debug('Save starting...');
 
@@ -365,7 +369,7 @@ class Scope extends AbstractModel
             $this->attributeModels->setData($attributeCode, $attributeModel);
         } catch (\Exception $e) {
             $this->attributeModels->setData($attributeCode, null);
-            $this->importContext->getLogger()->warning($e->getMessage());
+            $this->logger->warning($e->getMessage());
         }
     }
 
@@ -510,7 +514,7 @@ class Scope extends AbstractModel
     protected function collectTypeValues(string $attributeType, array $data): void
     {
         if (!$this->getValue('sku', $data)) {
-            $this->importContext->getLogger()->debug('Tying to find ID for SKU: SKU not found');
+            $this->logger->debug('Tying to find ID for SKU: SKU not found');
             return;
         }
 
@@ -701,7 +705,7 @@ class Scope extends AbstractModel
                 }
                 foreach ($skuArray[$sku] as $key => $item) {
                     if (!$this->attributeSet->isAllowedAttribute($skuData['attribute_set_id'], $item['attribute_id'])) {
-                        $this->importContext->getLogger()->warning('The "' . $this->attributeModelsById->getData($item['attribute_id'])->getAttributeCode() . '" attribute is not present in the #' . $skuData['attribute_set_id'] . '# attribute set');
+                        $this->logger->warning('The "' . $this->attributeModelsById->getData($item['attribute_id'])->getAttributeCode() . '" attribute is not present in the #' . $skuData['attribute_set_id'] . '# attribute set');
                         unset($skuArray[$sku][$key]);
                         continue;
                     }
