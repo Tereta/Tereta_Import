@@ -176,6 +176,10 @@ class Scope extends AbstractModel
             $data
         );
 
+        if (!$configuration) {
+            $configuration = $importContext->getDataObjectFactory()->create();
+        }
+
         $this->attributeSet = $importContext->getAttributeSetFactory()->create(['configuration'=>$configuration]);
 
         $this->extension = $importContext->getExtensionFactory()->create(['configuration'=>$configuration, 'logger'=>$this->logger]);
