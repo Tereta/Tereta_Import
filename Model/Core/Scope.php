@@ -160,7 +160,7 @@ class Scope extends AbstractModel
     public function __construct(
         Logger $logger,
         ImportContext $importContext,
-        DataObject $configuration,
+        DataObject $configuration = null,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = []
@@ -631,12 +631,12 @@ class Scope extends AbstractModel
                 continue;
             }
 
-            if (!$this->configuration->getCreateNewOptions()) {
-                $valueResult[$key] = null;
+            if (isset($this->attributeOptions[$attributeCode]) && $this->attributeOptions[$attributeCode]->hasData($valueItem)) {
+                $valueResult[$key] = $valueItem;
                 continue;
             }
 
-            if (!$attributeModel->getSource() instanceof SourceTable) {
+            if (!$this->configuration->getCreateNewOptions() || !$attributeModel->getSource() instanceof SourceTable) {
                 $valueResult[$key] = null;
                 continue;
             }
