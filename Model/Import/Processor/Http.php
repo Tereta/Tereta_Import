@@ -105,8 +105,6 @@ class Http extends AbstractModel
             throw new Exception(__('HTTP URL was not present.'));
         }
 
-        $dataModel->start();
-
         $dirPath = $this->directoryList->getPath('var') . '/' . static::DIR_PATH;
         $filePath = $dirPath . '/' . $dataModel->getData('entity_id') . '.csv';
 
@@ -124,7 +122,6 @@ class Http extends AbstractModel
         $processAdaptor->setLogger($this->logger);
         $dataModel->setData('csv_file', $filePath);
         $processAdaptor->import($dataModel);
-        $dataModel->finish();
 
         unlink($filePath);
     }

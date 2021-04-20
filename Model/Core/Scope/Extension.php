@@ -208,18 +208,13 @@ class Extension extends AbstractModel
      * @return array
      * @throws Exception
      */
-    public function getUpdateStatisticAttributes(): array
+    public function getReportAttributes(): array
     {
-        $attributes = [];
-
-        foreach ($this->registeredClasses as $key=>$item) {
-            $attributes = array_merge(
-                $attributes,
-                $this->get($key)->getUpdateStatisticAttributes()
-            );
+        if (!$this->getData('report_attributes')) {
+            return [];
         }
 
-        return $attributes;
+        return array_values($this->getData('report_attributes'));
     }
 
     /**

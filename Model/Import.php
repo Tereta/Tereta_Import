@@ -87,7 +87,7 @@ class Import extends AbstractModel
     /**
      * @var StoreManagerInterface
      */
-    protected $_storeManager;
+    protected $storeManager;
 
     /**
      * @var
@@ -97,7 +97,7 @@ class Import extends AbstractModel
     /**
      * @var DataObjectFactory
      */
-    protected $_dataObjectFactory;
+    protected $dataObjectFactory;
 
     /**
      * @var array
@@ -191,9 +191,9 @@ class Import extends AbstractModel
         $this->indexerFactory = $indexerFactory;
         $this->directoryList = $directoryList;
         $this->loggerFactory = $loggerFactory;
-        $this->_storeManager = $storeManager;
+        $this->storeManager = $storeManager;
         $this->processor = $importProcessor;
-        $this->_dataObjectFactory = $dataObjectFactory;
+        $this->dataObjectFactory = $dataObjectFactory;
 
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
     }
@@ -305,8 +305,16 @@ class Import extends AbstractModel
             throw new \Exception('The configuration was not found to import.');
         }
 
+        $this->start();
+
+        $this->_eventManager->dispatch('tereta_import_before', ['import_model' => $this]);
+
         $adapterModel = $this->getProcessorAdapter();
         $adapterModel->import($this);
+
+        $this->_eventManager->dispatch('tereta_import_after', ['import_model' => $this]);
+
+        $this->finish();
     }
 
     /**
@@ -320,7 +328,7 @@ class Import extends AbstractModel
         }
 
         if (!$this->getData('additional_data') || is_string($this->getData('additional_data'))) {
-            $this->setData('additional_data', $this->_dataObjectFactory->create());
+            $this->setData('additional_data', $this->dataObjectFactory->create());
         }
 
         foreach ($this->getProcessorAdapters() as $adapter) {
@@ -344,7 +352,7 @@ class Import extends AbstractModel
         }
 
         if (is_string($this->getData('additional_data'))) {
-            $this->setData('additional_data', $this->_dataObjectFactory->create([
+            $this->setData('additional_data', $this->dataObjectFactory->create([
                 'data' => (array) json_decode($this->getData('additional_data'))
             ]));
         }
@@ -403,26 +411,26 @@ class Import extends AbstractModel
         $this->decodeData($this);
 
         if ($skipDocumentFields = $this->getData('skip_document_fields')) {
-            $this->setData('skip_document_fields_object', $this->_dataObjectFactory->create(['data' => (array) json_decode($skipDocumentFields)]));
+            $this->setData('skip_document_fields_object', $this->dataObjectFactory->create(['data' => (array) json_decode($skipDocumentFields)]));
         } else {
-            $this->setData('skip_document_fields_object', $this->_dataObjectFactory->create());
+            $this->setData('skip_document_fields_object', $this->dataObjectFactory->create());
         }
 
         if ($skipEmptyAttributes = $this->getData('skip_empty_attributes')) {
-            $this->setData('skip_empty_attributes_object', $this->_dataObjectFactory->create(['data' => (array) json_decode($skipEmptyAttributes)]));
+            $this->setData('skip_empty_attributes_object', $this->dataObjectFactory->create(['data' => (array) json_decode($skipEmptyAttributes)]));
         } else {
-            $this->setData('skip_empty_attributes_object', $this->_dataObjectFactory->create());
+            $this->setData('skip_empty_attributes_object', $this->dataObjectFactory->create());
         }
 
         if ($clearEmptyAttributes = $this->getData('clear_empty_attributes')) {
-            $this->setData('clear_empty_attributes_object', $this->_dataObjectFactory->create(['data' => (array) json_decode($clearEmptyAttributes)]));
+            $this->setData('clear_empty_attributes_object', $this->dataObjectFactory->create(['data' => (array) json_decode($clearEmptyAttributes)]));
         } else {
-            $this->setData('clear_empty_attributes_object', $this->_dataObjectFactory->create());
+            $this->setData('clear_empty_attributes_object', $this->dataObjectFactory->create());
         }
 
         if ($mappingAttribute = $this->getData('mapping_attribute')) {
             $data = json_decode($mappingAttribute);
-            $dataObject = $this->_dataObjectFactory->create();
+            $dataObject = $this->dataObjectFactory->create();
             $mapData = [];
             foreach ($data as $item) {
                 if (!isset($mapData[$item->key])) {
@@ -434,10 +442,10 @@ class Import extends AbstractModel
             $dataObject->setData($mapData);
             $this->setData('mapping_attribute_object', $dataObject);
         } else {
-            $this->setData('mapping_attribute_object', $this->_dataObjectFactory->create());
+            $this->setData('mapping_attribute_object', $this->dataObjectFactory->create());
         }
 
-        $this->setData('website_id', $this->_storeManager->getStore($this->getStoreId())->getWebsiteId());
+        $this->setData('website_id', $this->storeManager->getStore($this->getStoreId())->getWebsiteId());
 
         return parent::afterLoad();
     }
@@ -486,22 +494,6 @@ class Import extends AbstractModel
     }
 
     /**
-     *
-     */
-    public function flushProductsToReindex(): void
-    {
-        $this->reindexProductIds = [];
-    }
-
-    /**
-     * @param int $productId
-     */
-    public function addProductToReindex(int $productId): void
-    {
-        array_push($this->reindexProductIds, $productId);
-    }
-
-    /**
      * @param array $indexes
      */
     public function addIndexToReindex(array $indexes): void
@@ -520,7 +512,10 @@ class Import extends AbstractModel
      */
     protected function reindex(): void
     {
-        $productIds = $this->reindexProductIds;
+        $productIds = $this->getData('processed_entity_ids');
+        if (!$productIds) {
+            return;
+        }
 
         foreach ($this->indexes as $index) {
             try {
@@ -543,7 +538,7 @@ class Import extends AbstractModel
     public function prepareRow(array $rowData): array
     {
         // Convert mapped fields
-        $dataObject = $this->_dataObjectFactory->create();
+        $dataObject = $this->dataObjectFactory->create();
 
         foreach ($rowData as $key=>$item) {
             if (!trim($key)) {

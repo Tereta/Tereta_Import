@@ -45,8 +45,11 @@ use Magento\Store\Model\StoreManagerInterface;
 use Tereta\Import\Model\Core\Scope as ScopeModel;
 use Tereta\Import\Model\Logger;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 
 /**
+ * Tereta\Import\Model\ResourceModel\Core\Scope
+ *
  * Class Scope
  * @package Tereta\Import\Model\ResourceModel\Core
  * @author Tereta Alexander <tereta@mail.ua>
@@ -338,13 +341,18 @@ class Scope extends AbstractDb
      * Save time whan attributes were update
      *
      * @param DataObject $skuEntities
-     * @param array $updateStatisticAttributes
+     * @param array $reportAttributes
      * @throws NoSuchEntityException
      */
-    public function saveUpdateTimes(DataObject $skuEntities, array $updateStatisticAttributes): void
+    public function saveReportAttributes(DataObject $skuEntities, array $attributeTypes, array $reportAttributes): void
     {
-        if (!$updateStatisticAttributes) {
+        if (!$reportAttributes) {
             return;
+        }
+
+        $attributes = [];
+        foreach ($attributeTypes as $item) {
+            $attributes = array_merge($attributes, $item);
         }
 
         $dateTime = date('Y-m-d H:i:s');
@@ -355,7 +363,11 @@ class Scope extends AbstractDb
             array_push($entityIds, $item['entity_id']);
         }
 
-        foreach ($updateStatisticAttributes as $item) {
+        foreach ($reportAttributes as $item) {
+            if (!in_array($item, $attributes)) {
+                continue;
+            }
+
             $attributeModel = $this->attributeRepository->get('catalog_product', $item);
             array_push($attributeIds, $attributeModel->getAttributeId());
         }
@@ -374,10 +386,30 @@ class Scope extends AbstractDb
 
         $connection = $this->getConnection();
         if ($insertOrUpdate) {
-            $connection->insertOnDuplicate($this->getTable('tereta_import_values_update'), $insertOrUpdate, ['attribute_id', 'store_id', 'entity_id']);
+            $connection->insertOnDuplicate(
+                $this->getTable('tereta_import_values_update'),
+                $insertOrUpdate,
+                ['attribute_id', 'store_id', 'entity_id', 'last_update']
+            );
         }
 
         $this->logger->debug("Updated date/time " . count($insertOrUpdate) . " records into the 'tereta_import_values_update' table");
+    }
+
+    /**
+     * @param array $filter
+     * @return array
+     */
+    public function getReportAttribute(int $attributeId, int $storeId, array $entityIds = [], string $lastUpdate = null): array
+    {
+        $connection = $this->getConnection();
+        $select = $connection->select()->from($connection->getTableName('tereta_import_values_update'));
+        $select->where('attribute_id = ?', $attributeId);
+        $select->where('store_id = ?', $storeId);
+        $select->where('entity_id IN (?)', $entityIds);
+        $select->where('last_update < ?', $lastUpdate);
+
+        return $connection->fetchAll($select);
     }
 
     /**

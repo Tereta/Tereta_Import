@@ -124,14 +124,6 @@ abstract class AbstractModel extends AbstractModelSource
     }
 
     /**
-     * @return array
-     */
-    public function getUpdateStatisticAttributes(): array
-    {
-        return [];
-    }
-
-    /**
      * @param DataObject $skuEntities
      */
     public function fillEntityIds(DataObject $skuEntities): void

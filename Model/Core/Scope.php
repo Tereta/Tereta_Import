@@ -266,8 +266,6 @@ class Scope extends AbstractModel
         try {
             $logger->debug('Save starting...');
 
-            $updateStatisticAttributes = $this->extension->getUpdateStatisticAttributes();
-
             $debugTime = time();
             $this->getResource()->fillSkuEntities($this->skuEntities);
             $logger->debug(__('Fill IDS for entities (%1sec).', (time() - $debugTime)));
@@ -314,7 +312,7 @@ class Scope extends AbstractModel
             $logger->debug(__('DB transaction has beed commited (%1sec).', (time() - $debugTime)));
 
             // Save update time on main table and for append value tables
-            $this->getResource()->saveUpdateTimes($this->skuEntities, $updateStatisticAttributes);
+            $this->getResource()->saveReportAttributes($this->skuEntities, $this->attributeTypes, $this->extension->getReportAttributes());
 
             $logger->debug(__('DB transaction begin...'));
             $this->getResource()->beginTransaction();
@@ -326,10 +324,11 @@ class Scope extends AbstractModel
             $logger->debug(__('DB transaction has beed commited (%1sec).', (time() - $debugTime)));
 
             // Indexation common indexes
-            $this->configuration->flushProductsToReindex();
+            $processedEntityIds = [];
             foreach ($this->skuEntities->getData() as $item) {
-                $this->configuration->addProductToReindex($item['entity_id']);
+                array_push($processedEntityIds, $item['entity_id']);
             }
+            $this->configuration->setData('processed_entity_ids', $processedEntityIds);
 
             $this->configuration->addIndexToReindex($this->extension->getIndexer());
         } catch (\Exception $e) {
