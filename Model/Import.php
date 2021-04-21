@@ -55,10 +55,12 @@ use Magento\Framework\Registry;
 use Magento\Indexer\Model\IndexerFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+
 use Tereta\Import\Model\Import\Processor\AbstractModel as ImportProcessorAbstract;
 use Tereta\Import\Model\Import\Processor as ImportProcessor;
 
 use Tereta\Import\Model\ResourceModel\Import as ResourceImport;
+use Tereta\Import\Helper\Data as HelperData;
 
 /**
  * Tereta\Import\Model\Import
@@ -82,7 +84,7 @@ class Import extends AbstractModel
     /**
      * @var
      */
-    protected $_commandOutput;
+    protected $commandOutput;
 
     /**
      * @var StoreManagerInterface
@@ -154,6 +156,8 @@ class Import extends AbstractModel
      */
     protected $indexerFactory;
 
+    protected $helperData;
+
     /**
      * Import constructor.
      * @param ResourceImport $resourceImport
@@ -169,6 +173,7 @@ class Import extends AbstractModel
      * @param array $data
      */
     public function __construct(
+        HelperData $helperData,
         ResourceImport $resourceImport,
         IndexerFactory $indexerFactory,
         DirectoryList $directoryList,
@@ -182,6 +187,7 @@ class Import extends AbstractModel
         AbstractDb $resourceCollection = null,
         array $data = []
     ) {
+        $this->helperData = $helperData;
         $this->resourceImport = $resourceImport;
         $this->indexerFactory = $indexerFactory;
         $this->directoryList = $directoryList;
@@ -250,7 +256,7 @@ class Import extends AbstractModel
      */
     public function setCommandOutput(OutputInterface $output): self
     {
-        $this->_commandOutput = $output;
+        $this->commandOutput = $output;
         return $this;
     }
 
@@ -259,7 +265,7 @@ class Import extends AbstractModel
      */
     public function getCommandOutput(): ?OutputInterface
     {
-        return $this->_commandOutput;
+        return $this->commandOutput;
     }
 
     /**
@@ -583,7 +589,7 @@ class Import extends AbstractModel
         $searchByField = ($this->getData('product_search_by_field') && !$this->getData('product_create_new'));
         if ($searchByField) {
             try {
-                $this->resourceImport->fillSkusByField($this->getData('product_search_by_field'), $data);
+                $this->resourceImport->fillSkusByField($this->getData('store_id'), $this->getData('product_search_by_field'), $dataObject);
             } catch (Exception $e) {
                 $this->logger->warning($e->getMessage());
                 $this->logSkippedRecordCsv($rowData);
@@ -592,7 +598,7 @@ class Import extends AbstractModel
             }
         }
 
-        if (!$dataObject->getData($this->getRevertedMapAttribute('sku'))) {
+        if (!$dataObject->getData('sku')) {
             throw new LocalizedException(__('SKU field in the document can not be found'));
         }
 
@@ -611,20 +617,6 @@ class Import extends AbstractModel
         }
 
         $this->logSkippedRecordCsv->writeCsv($object);
-    }
-
-    /**
-     * @param string $attributeCode
-     * @return string
-     */
-    protected function getRevertedMapAttribute(string $attributeCode): string
-    {
-        $mapping = array_flip($this->getMappingAttributeObject()->getData());
-        if (isset($mapping[$attributeCode])) {
-            return $mapping[$attributeCode];
-        }
-
-        return $attributeCode;
     }
 
     /**
