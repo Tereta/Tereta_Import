@@ -37,6 +37,7 @@ namespace Tereta\Import\Model\ResourceModel\Core\Scope;
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb as FrameworkAbstractDb;
 use Tereta\Import\Model\Logger;
 use Tereta\Import\Model\Import as ImportModel;
+use Magento\Framework\DataObject;
 
 /**
  * Tereta\Import\Model\ResourceModel\Core\Scope\AbstractDb
@@ -73,12 +74,12 @@ abstract class AbstractDb extends FrameworkAbstractDb
     }
 
     /**
-     * @param ImportModel $importModel
+     * @param DataObject $configData
      * @return $this
      */
-    public function setConfiguration(ImportModel $importModel): self
+    public function setConfiguration(DataObject $configData): self
     {
-        $this->configuration = $importModel;
+        $this->configuration = $configData;
         return $this;
     }
 

@@ -94,14 +94,25 @@ class Stock extends AbstractModel
         return [];
     }
 
+    /**
+     * Stock constructor.
+     * @param StockResourceFactory $stockResourceFactory
+     * @param Context $context
+     * @param Registry $registry
+     * @param DataObject $configuration
+     * @param Logger $logger
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param array $data
+     */
     public function __construct(
         StockResourceFactory $stockResourceFactory,
         Context $context,
         Registry $registry,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
         DataObject $configuration,
         Logger $logger,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         $this->resourceModel = $stockResourceFactory->create();

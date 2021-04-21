@@ -324,11 +324,7 @@ class Scope extends AbstractModel
             $logger->debug(__('DB transaction has beed commited (%1sec).', (time() - $debugTime)));
 
             // Indexation common indexes
-            $processedEntityIds = [];
-            foreach ($this->skuEntities->getData() as $item) {
-                array_push($processedEntityIds, $item['entity_id']);
-            }
-            $this->configuration->setData('processed_entity_ids', $processedEntityIds);
+            $this->configuration->setData('processed_entity', $this->skuEntities);
 
             $this->configuration->addIndexToReindex($this->extension->getIndexer());
         } catch (\Exception $e) {

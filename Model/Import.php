@@ -130,11 +130,6 @@ class Import extends AbstractModel
     protected $startTime = null;
 
     /**
-     * @var array
-     */
-    protected $reindexProductIds = [];
-
-    /**
      * @var FileWrite
      */
     protected $logSkippedRecordCsv;
@@ -307,12 +302,12 @@ class Import extends AbstractModel
 
         $this->start();
 
-        $this->_eventManager->dispatch('tereta_import_before', ['import_model' => $this]);
+        $this->_eventManager->dispatch('tereta_import_before', ['import_model' => $this, 'logger' => $this->logger]);
 
         $adapterModel = $this->getProcessorAdapter();
         $adapterModel->import($this);
 
-        $this->_eventManager->dispatch('tereta_import_after', ['import_model' => $this]);
+        $this->_eventManager->dispatch('tereta_import_after', ['import_model' => $this, 'logger' => $this->logger]);
 
         $this->finish();
     }
@@ -512,9 +507,14 @@ class Import extends AbstractModel
      */
     protected function reindex(): void
     {
-        $productIds = $this->getData('processed_entity_ids');
-        if (!$productIds) {
+        $processedProducts = $this->getData('processed_entity');
+        if (!$processedProducts || !$processedProducts->getData()) {
             return;
+        }
+
+        $productIds = [];
+        foreach ($processedProducts->getData() as $item) {
+            array_push($productIds, $item['entity_id']);
         }
 
         foreach ($this->indexes as $index) {
