@@ -141,11 +141,11 @@ class Scheduler
                     continue;
                 }
 
-                $modelSchedule = $this->modelScheduleFactory->create();
-                $modelSchedule->setScheduledAt($currentTime);
-                $modelSchedule->setCronExpr($importModel->getData('cron_expression'));
-                if ($modelSchedule->trySchedule()) {
-                    try {
+                try {
+                    $modelSchedule = $this->modelScheduleFactory->create();
+                    $modelSchedule->setScheduledAt($currentTime);
+                    $modelSchedule->setCronExpr($importModel->getData('cron_expression'));
+                    if ($modelSchedule->trySchedule()) {
                         $importIdentifier = $importModel->getData('identifier');
                         if (in_array($importIdentifier, $processedImports)) {
                             continue;
@@ -157,9 +157,9 @@ class Scheduler
                         $this->logger->debug('Starting the "' . $importIdentifier . '" import.');
                         $importModel->import($importIdentifier);
                         $this->logger->debug('Finished the "' . $importIdentifier . '" import in ' . (time() - $time) . 'sec.');
-                    } catch (\Exception $e) {
-                        $this->logger->error('The "' . $importIdentifier . '" can not be processed , message: "' . $e->getMessage() . '"');
                     }
+                } catch (\Exception $e) {
+                    $this->logger->error('The "' . $importIdentifier . '" can not be processed , message: "' . $e->getMessage() . '"');
                 }
             }
         }
