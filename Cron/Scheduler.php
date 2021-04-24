@@ -159,7 +159,7 @@ class Scheduler
                         $this->logger->debug('Finished the "' . $importIdentifier . '" import in ' . (time() - $time) . 'sec.');
                     }
                 } catch (\Exception $e) {
-                    $this->logger->error('The "' . $importIdentifier . '" can not be processed , message: "' . $e->getMessage() . '"');
+                    $this->logger->error('The "' . $importModel->getData('identifier') . '" can not be processed , message: "' . $e->getMessage() . '"');
                 }
             }
         }
