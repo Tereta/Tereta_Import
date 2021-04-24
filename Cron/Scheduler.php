@@ -151,11 +151,13 @@ class Scheduler
                             continue;
                         }
 
+                        $importModel->prepareModel();
+
                         array_push($processed, $importIdentifier);
                         array_push($processedImports, $importIdentifier);
                         $time = time();
                         $this->logger->debug('Starting the "' . $importIdentifier . '" import.');
-                        $importModel->import($importIdentifier);
+                        $importModel->import();
                         $this->logger->debug('Finished the "' . $importIdentifier . '" import in ' . (time() - $time) . 'sec.');
                     }
                 } catch (\Exception $e) {

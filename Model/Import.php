@@ -398,6 +398,16 @@ class Import extends AbstractModel
             return parent::afterLoad();
         }
 
+        $this->prepareModel();
+    }
+
+    /**
+     * @return $this
+     * @throws FileSystemException
+     * @throws NoSuchEntityException
+     */
+    public function prepareModel(): self
+    {
         // + Logger
         $this->logger = $this->loggerFactory->create();
         $logPath = $this->directoryList->getPath(DirectoryList::VAR_DIR) . '/' . $this->logger::LOGGER_DIR . '/' . $this->getData('identifier') . '.log';
