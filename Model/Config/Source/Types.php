@@ -34,7 +34,7 @@
 
 namespace Tereta\Import\Model\Config\Source;
 
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 use Tereta\Import\Model\Import as ImportModel;
 
 /**
@@ -44,7 +44,7 @@ use Tereta\Import\Model\Import as ImportModel;
  * @package Tereta\Import\Model\Config\Source
  * @author Tereta Alexander <tereta@mail.ua>
  */
-class Types implements ArrayInterface
+class Types implements OptionSourceInterface
 {
     /**
      * @var ImportModel
