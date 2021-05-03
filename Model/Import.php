@@ -340,6 +340,9 @@ class Import extends AbstractModel
             'additional_data',
             json_encode($this->getData('additional_data')->getData())
         );
+
+        $filter = json_encode($this->getData('filter'));
+        $this->setData('filter', $filter);
     }
 
     /**
@@ -361,6 +364,9 @@ class Import extends AbstractModel
         foreach ($this->getProcessorAdapters() as $adapter) {
             $adapter->decodeData($this);
         }
+
+        $filter = json_decode($this->getData('filter'));
+        $this->setData('filter', $filter);
     }
 
     /**
