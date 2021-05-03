@@ -399,6 +399,7 @@ class Import extends AbstractModel
         }
 
         $this->prepareModel();
+        return $this;
     }
 
     /**
