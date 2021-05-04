@@ -14,11 +14,28 @@ use Tereta\Import\Model\Import\Processor as ImportProcessor;
  */
 class Type extends Template
 {
+    /**
+     * @var string
+     */
     protected $_template = 'field/type.phtml';
 
+    /**
+     * @var ImportRepository
+     */
     protected $importRepository;
+
+    /**
+     * @var ImportProcessor
+     */
     protected $importProcessor;
 
+    /**
+     * Type constructor.
+     * @param ImportProcessor $importProcessor
+     * @param ImportRepository $importRepository
+     * @param Context $context
+     * @param array $data
+     */
     public function __construct(ImportProcessor $importProcessor, ImportRepository $importRepository, Context $context, array $data = [])
     {
         $this->importProcessor = $importProcessor;
@@ -27,17 +44,25 @@ class Type extends Template
         parent::__construct($context, $data);
     }
 
-    public function toHtml()
+    /**
+     * @return string
+     * @throws \Exception
+     */
+    public function toHtml(): string
     {
         $entityId = $this->getRequest()->getParam('entity_id');
-        $importModel = $this->importRepository->getById($entityId);
 
         $list = $this->importProcessor->getData();
         $this->assign('label', $this->getData('label'));
         $this->assign('code', $this->getData('code'));
         $this->assign('list', $list);
-        $this->assign('type', $importModel->getType());
-        $this->assign('importModel', $importModel);
+
+        if ($entityId) {
+            $importModel = $this->importRepository->getById($entityId);
+            $this->assign('type', $importModel->getType());
+        } else {
+            $this->assign('type', null);
+        }
 
         return parent::toHtml();
     }

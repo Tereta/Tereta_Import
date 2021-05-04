@@ -5,6 +5,7 @@ use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Tereta\Import\Model\Import\Repository as ImportRepository;
 use Tereta\Import\Model\Import\Filter as ImportFilter;
+use Exception;
 
 /**
  * Tereta\Import\Block\Adminhtml\Field\Filter
@@ -14,11 +15,28 @@ use Tereta\Import\Model\Import\Filter as ImportFilter;
  */
 class Filter extends Template
 {
+    /**
+     * @var string
+     */
     protected $_template = 'field/filter.phtml';
 
+    /**
+     * @var ImportRepository
+     */
     protected $importRepository;
+
+    /**
+     * @var ImportFilter
+     */
     protected $importFilter;
 
+    /**
+     * Filter constructor.
+     * @param ImportFilter $importFilter
+     * @param ImportRepository $importRepository
+     * @param Context $context
+     * @param array $data
+     */
     public function __construct(ImportFilter $importFilter, ImportRepository $importRepository, Context $context, array $data = [])
     {
         $this->importFilter = $importFilter;
@@ -27,10 +45,13 @@ class Filter extends Template
         parent::__construct($context, $data);
     }
 
-    public function toHtml()
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public function toHtml(): string
     {
         $entityId = $this->getRequest()->getParam('entity_id');
-        $importModel = $this->importRepository->getById($entityId);
 
         $list = $this->importFilter->getData();
         if (!$list) {
@@ -40,8 +61,13 @@ class Filter extends Template
         $this->assign('label', $this->getData('label'));
         $this->assign('code', $this->getData('code'));
         $this->assign('list', $list);
-        $this->assign('filter', $importModel->getFilter());
-        $this->assign('importModel', $importModel);
+
+        if ($entityId) {
+            $importModel = $this->importRepository->getById($entityId);
+            $this->assign('filter', $importModel->getFilter());
+        } else {
+            $this->assign('filter', []);
+        }
 
         return parent::toHtml();
     }
