@@ -62,7 +62,6 @@ define(['jquery', 'ko', 'uiRegistry'], function($, ko, uiRegistry){
             var jsonData = JSON.stringify(data);
 
             uiRegistry.get('advencedimport_form.advencedimport_form_data_source').data[this.fieldCode] = jsonData;
-            debugger;
         };
 
         this.decodeValueString = function()
