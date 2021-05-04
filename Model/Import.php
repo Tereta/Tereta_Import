@@ -331,7 +331,7 @@ class Import extends AbstractModel
             json_encode($this->getData('additional_data')->getData())
         );
 
-        $filter = json_encode($this->getData('filter'));
+        $filter = json_encode($this->getData('filter') ?: []);
         $this->setData('filter', $filter);
     }
 
@@ -356,7 +356,7 @@ class Import extends AbstractModel
         }
 
         $filter = json_decode($this->getData('filter'));
-        $this->setData('filter', $filter);
+        $this->setData('filter', $filter ?: []);
     }
 
     /**
