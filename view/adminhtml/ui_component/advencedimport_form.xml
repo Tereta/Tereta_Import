@@ -137,21 +137,20 @@
             </argument>
         </field>
 
-        <field name="filter">
+        <htmlContent name="filter">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
-                    <item name="label" xsi:type="string" translate="true">Filter</item>
-                    <item name="visible" xsi:type="boolean">true</item>
-                    <item name="dataType" xsi:type="string">text</item>
-                    <item name="formElement" xsi:type="string">multiselect</item>
-                    <item name="source" xsi:type="string">advencedimport</item>
-                </item>
-                <item name="options" xsi:type="object">Tereta\Import\Model\Config\Source\Filters</item>
-                <item name="validation" xsi:type="array">
-                    <item name="required-entry" xsi:type="boolean">true</item>
+                    <item name="additionalClasses" xsi:type="string">admin__field</item>
                 </item>
             </argument>
-        </field>
+
+            <block class="Tereta\Import\Block\Adminhtml\Field\Filter" name="filter">
+                <arguments>
+                    <argument name="label" xsi:type="string">Filter</argument>
+                    <argument name="code" xsi:type="string">filter</argument>
+                </arguments>
+            </block>
+        </htmlContent>
 
         <field name="cron_expression">
             <argument name="data" xsi:type="array">

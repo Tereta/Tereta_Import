@@ -41,8 +41,8 @@ class Filters implements OptionSourceInterface
 
         $adapters = $this->importFilterModel->getAdapters();
 
-        foreach ($adapters as $key=>$item) {
-            array_push($return, ['value' => $key, 'label' => __($item['label'])]);
+        foreach ($adapters as $key=>$label) {
+            array_push($return, ['value' => $key, 'label' => $label]);
         }
 
         return $return;

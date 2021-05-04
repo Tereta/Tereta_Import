@@ -1,0 +1,32 @@
+<?php
+/**
+ * @var $list array
+ * @var $filter array
+ * @var $label string
+ * @var $code string
+ */
+?>
+<div class="admin__field-label">
+    <label>
+        <span><?php echo $label ?></span>
+    </label>
+</div>
+<div class="admin__field-control" data-role="<?php echo $code ?>">
+    <select name="<?php echo $code ?>" multiple data-bind="event: {change: changeValue}">
+        <option value="null"><?php echo __('Not Selected') ?></option>
+        <?php foreach ($list as $key=>$optionLabel) : ?>
+            <option value="<?php echo $key ?>" <?php if (in_array($key, $filter)) : ?>selected<?php endif ?>><?php echo $optionLabel ?></option>
+        <?php endforeach ?>
+    </select>
+</div>
+
+<script>
+    require([
+        'jquery',
+        'Tereta_Import/js/view/filter'
+    ], function ($, filter) {
+        $('[data-role="<?php echo $code ?>"]').each(function (index, element) {
+            filter({fieldCode: '<?php echo $code ?>'}, element);
+        });
+    });
+</script>

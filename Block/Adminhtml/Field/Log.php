@@ -32,7 +32,6 @@ class Log extends Template
     {
         try {
             $entityId = $this->getRequest()->getParam('entity_id');
-            $skipFileUrl = null;
 
             if (!$entityId) {
                 throw new Exception(__('The entity was not found'));

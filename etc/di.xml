@@ -20,16 +20,6 @@
             </argument>
         </arguments>
     </type>
-    <type name="Tereta\Import\Model\Import\Filter">
-        <arguments>
-            <argument name="models" xsi:type="array">
-                <item name="price" xsi:type="array">
-                    <item name="label" xsi:type="string">Price</item>
-                    <item name="class" xsi:type="object">Tereta\Import\Model\Import\Filter\Price</item>
-                </item>
-            </argument>
-        </arguments>
-    </type>
     <type name="Tereta\Import\Model\Import\Processor">
         <arguments>
             <argument name="models" xsi:type="array">

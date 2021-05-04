@@ -2,7 +2,6 @@
 namespace Tereta\Import\Model\Import;
 
 use Magento\Framework\DataObject;
-use Tereta\Import\Model\Import\Processor\AbstractModel as ImportProcessor;
 
 /**
  * Tereta\Import\Model\Import\Filter
@@ -12,11 +11,6 @@ use Tereta\Import\Model\Import\Processor\AbstractModel as ImportProcessor;
  */
 class Filter extends DataObject
 {
-    /**
-     * @var array
-     */
-    protected $_adapter = [];
-
     /**
      * Extract constructor.
      * @param array $models
@@ -37,21 +31,10 @@ class Filter extends DataObject
 
     /**
      * @param string $adapterIdentifier
-     * @return ImportProcessor
-     * @throws Exception
+     * @return string
      */
-    public function getAdapter(string $adapterIdentifier): ImportProcessor
+    public function getLabel(string $adapterIdentifier): string
     {
-        if (isset($this->_adapter[$adapterIdentifier])) {
-            return $this->_adapter[$adapterIdentifier];
-        }
-
-        $adapterModel = $this->getData($adapterIdentifier);
-        if (!$adapterModel) {
-            throw new Exception('Import model for "' . $adapterIdentifier . '" was not found');
-        }
-        $this->_adapter[$adapterIdentifier] = $adapterModel['class'];
-
-        return $this->_adapter[$adapterIdentifier];
+        return $this->getData($adapterIdentifier);
     }
 }

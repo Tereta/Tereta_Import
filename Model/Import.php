@@ -275,17 +275,7 @@ class Import extends AbstractModel
     public function importById(int $id): void
     {
         $this->resourceImport->load($this, $id);
-
-        if (!$this->getData('entity_id')) {
-            throw new Exception('The configuration by the "' . $id . '" id was not found.');
-        }
-
-        $adapterModel = $this->getProcessorAdapter();
-        if (!$adapterModel) {
-            throw new Exception('The import type is not selected.');
-        }
-
-        $adapterModel->import($this);
+        $this->import();
     }
 
     /**
