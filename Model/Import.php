@@ -527,6 +527,9 @@ class Import extends AbstractModel
 
         $productIds = [];
         foreach ($processedProducts->getData() as $item) {
+            if (!isset($item['entity_id']) || !$item['entity_id']) {
+                continue;
+            }
             array_push($productIds, $item['entity_id']);
         }
 

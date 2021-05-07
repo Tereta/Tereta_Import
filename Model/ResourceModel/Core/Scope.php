@@ -172,6 +172,9 @@ class Scope extends AbstractDb
         $arrayToInsert = [];
         foreach ($skus->getData() as $item) {
             foreach ($websiteIds as $websiteId) {
+                if (!isset($item['entity_id']) || !$item['entity_id']) {
+                    continue;
+                }
                 array_push($arrayToInsert, [
                     'product_id' => $item['entity_id'],
                     'website_id' => $websiteId
@@ -360,6 +363,9 @@ class Scope extends AbstractDb
         $entityIds = [];
         $attributeIds = [];
         foreach ($skuEntities->getData() as $item) {
+            if (!isset($item['entity_id']) || !$item['entity_id']) {
+                continue;
+            }
             array_push($entityIds, $item['entity_id']);
         }
 
