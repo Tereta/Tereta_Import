@@ -37,12 +37,7 @@ namespace Tereta\Import\Helper;
 use Exception;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Magento\Framework\Filesystem;
 use Magento\Framework\App\Filesystem\DirectoryList;
-use Tereta\Import\Model\Import as ModelImport;
-use Magento\Framework\Exception\FileSystemException;
-use Magento\Framework\Filesystem\File\Write as FileWrite;
-use Magento\Framework\Filesystem\File\Read as FileRead;
 
 
 /**
@@ -62,22 +57,14 @@ class Data extends AbstractHelper
     protected $directoryList;
 
     /**
-     * @var Filesystem
-     */
-    protected $filesystem;
-
-    /**
      * Data constructor.
-     * @param Filesystem $filesystem
      * @param DirectoryList $directoryList
      * @param Context $context
      */
     public function __construct(
-        Filesystem $filesystem,
         DirectoryList $directoryList,
         Context $context
     ) {
-        $this->filesystem = $filesystem;
         $this->directoryList = $directoryList;
         parent::__construct($context);
     }
@@ -127,41 +114,5 @@ class Data extends AbstractHelper
         }
 
         return $extension;
-    }
-
-    /**
-     * @param string $identifier
-     * @return FileWrite
-     * @throws FileSystemException
-     */
-    public function getSkippedCsvWriteFile(string $identifier): FileWrite
-    {
-        $varDir = $this->filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
-        $fileName = $identifier . '.skipped.csv';
-        return $varDir->openFile(ModelImport::LOGGER_DIR . '/' . $fileName, 'w');
-    }
-
-    /**
-     * @param string $identifier
-     * @return FileWrite
-     * @throws FileSystemException
-     */
-    public function getSkippedCsvReadFile(string $identifier): FileRead
-    {
-        $varDir = $this->filesystem->getDirectoryRead(DirectoryList::VAR_DIR);
-        $fileName = $identifier . '.skipped.csv';
-        return $varDir->openFile(ModelImport::LOGGER_DIR . '/' . $fileName, 'r');
-    }
-
-    /**
-     * @param string $identifier
-     * @return string|null
-     */
-    public function getSkippedCsvPath(string $identifier): ?string
-    {
-        $varDir = $this->filesystem->getDirectoryRead(DirectoryList::VAR_DIR);
-        $fileName = $identifier . '.skipped.csv';
-
-        return $varDir->getAbsolutePath() . ModelImport::LOGGER_DIR . '/' . $fileName;
     }
 }

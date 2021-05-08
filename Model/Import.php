@@ -60,7 +60,6 @@ use Tereta\Import\Model\Import\Processor\AbstractModel as ImportProcessorAbstrac
 use Tereta\Import\Model\Import\Processor as ImportProcessor;
 
 use Tereta\Import\Model\ResourceModel\Import as ResourceImport;
-use Tereta\Import\Helper\Data as HelperData;
 
 /**
  * Tereta\Import\Model\Import
@@ -132,11 +131,6 @@ class Import extends AbstractModel
     protected $startTime = null;
 
     /**
-     * @var FileWrite
-     */
-    protected $logSkippedRecordCsv;
-
-    /**
      * @var array
      */
     protected $indexes = [
@@ -156,11 +150,10 @@ class Import extends AbstractModel
      */
     protected $indexerFactory;
 
-    protected $helperData;
-
     /**
      * Import constructor.
      * @param ResourceImport $resourceImport
+     * @param IndexerFactory $indexerFactory
      * @param DirectoryList $directoryList
      * @param LoggerFactory $loggerFactory
      * @param ImportProcessor $importProcessor
@@ -173,7 +166,6 @@ class Import extends AbstractModel
      * @param array $data
      */
     public function __construct(
-        HelperData $helperData,
         ResourceImport $resourceImport,
         IndexerFactory $indexerFactory,
         DirectoryList $directoryList,
@@ -187,7 +179,6 @@ class Import extends AbstractModel
         AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-        $this->helperData = $helperData;
         $this->resourceImport = $resourceImport;
         $this->indexerFactory = $indexerFactory;
         $this->directoryList = $directoryList;
@@ -590,7 +581,7 @@ class Import extends AbstractModel
             $dataObject->setData('status', $this->getData('products_is_enabled'));
         }
 
-        $this->_eventManager->dispatch('tereta_import_modify_row', [
+        $this->_eventManager->dispatch('tereta_import_row', [
             'data_object' => $dataObject,
             'model_import' => $this
         ]);
@@ -602,31 +593,25 @@ class Import extends AbstractModel
                 $this->resourceImport->fillSkusByField($this->getData('store_id'), $this->getData('product_search_by_field'), $dataObject);
             } catch (Exception $e) {
                 $this->logger->warning($e->getMessage());
-                $this->logSkippedRecordCsv($rowData);
+                $this->_eventManager->dispatch('tereta_import_row_exception', [
+                    'data_object' => $dataObject,
+                    'model_import' => $this
+                ]);
 
                 throw $e;
             }
         }
 
         if (!$dataObject->getData('sku')) {
+            $this->_eventManager->dispatch('tereta_import_row_skip', [
+                'data_object' => $dataObject,
+                'model_import' => $this
+            ]);
+
             throw new LocalizedException(__('SKU field in the document can not be found'));
         }
 
         return $dataObject->getData();
-    }
-
-    protected function logSkippedRecordCsv($object): void
-    {
-        if (!$this->getData('log_not_existing_records')) {
-            return;
-        }
-
-        if (!$this->logSkippedRecordCsv) {
-            $this->logSkippedRecordCsv = $this->helperData->getSkippedCsvWriteFile($this->getData('identifier'));
-            $this->logSkippedRecordCsv->writeCsv(array_keys($object));
-        }
-
-        $this->logSkippedRecordCsv->writeCsv($object);
     }
 
     /**
