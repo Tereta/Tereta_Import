@@ -7,7 +7,7 @@
         <column name="identifier" xsi:type="varchar" default="0" nullable="false" length="128" comment="Identifier" />
         <column name="name" xsi:type="varchar" nullable="false" length="128" comment="Name" />
         <column name="type" xsi:type="varchar" nullable="false" length="32" comment="Type" />
-        <column name="extension" xsi:type="varchar" nullable="false" length="32" comment="Extensions" />
+        <column name="extension" xsi:type="text" nullable="false" comment="Extensions" />
         <column name="cron_expression" xsi:type="varchar" length="50" comment="Cron Expression" />
         <column name="updated_at" xsi:type="timestamp" nullable="true" comment="Updated at" />
         <column name="generated_at" xsi:type="timestamp" nullable="true" comment="Generated at" />
@@ -31,7 +31,6 @@
         <column name="create_url_key" xsi:type="boolean" nullable="false" default="false" comment="Create URL keys" />
         <column name="update_url_rewrites" xsi:type="boolean" nullable="false" default="false" comment="Update URL rewrites" />
         <column name="skip_document_fields" xsi:type="text" nullable="true" comment="Skip Document Fields JSON" />
-        <column name="log_not_existing_records" xsi:type="boolean" nullable="false" default="false" comment="Log records for not existing products" />
 
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="entity_id"/>
