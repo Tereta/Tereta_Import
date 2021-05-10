@@ -1,7 +1,7 @@
 <?php
 /**
  * @var $list array
- * @var $filter array
+ * @var $extension array
  * @var $label string
  * @var $code string
  */
@@ -15,7 +15,7 @@
     <select name="<?php echo $code ?>" multiple data-bind="event: {change: changeValue}">
         <option value="null"><?php echo __('Not Selected') ?></option>
         <?php foreach ($list as $key=>$optionLabel) : ?>
-            <option value="<?php echo $key ?>" <?php if (in_array($key, $filter)) : ?>selected<?php endif ?>><?php echo $optionLabel ?></option>
+            <option value="<?php echo $key ?>" <?php if (in_array($key, $extension)) : ?>selected<?php endif ?>><?php echo $optionLabel ?></option>
         <?php endforeach ?>
     </select>
 </div>
@@ -23,10 +23,10 @@
 <script>
     require([
         'jquery',
-        'Tereta_Import/js/view/filter'
-    ], function ($, filter) {
+        'Tereta_Import/js/view/extension'
+    ], function ($, extenstion) {
         $('[data-role="<?php echo $code ?>"]').each(function (index, element) {
-            filter({fieldCode: '<?php echo $code ?>'}, element);
+            extenstion({fieldCode: '<?php echo $code ?>'}, element);
         });
     });
 </script>

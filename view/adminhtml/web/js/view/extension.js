@@ -4,10 +4,10 @@ define(['jquery', 'ko', 'uiRegistry'], function($, ko, uiRegistry){
 
         this.changeValue = function() {
             uiRegistry.get('advencedimport_form.advencedimport_form_data_source').data[fieldCode] = field.val();
-
-            $('.advencedimport_filter').addClass('hidden');
+debugger;
+            $('.advencedimport_extension').addClass('hidden');
             $(field.val()).each(function(key, value) {
-                $('.advencedimport_filter_' + value).removeClass('hidden');
+                $('.advencedimport_extension_' + value).removeClass('hidden');
             });
         }
 

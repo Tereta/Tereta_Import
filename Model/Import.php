@@ -322,8 +322,8 @@ class Import extends AbstractModel
             json_encode($this->getData('additional_data')->getData())
         );
 
-        $filter = json_encode($this->getData('filter') ?: []);
-        $this->setData('filter', $filter);
+        $extension = json_encode($this->getData('extension') ?: []);
+        $this->setData('extension', $extension);
     }
 
     /**
@@ -346,12 +346,12 @@ class Import extends AbstractModel
             $adapter->decodeData($this);
         }
 
-        $filter = json_decode($this->getData('filter'));
-        $this->setData('filter', $filter ?: []);
+        $extension = json_decode($this->getData('extension'));
+        $this->setData('extension', $extension ?: []);
     }
 
     /**
-     * @return $this
+     * @return $this1
      * @throws Exception
      */
     public function beforeSave(): self

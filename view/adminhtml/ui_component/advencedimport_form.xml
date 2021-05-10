@@ -136,17 +136,17 @@
             </block>
         </htmlContent>
 
-        <htmlContent name="filter">
+        <htmlContent name="extension">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="additionalClasses" xsi:type="string">admin__field</item>
                 </item>
             </argument>
 
-            <block class="Tereta\Import\Block\Adminhtml\Field\Filter" name="filter">
+            <block class="Tereta\Import\Block\Adminhtml\Field\Extenstion" name="filter">
                 <arguments>
-                    <argument name="label" xsi:type="string">Filter</argument>
-                    <argument name="code" xsi:type="string">filter</argument>
+                    <argument name="label" xsi:type="string">Extenstion</argument>
+                    <argument name="code" xsi:type="string">extension</argument>
                 </arguments>
             </block>
         </htmlContent>
@@ -252,7 +252,8 @@
                     <item name="label" xsi:type="string" translate="true">Default Attribute Set</item>
                     <item name="formElement" xsi:type="string">select</item>
                     <item name="componentType" xsi:type="string">field</item>
-                    <item name="component" xsi:type="string">Magento_Catalog/js/components/attribute-set-select</item>
+                    <item name="component" xsi:type="string">Magento_Cata
+                        /js/components/attribute-set-select</item>
                     <item name="filterOptions" xsi:type="boolean">true</item>
                     <item name="chipsEnabled" xsi:type="boolean">true</item>
                     <item name="disableLabel" xsi:type="boolean">true</item>

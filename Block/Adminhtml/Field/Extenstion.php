@@ -8,17 +8,17 @@ use Tereta\Import\Model\Import\Filter as ImportFilter;
 use Exception;
 
 /**
- * Tereta\Import\Block\Adminhtml\Field\Filter
+ * Tereta\Import\Block\Adminhtml\Field\Extension
  *
  * Class Filter
  * @package Tereta\Import\Block\Adminhtml\Field
  */
-class Filter extends Template
+class Extenstion extends Template
 {
     /**
      * @var string
      */
-    protected $_template = 'field/filter.phtml';
+    protected $_template = 'field/extension.phtml';
 
     /**
      * @var ImportRepository
@@ -64,9 +64,9 @@ class Filter extends Template
 
         if ($entityId) {
             $importModel = $this->importRepository->getById($entityId);
-            $this->assign('filter', $importModel->getFilter());
+            $this->assign('extension', $importModel->getExtension());
         } else {
-            $this->assign('filter', []);
+            $this->assign('extension', []);
         }
 
         return parent::toHtml();
