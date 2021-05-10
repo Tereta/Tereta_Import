@@ -546,8 +546,14 @@ class Import extends AbstractModel
     {
         // Convert mapped fields
         $dataObject = $this->dataObjectFactory->create();
+        $dataObjectRow = $this->dataObjectFactory->create(['data' => $rowData]);
 
-        foreach ($rowData as $key=>$item) {
+        $this->_eventManager->dispatch('tereta_import_row', [
+            'data_object' => $dataObjectRow,
+            'model_import' => $this
+        ]);
+
+        foreach ($dataObjectRow->getData() as $key=>$item) {
             if (!trim($key)) {
                 continue;
             }
@@ -581,11 +587,6 @@ class Import extends AbstractModel
             $dataObject->setData('status', $this->getData('products_is_enabled'));
         }
 
-        $this->_eventManager->dispatch('tereta_import_row', [
-            'data_object' => $dataObject,
-            'model_import' => $this
-        ]);
-
         // Search by field
         $searchByField = ($this->getData('product_search_by_field') && !$this->getData('product_create_new'));
         if ($searchByField) {
@@ -611,6 +612,10 @@ class Import extends AbstractModel
             throw new LocalizedException(__('SKU field in the document can not be found'));
         }
 
+        $this->_eventManager->dispatch('tereta_import_data', [
+            'data_object' => $dataObject,
+            'model_import' => $this
+        ]);
         return $dataObject->getData();
     }
 
