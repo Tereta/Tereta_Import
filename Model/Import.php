@@ -46,7 +46,6 @@ use Magento\Framework\Exception\FileSystemException;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Filesystem\File\Write as FileWrite;
 use Magento\Framework\Model\AbstractModel;
 
 use Magento\Framework\Model\Context;
@@ -60,6 +59,7 @@ use Tereta\Import\Model\Import\Processor\AbstractModel as ImportProcessorAbstrac
 use Tereta\Import\Model\Import\Processor as ImportProcessor;
 
 use Tereta\Import\Model\ResourceModel\Import as ResourceImport;
+use Magento\Framework\DataObject;
 
 /**
  * Tereta\Import\Model\Import
@@ -539,6 +539,17 @@ class Import extends AbstractModel
     }
 
     /**
+     * @param DataObject $dataObjectRow
+     */
+    public function dispatchImportRow(DataObject $dataObjectRow): void
+    {
+        $this->_eventManager->dispatch('tereta_import_row', [
+            'data_object' => $dataObjectRow,
+            'model_import' => $this
+        ]);
+    }
+
+    /**
      * @param array $row
      * @return array
      */
@@ -548,10 +559,7 @@ class Import extends AbstractModel
         $dataObject = $this->dataObjectFactory->create();
         $dataObjectRow = $this->dataObjectFactory->create(['data' => $rowData]);
 
-        $this->_eventManager->dispatch('tereta_import_row', [
-            'data_object' => $dataObjectRow,
-            'model_import' => $this
-        ]);
+        $this->dispatchImportRow($dataObjectRow);
 
         foreach ($dataObjectRow->getData() as $key=>$item) {
             if (!trim($key)) {
