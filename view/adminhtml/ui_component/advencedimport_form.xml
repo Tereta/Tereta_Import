@@ -252,8 +252,7 @@
                     <item name="label" xsi:type="string" translate="true">Default Attribute Set</item>
                     <item name="formElement" xsi:type="string">select</item>
                     <item name="componentType" xsi:type="string">field</item>
-                    <item name="component" xsi:type="string">Magento_Cata
-                        /js/components/attribute-set-select</item>
+                    <item name="component" xsi:type="string">Magento_Catalog/js/components/attribute-set-select</item>
                     <item name="filterOptions" xsi:type="boolean">true</item>
                     <item name="chipsEnabled" xsi:type="boolean">true</item>
                     <item name="disableLabel" xsi:type="boolean">true</item>

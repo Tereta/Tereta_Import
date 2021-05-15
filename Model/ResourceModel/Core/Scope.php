@@ -460,7 +460,7 @@ class Scope extends AbstractDb
      */
     public function createSkuEntities(DataObject $object, array $skuEmpty): void
     {
-        if (!$this->configuration->getProductCreateNew() || !$skuEmpty) {
+        if (!$this->configuration->getProductCreateNew() || !$skuEmpty || !$this->configuration->getData('product_attribute_set')) {
             return;
         }
 

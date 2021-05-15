@@ -550,6 +550,17 @@ class Import extends AbstractModel
     }
 
     /**
+     * @param DataObject $dataObject
+     */
+    public function dispatchImportData(DataObject $dataObject): void
+    {
+        $this->_eventManager->dispatch('tereta_import_data', [
+            'data_object' => $dataObject,
+            'model_import' => $this
+        ]);
+    }
+
+    /**
      * @param array $row
      * @return array
      */
@@ -620,10 +631,7 @@ class Import extends AbstractModel
             throw new LocalizedException(__('SKU field in the document can not be found'));
         }
 
-        $this->_eventManager->dispatch('tereta_import_data', [
-            'data_object' => $dataObject,
-            'model_import' => $this
-        ]);
+        $this->dispatchImportData($dataObject);
         return $dataObject->getData();
     }
 
