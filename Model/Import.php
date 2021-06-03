@@ -322,7 +322,7 @@ class Import extends AbstractModel
             json_encode($this->getData('additional_data')->getData())
         );
 
-        $extension = json_encode($this->getData('extension') ?: []);
+        $extension = json_encode($this->getData('extension_data') ?: []);
         $this->setData('extension', $extension);
     }
 
@@ -347,7 +347,29 @@ class Import extends AbstractModel
         }
 
         $extension = json_decode($this->getData('extension'));
-        $this->setData('extension', $extension ?: []);
+        $this->setData('extension_data', $extension ?: []);
+    }
+
+    /**
+     * @return array
+     */
+    public function getExtension(): array
+    {
+        if (!$this->getData('extension_data')) {
+            return [];
+        }
+
+        return $this->getData('extension_data');
+    }
+
+    /**
+     * @param array $data
+     * @return $this
+     */
+    public function setExtension(array $data): self
+    {
+        $this->setData('extension_data', $data);
+        return $this;
     }
 
     /**
