@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var $valueTypes array
+ */
+?>
 <div class="admin__field-label">
     <label>
         <span><?php echo __('Mapping Attributes') ?></span>
@@ -6,12 +11,23 @@
 <div class="admin__field-control" data-role="mapping_attributes">
     <table>
         <thead>
-            <th>Document Filed</th><th>Attribute Code</th></th><th></th>
+            <th>Document Filed</th><th>Attribute Code</th><th>Value Type</th></th><th></th>
         </thead>
         <tbody data-bind="foreach: rowData">
             <tr data-bind="attr: {'data-id': rowId}">
-                <td><input type="text" name="field_key" data-bind="value: key, event: {keyup: parentModel.changeValue}, attr: {'data-id': rowId}"></td>
-                <td><input type="text" name="field_value" data-bind="value: value, event: {keyup: parentModel.changeValue}, attr: {'data-id': rowId}"></td>
+                <td>
+                    <input type="text" name="field_key" data-bind="value: key, event: {keyup: parentModel.changeValue}, attr: {'data-id': rowId}">
+                </td>
+                <td>
+                    <input type="text" name="field_value" data-bind="value: value, event: {keyup: parentModel.changeValue}, attr: {'data-id': rowId}">
+                </td>
+                <td>
+                    <select name="field_type" data-bind="value: type, event: {change: parentModel.changeValue}, attr: {'data-id': rowId}">
+                        <?php foreach($valueTypes as $key => $object): ?>
+                            <option value="<?php echo $key ?>"><?php echo $object->getLabel() ?></option>
+                        <?php endforeach ?>
+                    </select>
+                </td>
                 <td><span data-bind="click: parentModel.actionRemove, attr: {'data-id': rowId}"><?php echo __('Remove') ?></span></td>
             </tr>
         </tbody>

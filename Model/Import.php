@@ -61,6 +61,8 @@ use Tereta\Import\Model\Import\Processor as ImportProcessor;
 use Tereta\Import\Model\ResourceModel\Import as ResourceImport;
 use Magento\Framework\DataObject;
 
+use Tereta\Import\Model\Import\Type as ValueType;;
+
 /**
  * Tereta\Import\Model\Import
  *
@@ -151,6 +153,11 @@ class Import extends AbstractModel
     protected $indexerFactory;
 
     /**
+     * @var ValueType
+     */
+    protected $valueType;
+
+    /**
      * Import constructor.
      * @param ResourceImport $resourceImport
      * @param IndexerFactory $indexerFactory
@@ -175,10 +182,12 @@ class Import extends AbstractModel
         Registry $registry,
         DataObjectFactory $dataObjectFactory,
         StoreManagerInterface $storeManager,
+        ValueType $valueType,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = []
     ) {
+        $this->valueType = $valueType;
         $this->resourceImport = $resourceImport;
         $this->indexerFactory = $indexerFactory;
         $this->directoryList = $directoryList;
@@ -458,7 +467,10 @@ class Import extends AbstractModel
                     $mapData[$item->key] = [];
                 }
 
-                array_push($mapData[$item->key], $item->value);
+                array_push($mapData[$item->key], $this->dataObjectFactory->create(['data' => [
+                    'code' => $item->value,
+                    'type' => $item->type
+                ]]));
             }
             $dataObject->setData($mapData);
             $this->setData('mapping_attribute_object', $dataObject);
@@ -615,7 +627,12 @@ class Import extends AbstractModel
             }
 
             foreach ($this->getMapAttribute(trim($key)) as $mappedAttribute) {
-                $dataObject->setData($mappedAttribute, trim($item));
+                $valueTypeModel = $this->valueType->getType($mappedAttribute->getType());
+
+                $dataObject->setData(
+                    $mappedAttribute->getCode(),
+                    $valueTypeModel->getValue(trim($item))
+                );
             }
         }
 
