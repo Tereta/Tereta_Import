@@ -35,7 +35,6 @@
 namespace Tereta\Import\Block\Adminhtml\Button;
 
 use Magento\Backend\Block\Widget\Context;
-use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
 
 /**
  * Tereta\Import\Block\Adminhtml\Button\Generic
