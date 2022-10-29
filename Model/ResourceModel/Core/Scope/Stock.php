@@ -199,10 +199,6 @@ class Stock extends AbstractDb
             $record['qty'] = $data['qty'];
         }
 
-        if (false && !isset($record['stock_status']) && !isset($record['qty'])) { // Create empty stocks
-            return;
-        }
-
         $this->stockDataRecords[$productSku] = $record;
 
         // Stock Item

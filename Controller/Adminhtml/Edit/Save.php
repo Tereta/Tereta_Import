@@ -113,6 +113,9 @@ class Save extends Action
             $data['updated_at'] = time();
 
             $modelImport->setData($data);
+            if (isset($data['extension'])) {
+                $modelImport->setExtension($data['extension']);
+            }
             $this->resourceImport->save($modelImport);
             if ($modelImport->getProcessorAdapter()) {
                 $modelImport->getProcessorAdapter()->afterSave($modelImport);

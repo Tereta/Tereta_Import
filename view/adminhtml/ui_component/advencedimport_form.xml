@@ -443,7 +443,7 @@
                     <item name="additionalClasses" xsi:type="string">admin__field</item>
                 </item>
             </argument>
-            <block class="Magento\Framework\View\Element\Template" name="mapping_attribute" template="Tereta_Import::field/mapping_attributes.phtml">
+            <block class="Tereta\Import\Block\Adminhtml\Field\MappingAttributes" name="mapping_attribute">
             </block>
         </htmlContent>
     </fieldset>

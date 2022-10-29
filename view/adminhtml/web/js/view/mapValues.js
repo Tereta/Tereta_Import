@@ -11,6 +11,7 @@ define(['jquery', 'ko', 'uiRegistry'], function($, ko, uiRegistry){
             this.rowData.push({
                 "key": "",
                 "value": "",
+                "type": "",
                 "rowId": this.rowCounter,
                 "parentModel": this
             });
@@ -56,7 +57,7 @@ define(['jquery', 'ko', 'uiRegistry'], function($, ko, uiRegistry){
                 if (!value.key || !value.value) {
                     return;
                 }
-                data.push({'key': value.key, 'value': value.value});
+                data.push({'key': value.key, 'value': value.value, 'type': value.type});
             });
 
             var jsonData = JSON.stringify(data);
@@ -81,6 +82,7 @@ define(['jquery', 'ko', 'uiRegistry'], function($, ko, uiRegistry){
                 rowData.push({
                     "key": item.key,
                     "value": item.value,
+                    "type": item.type,
                     "rowId": _this.rowCounter,
                     "parentModel": _this
                 });

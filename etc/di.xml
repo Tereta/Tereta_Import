@@ -48,6 +48,16 @@
             </argument>
         </arguments>
     </type>
+    <type name="Tereta\Import\Model\Import\Type">
+        <arguments>
+            <argument name="type" xsi:type="array">
+                <item name="string" xsi:type="object">Tereta\Import\Model\Import\Type\TypeString</item>
+                <item name="integer" xsi:type="object">Tereta\Import\Model\Import\Type\TypeInteger</item>
+                <item name="float" xsi:type="object">Tereta\Import\Model\Import\Type\TypeFloat</item>
+                <item name="boolean" xsi:type="object">Tereta\Import\Model\Import\Type\TypeBoolean</item>
+            </argument>
+        </arguments>
+    </type>
     <type name="Tereta\Import\Model\Logger">
         <arguments>
             <argument name="name" xsi:type="string">teretaImport</argument>

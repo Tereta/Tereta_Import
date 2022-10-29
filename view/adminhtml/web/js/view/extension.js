@@ -4,7 +4,7 @@ define(['jquery', 'ko', 'uiRegistry'], function($, ko, uiRegistry){
 
         this.changeValue = function() {
             uiRegistry.get('advencedimport_form.advencedimport_form_data_source').data[fieldCode] = field.val();
-debugger;
+
             $('.advencedimport_extension').addClass('hidden');
             $(field.val()).each(function(key, value) {
                 $('.advencedimport_extension_' + value).removeClass('hidden');

@@ -29,7 +29,8 @@
             "create_url_key": true,
             "update_url_rewrites": true,
             "skip_document_fields": true,
-            "log_not_existing_records": true
+            "log_not_existing_records": true,
+            "extension": true
         },
         "index": {
             "TERETA_IMPORT_IS_ACTIVE": true
