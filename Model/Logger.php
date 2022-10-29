@@ -37,8 +37,10 @@ namespace Tereta\Import\Model;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Store\Model\ScopeInterface;
+use Monolog\DateTimeImmutable;
 use Monolog\Handler\StreamHandler;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Magento\Framework\Exception\FileSystemException;
 
 /**
  * Tereta\Import\Model\Logger
@@ -118,9 +120,11 @@ class Logger extends \Monolog\Logger
      * @param int $level
      * @param string $message
      * @param array $context
+     * @param DateTimeImmutable|null $datetime
      * @return bool
+     * @throws FileSystemException
      */
-    public function addRecord($level, $message, array $context = []): bool
+    public function addRecord(int $level, string $message, array $context = [], DateTimeImmutable $datetime = null): bool
     {
         if (!$this->handlers) {
             $logPath = $this->directoryList->getPath(DirectoryList::VAR_DIR) . '/' . static::LOGGER_DIR . '/logging.log';
@@ -186,6 +190,6 @@ class Logger extends \Monolog\Logger
             return false;
         }
 
-        return parent::addRecord($level, $message, $context);
+        return parent::addRecord($level, $message, $context, $datetime);
     }
 }
